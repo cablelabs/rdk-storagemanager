@@ -45,7 +45,8 @@
 /*For SD card */
 #define SUBSYSTEM_FILTER_MMC "mmc"
 #define ATTR_FILTER_MMC "MMC_TYPE"
-#define ATTR_VALUE_MMC "SD"
+#define ATTR_VALUE_SD "SD"
+#define ATTR_VALUE_MMC "MMC"
 #define DEVTYPE_FILTER "disk"
 #define ATTR_ADDED_DISK "UDISKS_PARTITION_TABLE"
 

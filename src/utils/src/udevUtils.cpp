@@ -440,13 +440,23 @@ static bool isMmcDevPresent(struct udev_device *device)
 
     LOG_DEBUG("[%s:%d] Value: %s\n", __FUNCTION__, __LINE__, value);
 
-    if(0 == strcmp( value, ATTR_VALUE_MMC))
+    if(0 == strcmp( value, ATTR_VALUE_SD))
     {
         LOG_INFO("[%s:%d] Udev device is \'SD\' \n", __FUNCTION__, __LINE__);
         isSDPresent = true;
 
 #ifdef DEBUG_LOGS
         printUdevDeviceInfo(device, "UDEV");
+#endif
+
+    }
+    else if(0 == strcmp( value, ATTR_VALUE_MMC))
+    {
+        LOG_INFO("[%s:%d] Udev device is \'eMMC\' \n", __FUNCTION__, __LINE__);
+        isSDPresent = true;
+
+#ifdef DEBUG_LOGS
+        print_device_info(device, "UDEV");
 #endif
 
     }

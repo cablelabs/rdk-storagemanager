@@ -104,6 +104,7 @@ bool check_tsb_Supported()
 
     if(false == confProp.tsbValidationFlag)
     {
+        sIsTSBSupported = true;
         return status;
     }
 
@@ -299,7 +300,7 @@ void get_SDCard_Properties_FromStatvfs(strMgrDeviceInfoParam_t *devInfoList)
 
     while ((fs = getmntent(fp)) != NULL)
     {
-        if(0 == strncasecmp(fs->mnt_fsname, confProp.sdCardSrcDevNode, strlen((const char *)MMC_DEV)))
+        if(0 == strncasecmp(fs->mnt_fsname, confProp.sdCardSrcDevNode, strlen((const char *)MMC_SRC_DEV)))
         {
             get_statvfs(fs, devInfoList);
             break;
@@ -326,7 +327,7 @@ void get_statvfs(const struct mntent *fs, strMgrDeviceInfoParam_t *devInfoList)
     }
 
     /* For SD card */
-    if(0 == strncasecmp(fs->mnt_fsname, confProp.sdCardSrcDevNode, strlen((const char *)MMC_DEV)))
+    if(0 == strncasecmp(fs->mnt_fsname, confProp.sdCardSrcDevNode, strlen((const char *)MMC_SRC_DEV)))
     {
         if(devInfoList)
         {
