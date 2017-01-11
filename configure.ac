@@ -41,6 +41,7 @@ AC_PROG_CXX
 DISKCHECK=" "
 SYSTEMDCHECK=" "
 DEEPSLEEP=" "
+SMARTSUPPORT=" "
 
 # Checks for libraries.
 
@@ -85,6 +86,18 @@ AC_ARG_ENABLE([deepsleep],
            ],
          [echo " deepsleep is enable"])
 AM_CONDITIONAL([DEEPSLEEP], [test x$DEEPSLEEP = xtrue])
+
+AC_ARG_ENABLE([smartsupport],
+        AS_HELP_STRING([--enable-smartsupport],[This will enable Hard Disk Smartmontools supported functionality. ]),
+        [
+          case "${enableval}" in
+           yes) SMARTSUPPORT=true ;;
+           no) SMARTSUPPORT=false ;;
+          *) AC_MSG_ERROR([bad value ${enableval} for --enable-smartsupport ]) ;;
+           esac
+           ],
+         [echo " SMART MON Tool is enable"])
+AM_CONDITIONAL([SMARTSUPPORT], [test x$SMARTSUPPORT = xtrue])
 
 AC_CHECK_LIB(gthread-2.0, g_thread_init)
 

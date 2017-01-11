@@ -33,6 +33,11 @@ endif
 if DEEPSLEEP
 AM_CXXFLAGS += -DENABLE_DEEP_SLEEP
 endif
+
+if SMARTSUPPORT
+AM_CXXFLAGS += -DENABLE_SMARTMONTOOL_SUPPORT
+endif
+
 # the list of header files that belong to the library (to be installed later)
 include_HEADERS =    $(top_srcdir)/src/rpc/include/storageMgr.h
 

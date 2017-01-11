@@ -37,5 +37,13 @@ if DEEPSLEEP
 AM_CXXFLAGS += -DENABLE_DEEP_SLEEP
 endif
 
+if SMARTSUPPORT
+AM_CXXFLAGS += -DENABLE_SMARTMONTOOL_SUPPORT
+endif
+
 noinst_LTLIBRARIES = libstmgrutils.la
 libstmgrutils_la_SOURCES = 	$(top_srcdir)/src/utils/src/udevUtils.cpp $(top_srcdir)/src/utils/src/sdCardReader.cpp
+
+if SMARTSUPPORT
+libstmgrutils_la_SOURCES += $(top_srcdir)/src/utils/src/harddiskMgr.cpp
+endif
