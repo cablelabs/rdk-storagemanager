@@ -42,6 +42,7 @@ DISKCHECK=" "
 SYSTEMDCHECK=" "
 DEEPSLEEP=" "
 SMARTSUPPORT=" "
+SDCSUPPORT=" "
 
 # Checks for libraries.
 
@@ -98,6 +99,18 @@ AC_ARG_ENABLE([smartsupport],
            ],
          [echo " SMART MON Tool is enable"])
 AM_CONDITIONAL([SMARTSUPPORT], [test x$SMARTSUPPORT = xtrue])
+
+AC_ARG_ENABLE([sdc],
+        AS_HELP_STRING([--enable-sdc],[This will enable SD Card supported functionality. ]),
+        [
+          case "${enableval}" in
+           yes) SDCSUPPORT=true ;;
+           no) SDCSUPPORT=false ;;
+          *) AC_MSG_ERROR([bad value ${enableval} for --enable-sdc ]) ;;
+           esac
+           ],
+         [echo " SDCard storage api support is enable"])
+AM_CONDITIONAL([SDCSUPPORT], [test x$SDCSUPPORT = xtrue])
 
 AC_CHECK_LIB(gthread-2.0, g_thread_init)
 
