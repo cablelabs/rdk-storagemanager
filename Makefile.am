@@ -18,5 +18,10 @@
 ##########################################################################
 #
 
+if USE_REFACTORED
+SUBDIRS = refactored
+DIST_SUBDIRS = refactored
+else
 SUBDIRS = src test
 DIST_SUBDIRS = src test 
+endif

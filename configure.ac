@@ -20,7 +20,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
-AC_INIT([storagemgr], [1.0], [rajnish_dey2@cable.comcast.com])
+AC_INIT([StorageManager], [1.0], [rajnish_dey2@cable.comcast.com])
 AC_CONFIG_SRCDIR([src/rpc/src/storageMgr.cpp])
 #AC_CONFIG_SRCDIR([src/udev_test.c])
 
@@ -114,6 +114,21 @@ AM_CONDITIONAL([SDCSUPPORT], [test x$SDCSUPPORT = xtrue])
 
 AC_CHECK_LIB(gthread-2.0, g_thread_init)
 
+ENABLE_LATEST_CODE=""
+AC_ARG_ENABLE([refactored-mgr],
+        AS_HELP_STRING([--enable-refactored-mgr],[This will enable refactored-src compilation instead of legacy src/includes. ]),
+        [
+          case "${enableval}" in
+           yes) ENABLE_LATEST_CODE=true ;;
+            no) ENABLE_LATEST_CODE=false echo[latest mgr code is disabled & Legacy code is used];;
+             *) AC_MSG_ERROR([bad value ${enableval} for --enable-refactored-mgr ]) ;;
+          esac
+        ],
+        [ echo "Used Legacy Code n disabled Refactored Code"])
+
+AM_CONDITIONAL(USE_REFACTORED, test "x$ENABLE_LATEST_CODE" = xtrue)
+
+
 # Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_PID_T
 AC_TYPE_SIZE_T
@@ -123,4 +138,9 @@ AC_CONFIG_FILES([src/Makefile])
 AC_CONFIG_FILES([src/utils/Makefile])
 AC_CONFIG_FILES([src/rpc/Makefile])
 AC_CONFIG_FILES([test/Makefile])
+
+AC_CONFIG_FILES([refactored/Makefile])
+AC_CONFIG_FILES([refactored/rpc/Makefile])
+AC_CONFIG_FILES([refactored/mgr/Makefile])
+AC_CONFIG_FILES([refactored/main/Makefile])
 AC_OUTPUT

@@ -1,0 +1,1 @@
+SUBDIRS = rpc mgr main
