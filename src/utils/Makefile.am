@@ -49,7 +49,5 @@ noinst_LTLIBRARIES = libstmgrutils.la
 libstmgrutils_la_SOURCES = 	$(top_srcdir)/src/utils/src/udevUtils.cpp $(top_srcdir)/src/utils/src/sdCardReader.cpp
 
 if SMARTSUPPORT
-libstmgrutils_la_SOURCES += $(top_srcdir)/src/utils/src/smartcmd_executor.cpp $(top_srcdir)/src/utils/src/harddiskMgr.cpp
+libstmgrutils_la_SOURCES += $(top_srcdir)/src/utils/src/harddiskMgr.cpp
 endif
-
-libstmgrutils_la_CXXFLAGS = $(AM_CXXFLAGS) -std=c++0x
