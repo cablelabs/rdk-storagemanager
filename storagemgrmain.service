@@ -22,7 +22,8 @@ After=iarmbusd.service disk-check.service pwrmgr.service
 Before=xre-receiver.service
 
 [Service]
-ExecStart=/bin/sh -c 'source /lib/rdk/opt-override.sh; exec /usr/bin/storageMgrMain --debugconfig $DEBUGINIFILE --configFilePath /etc/storageMgr.conf'
+EnvironmentFile=-/lib/rdk/opt-override.sh
+ExecStart=/usr/bin/storageMgrMain --debugconfig $DEBUGINIFILE --configFilePath /etc/storageMgr.conf
 Type=notify
 ExecStop=/bin/kill -15 $MAINPID
 Restart=always
