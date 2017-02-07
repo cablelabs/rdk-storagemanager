@@ -157,19 +157,68 @@ void rdkStorage_init (void)
     rSTMgrMainClass::getInstance()->addNewMemoryDevice(key, RDK_STMGR_DEVICE_TYPE_NVRAM);
 #endif /* ENABLE_NVRAM */
 
-#ifdef ENABLE_HDD
-    /* Check the presense of HDD; Create n Add it to the map */
-    ...
-    ...
-    rSTMgrMainClass::getInstance()->addNewMemoryDevice(key, RDK_STMGR_DEVICE_TYPE_HDD);
-#endif /* ENABLE_HDD */
+    {
+        /* Check the presense of HDD; Create n Add it to the map */
+        struct udev_device *pDevice = NULL;
+        struct udev_device *pParentDevice = NULL;
+        struct udev_enumerate *pEnumerate = NULL;
+        struct udev_list_entry *pDeviceList = NULL;
+        struct udev_list_entry *pDeviceListEntry = NULL;
 
-#ifdef ENABLE_SDCARD
-    /* Check the presense of SDCard; Create n Add it to the map */
-    ...
-    ...
-    rSTMgrMainClass::getInstance()->addNewMemoryDevice(key, RDK_STMGR_DEVICE_TYPE_HDD);
-#endif /* ENABLE_SDCARD */
+        pEnumerate = udev_enumerate_new(g_uDevInstance);
+        udev_enumerate_add_match_subsystem(pEnumerate, "block");
+        udev_enumerate_scan_devices(pEnumerate);
+
+        pDeviceList = udev_enumerate_get_list_entry(pEnumerate);
+        udev_list_entry_foreach(pDeviceListEntry, pDeviceList)
+        {
+            const char* pSysPath = NULL;
+            const char* pDevType = NULL;
+            const char* pDevBus = NULL;
+            pSysPath = udev_list_entry_get_name(pDeviceListEntry);
+            pDevice = udev_device_new_from_syspath(g_uDevInstance, pSysPath);
+            pDevType = udev_device_get_devtype(pDevice);
+            if ((pDevType) && (strcasecmp (pDevType, "disk") == 0))
+            {
+                std::string devicePath = udev_device_get_devnode(pDevice);
+                STMGRLOG_INFO ("Sys    Path : %s\n", udev_device_get_syspath(pDevice));
+                STMGRLOG_INFO ("Device Path : %s\n", udev_device_get_devpath(pDevice));
+                STMGRLOG_INFO ("Device Type : %s\n", udev_device_get_devtype(pDevice));
+                STMGRLOG_INFO ("Device Node : %s\n", devicePath.c_str());
+
+                //Check the presense of SDCard; Create n Add it to the map
+
+                /* This ensures that the disk that is identified is MMC subsystem */
+                pParentDevice = udev_device_get_parent_with_subsystem_devtype(pDevice, "mmc", NULL);
+                if (pParentDevice)
+                {
+                    STMGRLOG_INFO ("IS MMC TYPE : Yes\n");
+                    rSTMgrMainClass::getInstance()->addNewMemoryDevice(devicePath, RDK_STMGR_DEVICE_TYPE_SDCARD);
+                }
+                else
+                {
+                    /* This check is to avoid RAM & other devices */
+                    pParentDevice = udev_device_get_parent (pDevice);
+                    if (pParentDevice)
+                    {
+                        pDevBus = udev_device_get_property_value(pDevice, "ID_BUS");
+                        STMGRLOG_INFO ("ID_BUS      : %s\n", pDevBus);
+
+                        if ((pDevBus) && (strcasecmp(pDevBus, "scsi")))
+                            rSTMgrMainClass::getInstance()->addNewMemoryDevice(devicePath, RDK_STMGR_DEVICE_TYPE_HDD);
+                        else if ((pDevBus) && (strcasecmp(pDevBus, "usb")))
+                            rSTMgrMainClass::getInstance()->addNewMemoryDevice(devicePath, RDK_STMGR_DEVICE_TYPE_USB);
+                        else
+                        {
+                            /* FIXME */
+                            STMGRLOG_ERROR("Unhandled DISK Storage found!!! Must be analyzed and handled.\n");
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 
     /* Start the Polling thread which does the health Monitoring */
     pthread_create(&stmgrDeviceMonitorTID, NULL, deviceConnectRemoveMonitorfn, (void*) g_uDevInstance);
