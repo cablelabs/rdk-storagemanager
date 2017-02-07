@@ -55,6 +55,8 @@ public:
     rStorageMedia();
     virtual ~rStorageMedia();
 
+    virtual eSTMGRDeviceType getDeviceType(void) { return m_type; };
+    virtual eSTMGRDeviceStatus getDeviceStatus(void) { return m_status; };
     virtual eSTMGRReturns getDeviceId(char* pDeviceID);
     virtual eSTMGRReturns getDeviceInfo(eSTMGRDeviceInfo* pDeviceInfo );
     virtual eSTMGRReturns getPartitionInfo (char* pPartitionId, eSTMGRPartitionInfo* pPartitionInfo);

@@ -29,8 +29,10 @@ rSTMgrMainClass::rSTMgrMainClass ()
 eSTMGRReturns rSTMgrMainClass::addNewMemoryDevice(std::string devicePath, eSTMGRDeviceType type)
 {
     eSTMGRReturns rc = RDK_STMGR_RETURN_GENERIC_FAILURE;
-
+    eSTMGREventMessage events;
     rStorageMedia *pMemoryObj = NULL;
+    memset (&events, 0, sizeof(events));
+
     if (type == RDK_STMGR_DEVICE_TYPE_NVRAM)
     {
          pMemoryObj = new rStorageNVRAM (devicePath);
@@ -55,16 +57,26 @@ eSTMGRReturns rSTMgrMainClass::addNewMemoryDevice(std::string devicePath, eSTMGR
 
         m_storageDeviceObjects.insert ({devicePath, pMemoryObj});
 
+        /* Populate Event Data */
+        pMemoryObj->getDeviceId(events.m_deviceID);
+        events.m_eventType = RDK_STMGR_EVENT_STATUS_CHANGED;
+        events.m_deviceType = pMemoryObj->getDeviceType();
+        events.m_deviceStatus = pMemoryObj->getDeviceStatus();
+
         /* Protect the addition */
         pthread_mutex_unlock(&m_mainMutex);
 
         if (stmgrHealthMonitorTID != 0)
         {
             pthread_cancel (stmgrHealthMonitorTID);
+            /* For the system to get back the thread resource */
+            sleep (5);
         }
         /* Start the Polling thread which does the health Monitoring */
         pthread_create(&stmgrHealthMonitorTID, NULL, healthMonitoringThreadfn, NULL);
 
+        /* Notify event */
+        notifyEvent(events);
         rc = RDK_STMGR_RETURN_SUCCESS;
     }
 
@@ -74,6 +86,9 @@ eSTMGRReturns rSTMgrMainClass::addNewMemoryDevice(std::string devicePath, eSTMGR
 eSTMGRReturns rSTMgrMainClass::deleteMemoryDevice(std::string key)
 {
     eSTMGRReturns rc = RDK_STMGR_RETURN_SUCCESS;
+    eSTMGREventMessage events;
+    memset (&events, 0, sizeof(events));
+
     /* Protect the addition */
     pthread_mutex_lock(&m_mainMutex);
 
@@ -86,16 +101,26 @@ eSTMGRReturns rSTMgrMainClass::deleteMemoryDevice(std::string key)
         /* Remove from MAP */
         m_storageDeviceObjects.erase(key);
 
+        /* Populate Event Data */
+        pTemp->getDeviceId(events.m_deviceID);
+        events.m_eventType = RDK_STMGR_EVENT_STATUS_CHANGED;
+        events.m_deviceType = pTemp->getDeviceType();
+        events.m_deviceStatus = pTemp->getDeviceStatus();
+
+        STMGRLOG_INFO ("Successfully found the entry and deleted.. \n");
         /* Delete it */
         delete pTemp;
-        STMGRLOG_INFO ("Successfully found the entry and deleted.. \n");
     }
     else
+    {
         STMGRLOG_ERROR ("Failed to find the entry and nothing deleted.. \n");
+        rc = RDK_STMGR_RETURN_GENERIC_FAILURE;
+    }
 
     /* Protect the addition */
     pthread_mutex_unlock(&m_mainMutex);
 
+    notifyEvent(events);
     return rc;
 }
 
@@ -118,6 +143,9 @@ rStorageMedia* rSTMgrMainClass::getMemoryDevice(std::string key)
 
 void rSTMgrMainClass::notifyEvent(eSTMGREventMessage events)
 {
+    if (m_eventCallback)
+        m_eventCallback(events);
+
     return;
 }
 
@@ -175,7 +203,7 @@ void rSTMgrMainClass::devHealthMonThreadEntryFunc(void)
 
 void* healthMonitoringThreadfn  (void *pData)
 {
-    pData = pData; 
+    pData = pData;
 
     rSTMgrMainClass::getInstance()->devHealthMonThreadEntryFunc();
     return NULL;
@@ -203,7 +231,7 @@ eSTMGRReturns rSTMgrMainClass::getDeviceIds(eSTMGRDeviceIDs* pDeviceIDs)
     }
     pthread_mutex_unlock(&m_mainMutex);
 
-    memcpy(pDeviceIDs, &deviceIDs, sizeof(deviceIDs)); 
+    memcpy(pDeviceIDs, &deviceIDs, sizeof(deviceIDs));
     return RDK_STMGR_RETURN_SUCCESS;
 }
 
@@ -239,7 +267,7 @@ eSTMGRReturns rSTMgrMainClass::getDeviceInfo(char* pDeviceID, eSTMGRDeviceInfo* 
         return RDK_STMGR_RETURN_GENERIC_FAILURE;
     }
 
-    return RDK_STMGR_RETURN_SUCCESS; 
+    return RDK_STMGR_RETURN_SUCCESS;
 }
 
 eSTMGRReturns rSTMgrMainClass::getDeviceInfoList(eSTMGRDeviceInfoList* pDeviceInfoList)
@@ -263,7 +291,7 @@ eSTMGRReturns rSTMgrMainClass::getDeviceInfoList(eSTMGRDeviceInfoList* pDeviceIn
         pDeviceInfoList->m_numOfDevices = i;
     }
     pthread_mutex_unlock(&m_mainMutex);
-    return RDK_STMGR_RETURN_SUCCESS; 
+    return RDK_STMGR_RETURN_SUCCESS;
 }
 
 eSTMGRReturns rSTMgrMainClass::getPartitionInfo (char* pDeviceID, char* pPartitionId, eSTMGRPartitionInfo* pPartitionInfo)
@@ -300,7 +328,7 @@ eSTMGRReturns rSTMgrMainClass::getPartitionInfo (char* pDeviceID, char* pPartiti
     }
     pthread_mutex_unlock(&m_mainMutex);
 
-    return RDK_STMGR_RETURN_SUCCESS; 
+    return RDK_STMGR_RETURN_SUCCESS;
 }
 
 eSTMGRReturns rSTMgrMainClass::getTSBStatus (eSTMGRTSBStatus *pTSBStatus)
@@ -336,7 +364,7 @@ eSTMGRReturns rSTMgrMainClass::getTSBStatus (eSTMGRTSBStatus *pTSBStatus)
         *pTSBStatus = RDK_STMGR_TSB_STATUS_DISABLED;
     }
 
-    return RDK_STMGR_RETURN_SUCCESS; 
+    return RDK_STMGR_RETURN_SUCCESS;
 }
 
 eSTMGRReturns rSTMgrMainClass::setTSBMaxMinutes (unsigned int minutes)
@@ -362,7 +390,7 @@ eSTMGRReturns rSTMgrMainClass::setTSBMaxMinutes (unsigned int minutes)
     }
     pthread_mutex_unlock(&m_mainMutex);
 
-    return RDK_STMGR_RETURN_SUCCESS; 
+    return RDK_STMGR_RETURN_SUCCESS;
 }
 
 eSTMGRReturns rSTMgrMainClass::getTSBMaxMinutes (unsigned int *pMinutes)
@@ -398,7 +426,7 @@ eSTMGRReturns rSTMgrMainClass::getTSBMaxMinutes (unsigned int *pMinutes)
         *pMinutes = 0;
     }
 
-    return RDK_STMGR_RETURN_SUCCESS; 
+    return RDK_STMGR_RETURN_SUCCESS;
 }
 
 eSTMGRReturns rSTMgrMainClass::getTSBCapacityMinutes(unsigned int *pMinutes)
@@ -434,7 +462,7 @@ eSTMGRReturns rSTMgrMainClass::getTSBCapacityMinutes(unsigned int *pMinutes)
         *pMinutes = 0;
     }
 
-    return RDK_STMGR_RETURN_SUCCESS; 
+    return RDK_STMGR_RETURN_SUCCESS;
 }
 
 eSTMGRReturns rSTMgrMainClass::getTSBCapacity(unsigned long *pCapacityInKB)
@@ -470,7 +498,7 @@ eSTMGRReturns rSTMgrMainClass::getTSBCapacity(unsigned long *pCapacityInKB)
         *pCapacityInKB = 0;
     }
 
-    return RDK_STMGR_RETURN_SUCCESS; 
+    return RDK_STMGR_RETURN_SUCCESS;
 }
 
 eSTMGRReturns rSTMgrMainClass::getTSBFreeSpace(unsigned long *pFreeSpaceInKB)
@@ -506,7 +534,7 @@ eSTMGRReturns rSTMgrMainClass::getTSBFreeSpace(unsigned long *pFreeSpaceInKB)
         *pFreeSpaceInKB = 0;
     }
 
-    return RDK_STMGR_RETURN_SUCCESS; 
+    return RDK_STMGR_RETURN_SUCCESS;
 }
 
 eSTMGRReturns rSTMgrMainClass::getDVRCapacity(unsigned long *pCapacityInKB)
@@ -542,7 +570,7 @@ eSTMGRReturns rSTMgrMainClass::getDVRCapacity(unsigned long *pCapacityInKB)
         *pCapacityInKB = 0;
     }
 
-    return RDK_STMGR_RETURN_SUCCESS; 
+    return RDK_STMGR_RETURN_SUCCESS;
 }
 
 eSTMGRReturns rSTMgrMainClass::getDVRFreeSpace(unsigned long *pFreeSpaceInKB)
@@ -578,7 +606,7 @@ eSTMGRReturns rSTMgrMainClass::getDVRFreeSpace(unsigned long *pFreeSpaceInKB)
         *pFreeSpaceInKB = 0;
     }
 
-    return RDK_STMGR_RETURN_SUCCESS; 
+    return RDK_STMGR_RETURN_SUCCESS;
 }
 
 bool rSTMgrMainClass::isTSBEnabled(void)
@@ -712,7 +740,20 @@ eSTMGRReturns rSTMgrMainClass::getHealth (char* pDeviceID, eSTMGRHealthInfo* pHe
     }
     pthread_mutex_unlock(&m_mainMutex);
 
-    return RDK_STMGR_RETURN_SUCCESS; 
+    return RDK_STMGR_RETURN_SUCCESS;
 }
 
+eSTMGRReturns rSTMgrMainClass::registerEventCallback(fnSTMGR_EventCallback eventCallback)
+{
+    if (eventCallback != NULL)
+    {
+        m_eventCallback = eventCallback;
+        return RDK_STMGR_RETURN_SUCCESS;
+    }
+    else
+    {
+        STMGRLOG_ERROR ("NULL Pointer input\n");
+        return RDK_STMGR_RETURN_INVALID_INPUT;
+    }
+}
 /* End of the File */

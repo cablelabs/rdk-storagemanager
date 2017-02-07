@@ -6,6 +6,7 @@ class rSTMgrMainClass
 {
     pthread_t stmgrHealthMonitorTID;
     pthread_mutex_t m_mainMutex;
+    fnSTMGR_EventCallback m_eventCallback;
 
     /* Table of entries */
     std::map <std::string, rStorageMedia*> m_storageDeviceObjects;
@@ -42,6 +43,7 @@ public:
     bool isDVREnabled(void);
     eSTMGRReturns setDVREnabled (bool isEnabled);
     eSTMGRReturns getHealth (char* pDeviceID, eSTMGRHealthInfo* pHealthInfo);
+    eSTMGRReturns registerEventCallback(fnSTMGR_EventCallback eventCallback);
 };
 
 

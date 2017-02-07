@@ -65,18 +65,74 @@ void rStorage_configInit (char* pConfig)
 void*  deviceConnectRemoveMonitorfn  (void *pData)
 {
     /* Start the UDEV monitoring for those Memory units including USB */
-    struct udev_monitor *pDevMonitor = NULL;
-    pDevMonitor = udev_monitor_new_from_netlink(g_uDevInstance, "udev");
+    struct udev_monitor *pUDevMonitor = NULL;
+    const char *pUDevAction = NULL;
+    fd_set rFileDescriptors;
 
-    udev_monitor_filter_add_match_subsystem_devtype(pDevMonitor, "mmc", NULL);
-    udev_monitor_filter_add_match_subsystem_devtype(pDevMonitor, "ubi", NULL);
-    udev_monitor_filter_add_match_subsystem_devtype(pDevMonitor, "scsi", NULL);
-    udev_monitor_filter_add_match_subsystem_devtype(pDevMonitor, "block", NULL);
-    udev_monitor_enable_receiving(pDevMonitor);
+    pUDevMonitor = udev_monitor_new_from_netlink(g_uDevInstance, "udev");
+
+    udev_monitor_filter_add_match_subsystem_devtype(pUDevMonitor, "mmc", NULL);
+    udev_monitor_filter_add_match_subsystem_devtype(pUDevMonitor, "ubi", NULL);
+    udev_monitor_filter_add_match_subsystem_devtype(pUDevMonitor, "block", NULL);
+    udev_monitor_enable_receiving(pUDevMonitor);
 
     while (1)
     {
-        ;
+        int fdcount = 0;
+        FD_ZERO(&rFileDescriptors);
+
+        FD_SET(udev_monitor_get_fd(pUDevMonitor), &rFileDescriptors);
+        fdcount = select( (udev_monitor_get_fd(pUDevMonitor) + 1), &rFileDescriptors, NULL, NULL, NULL);
+        if (fdcount < 0)
+        {
+            if (errno != EINTR)
+                STMGRLOG_ERROR("Could not receive uDev event message\n");
+            continue;
+        }
+
+        if (FD_ISSET(udev_monitor_get_fd(pUDevMonitor), &rFileDescriptors))
+        {
+            struct udev_device *pDevice;
+            pDevice = udev_monitor_receive_device(pUDevMonitor);
+            
+            if (pDevice == NULL) {
+                STMGRLOG_ERROR("Error Occurrec; Could not get a Device from receive_device()...\n");
+                continue;
+            }
+
+            pUDevAction = udev_device_get_action(pDevice);
+            STMGRLOG_INFO("udev_device_get_action() returns: %s\n", pUDevAction);
+            std::string deviceType = udev_device_get_devtype(pDevice);
+            std::string devicePath = udev_device_get_devnode(pDevice);
+            eSTMGRReturns retCode = RDK_STMGR_RETURN_INVALID_INPUT;
+
+            /* Get the device Type and see whether it is DISK device */
+            if ((!deviceType.empty()) && (strcmp (deviceType.c_str(), "disk") == 0))
+            {
+                if(0 == strcasecmp(pUDevAction, "add"))
+                {
+                    /* Add the new device */
+                    /* FIXME: Get the device Class and Decide on the device type; for now HDD */
+                    retCode = rSTMgrMainClass::getInstance()->addNewMemoryDevice(devicePath, RDK_STMGR_DEVICE_TYPE_HDD);
+                }
+                else if (0 == strcasecmp(pUDevAction, "remove"))
+                {
+                    /* Remove the device from monitoring */
+                    retCode = rSTMgrMainClass::getInstance()->deleteMemoryDevice(devicePath);
+                }
+                else
+                {
+                    STMGRLOG_INFO("Invalid Action..!!! (%s)\n", pUDevAction);
+                }
+
+                if (retCode != RDK_STMGR_RETURN_SUCCESS)
+                {
+                    /**/
+                    STMGRLOG_ERROR("Add/Remove device Failed\n");
+                }
+            }
+        }
+        sleep(5);
     }
 
     return NULL;
@@ -226,6 +282,6 @@ eSTMGRReturns rdkStorage_getHealth (char* pDeviceID, eSTMGRHealthInfo* pHealthIn
 /* Callback Function */
 eSTMGRReturns rdkStorage_RegisterEventCallback(fnSTMGR_EventCallback eventCallback)
 {
-    return RDK_STMGR_RETURN_SUCCESS;
+    return rSTMgrMainClass::getInstance()->registerEventCallback(eventCallback);
 }
 
