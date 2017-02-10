@@ -128,6 +128,42 @@ bool rStorageHDDrive::get_OverallHealth_State()
     return overall_health;
 }
 
+
+bool rStorageHDDrive::get_DiagnosticAttribues(eSTMGRDiagAttributesList* m_diagnosticsList)
+{
+    bool overall_health = false;
+    smartmonUtiles *smCmd = new smartmonUtiles();
+    string smExePath = "/usr/sbin/smartctl";
+    string args = "-A /dev/sda";
+
+    std::map <string, string> attrList;
+
+    smCmd->setCmd(smExePath, args);
+
+    if(smCmd->execute())
+    {
+        overall_health = smCmd->getDiagnosticAttributes(attrList);
+    }
+    delete smCmd;
+
+    std::map<std::string, std::string>::iterator it = attrList.begin();
+    int i = 0;
+    while(it != attrList.end())
+    {
+//		cout << "Key : " << it->first << "Value : " << it->second << endl;
+        strncpy(m_diagnosticsList->m_diagnostics[i].m_name, it->first.c_str(), RDK_STMGR_MAX_STRING_LENGTH);
+        strncpy(m_diagnosticsList->m_diagnostics[i].m_value, it->second.c_str(), RDK_STMGR_MAX_STRING_LENGTH);
+        it++;
+        i++;
+        if(i >= RDK_STMGR_MAX_DIAGNOSTIC_ATTRIBUTES)
+            break;
+    }
+
+    m_diagnosticsList->m_numOfAttributes = i;
+
+    return overall_health;
+}
+
 eSTMGRReturns rStorageHDDrive::getHealth (eSTMGRHealthInfo* pHealthInfo)
 {
     memset(pHealthInfo, 0, sizeof(eSTMGRHealthInfo));
@@ -143,6 +179,9 @@ eSTMGRReturns rStorageHDDrive::getHealth (eSTMGRHealthInfo* pHealthInfo)
 
     strncpy(pHealthInfo->m_deviceID, m_deviceID, RDK_STMGR_MAX_STRING_LENGTH);
     pHealthInfo->m_deviceType = m_type;
+
+    get_DiagnosticAttribues(&pHealthInfo->m_diagnosticsList);
+
     return RDK_STMGR_RETURN_SUCCESS;
 }
 

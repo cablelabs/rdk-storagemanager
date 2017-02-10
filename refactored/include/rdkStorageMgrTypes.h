@@ -11,6 +11,7 @@ extern "C"
 #define RDK_STMGR_MAX_STRING_LENGTH     128
 #define RDK_STMGR_PARTITION_LENGTH      256
 #define RDK_STMGR_DIAGNOSTICS_LENGTH    256
+#define RDK_STMGR_MAX_DIAGNOSTIC_ATTRIBUTES          20	/*!< Max Number of SMART diagnostics attributes. */
 
 /* Structs & Enums */
 typedef enum _stmgr_ReturnCode {
@@ -19,7 +20,8 @@ typedef enum _stmgr_ReturnCode {
     RDK_STMGR_RETURN_INIT_FAILURE = -2,
     RDK_STMGR_RETURN_INVALID_INPUT = -3,
     RDK_STMGR_RETURN_UNKNOWN_FAILURE = -4
-} eSTMGRReturns;
+}
+eSTMGRReturns;
 
 typedef enum _stmgr_DeviceType {
     RDK_STMGR_DEVICE_TYPE_HDD   = 0,
@@ -88,12 +90,22 @@ typedef struct _stmgr_PartitionInfo {
     bool m_isDVRSupported;
 } eSTMGRPartitionInfo;
 
+typedef struct _stmgr_DiagnosticsAttributes {
+    char m_name[RDK_STMGR_MAX_STRING_LENGTH];	/*!< Gives SMART diagnostics attributes name. */
+    char m_value[RDK_STMGR_MAX_STRING_LENGTH];	/*!< Gives SMART diagnostics attributes value, Comma separated. */
+} eSTMGRDiagAttributes;
+
+typedef struct _stmgr_DiagnosticsAttributeList {
+    unsigned short m_numOfAttributes;
+    eSTMGRDiagAttributes m_diagnostics[RDK_STMGR_MAX_DIAGNOSTIC_ATTRIBUTES];
+} eSTMGRDiagAttributesList;
+
 typedef struct _stmgr_Health {
     char m_deviceID[RDK_STMGR_MAX_STRING_LENGTH];
     eSTMGRDeviceType m_deviceType;
     bool m_isOperational;
     bool m_isHealthy;
-    char m_diagnostics[RDK_STMGR_DIAGNOSTICS_LENGTH]; /* Gives Comma separated diagnostics specific to Device Type*/
+    eSTMGRDiagAttributesList m_diagnosticsList;
 } eSTMGRHealthInfo;
 
 typedef struct _stmgr_EventMessage {

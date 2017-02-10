@@ -5,8 +5,9 @@
 class rStorageHDDrive : public rStorageMedia
 {
 private:
-    bool get_SmartMonAttribute_Info(); /*  smartctl -H /dev/sda */
-    bool get_OverallHealth_State(); /*  smartctl -i /dev/sda */
+    bool get_SmartMonAttribute_Info();
+    bool get_OverallHealth_State();
+    bool get_DiagnosticAttribues(eSTMGRDiagAttributesList* m_diagnosticsList);
 
 public:
     rStorageHDDrive(std::string devicePath); /*{};*/
