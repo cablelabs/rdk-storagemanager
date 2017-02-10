@@ -77,9 +77,11 @@
 #include <stdio.h>
 #include <regex.h>
 #include <cstring>
+#include <sstream>
 #include <map>
 
 #define LINE_MAX_BUFFER 256
+
 
 /* SMART MON TOOL PROPERTY STRINGS */
 #define SMARTMON_HDD_ID_STR			"LU WWN Device Id"
@@ -124,7 +126,7 @@ public:
     bool getModel(std::string& deviceModel);
     bool getSerialNumber(std::string& srNum);
     bool isOverallHealthOkay();
-    bool getDiagnosticAttributes(std::map<string, string>& attrMap);
+    bool getDiagnosticAttributes(std::map<std::string, std::string>& attrMap);
 
 private:
     std::string cmd_name_;

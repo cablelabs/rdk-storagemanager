@@ -198,7 +198,6 @@ bool smartmonUtiles::getDiagnosticAttributes(std::map<std::string, std::string>&
     }
 
     int cnt = 0;
-    int len = 0;
     for (std::string& s:list)
     {
         if(s.length() > 1)
