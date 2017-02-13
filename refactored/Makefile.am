@@ -1,1 +1,1 @@
-SUBDIRS = rpc mgr main
+SUBDIRS = rpc mgr main test

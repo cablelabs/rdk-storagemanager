@@ -143,4 +143,5 @@ AC_CONFIG_FILES([refactored/Makefile])
 AC_CONFIG_FILES([refactored/rpc/Makefile])
 AC_CONFIG_FILES([refactored/mgr/Makefile])
 AC_CONFIG_FILES([refactored/main/Makefile])
+AC_CONFIG_FILES([refactored/test/Makefile])
 AC_OUTPUT
