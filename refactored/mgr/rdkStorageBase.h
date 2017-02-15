@@ -2,6 +2,7 @@
 #define __RDK_STORAGE_MGR_BASE_H__
 
 #include "rdkStorageMgrTypes.h"
+#include "rdkStorageMgrLogger.h"
 #include <string>
 #include <map>
 
@@ -77,7 +78,7 @@ public:
     virtual bool isDVRSupported();
 
     /* Populates all the device data base */
-    virtual eSTMGRReturns populateDeviceDetails (void);
+    virtual eSTMGRReturns populateDeviceDetails (void) = 0;
     /* Queries the Device for the health info */
     virtual eSTMGRReturns doDeviceHealthQuery(void) = 0;
 };

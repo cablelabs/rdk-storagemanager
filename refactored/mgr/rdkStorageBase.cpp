@@ -7,7 +7,7 @@ using namespace std;
 
 rStorageMedia::rStorageMedia()
 {
-    populateDeviceDetails();
+
 }
 
 rStorageMedia::~rStorageMedia()
@@ -23,11 +23,6 @@ rStorageMedia::~rStorageMedia()
     m_partitionInfo.clear();
 }
 
-eSTMGRReturns rStorageMedia::populateDeviceDetails()
-{
-    abort();
-    return RDK_STMGR_RETURN_SUCCESS;
-}
 eSTMGRReturns rStorageMedia::getDeviceId(char* pDeviceID)
 {
     eSTMGRReturns rc = RDK_STMGR_RETURN_SUCCESS;

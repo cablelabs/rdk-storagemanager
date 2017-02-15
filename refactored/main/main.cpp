@@ -24,7 +24,7 @@ int main ()
     while(1)
     {
         time(&curr);
-        STMGRLOG_INFO("I-ARM STMgr Bus: HeartBeat at %s\n", ctime(&curr));
+        STMGRLOG_INFO("I-ARM STMgr Bus: HeartBeat at %s", ctime(&curr));
         sleep(10);
     }
 

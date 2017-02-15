@@ -35,14 +35,17 @@ eSTMGRReturns rSTMgrMainClass::addNewMemoryDevice(std::string devicePath, eSTMGR
 
     if (type == RDK_STMGR_DEVICE_TYPE_NVRAM)
     {
-         pMemoryObj = new rStorageNVRAM (devicePath);
+        STMGRLOG_ERROR ("Requested to create class for NVRAM Memory with the device path = %s\n", devicePath.c_str());
+        pMemoryObj = new rStorageNVRAM (devicePath);
     }
     else if (type == RDK_STMGR_DEVICE_TYPE_HDD)
     {
+        STMGRLOG_ERROR ("Requested to create class for HDD Memory with the device path = %s\n", devicePath.c_str());
         pMemoryObj = new rStorageHDDrive (devicePath);
     }
     else if (type == RDK_STMGR_DEVICE_TYPE_SDCARD)
     {
+        STMGRLOG_ERROR ("Requested to create class for SDC Memory with the device path = %s\n", devicePath.c_str());
         pMemoryObj = new rStorageSDCard (devicePath);
     }
     else
@@ -52,6 +55,8 @@ eSTMGRReturns rSTMgrMainClass::addNewMemoryDevice(std::string devicePath, eSTMGR
 
     if (pMemoryObj)
     {
+        pMemoryObj->populateDeviceDetails();
+        STMGRLOG_INFO ("Done with Init; Add to the hash table.. \n");
         /* Protect the addition */
         pthread_mutex_lock(&m_mainMutex);
 
@@ -89,6 +94,7 @@ eSTMGRReturns rSTMgrMainClass::deleteMemoryDevice(std::string key)
     eSTMGREventMessage events;
     memset (&events, 0, sizeof(events));
 
+    STMGRLOG_INFO ("Received request to remove %s entry.. \n", key.c_str());
     /* Protect the addition */
     pthread_mutex_lock(&m_mainMutex);
 
@@ -205,6 +211,7 @@ void* healthMonitoringThreadfn  (void *pData)
 {
     pData = pData;
 
+    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
     rSTMgrMainClass::getInstance()->devHealthMonThreadEntryFunc();
     return NULL;
 }
@@ -216,6 +223,7 @@ eSTMGRReturns rSTMgrMainClass::getDeviceIds(eSTMGRDeviceIDs* pDeviceIDs)
     int i = 0;
     memset (&deviceIDs, 0, sizeof(deviceIDs));
 
+    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
     if (!pDeviceIDs)
     {
         STMGRLOG_ERROR ("NULL Pointer input\n");
@@ -226,9 +234,12 @@ eSTMGRReturns rSTMgrMainClass::getDeviceIds(eSTMGRDeviceIDs* pDeviceIDs)
     for (auto it = m_storageDeviceObjects.begin(); it != m_storageDeviceObjects.end(); ++it)
     {
         pMemoryObj = it->second;
-        pMemoryObj->getDeviceId(deviceIDs.m_deviceIDs[i++]);
-        pDeviceIDs->m_numOfDevices = i;
+        pMemoryObj->getDeviceId(deviceIDs.m_deviceIDs[i]);
+
+        STMGRLOG_DEBUG("Device ID = @%s@\n", deviceIDs.m_deviceIDs[i]);
+        i++;
     }
+    deviceIDs.m_numOfDevices = i;
     pthread_mutex_unlock(&m_mainMutex);
 
     memcpy(pDeviceIDs, &deviceIDs, sizeof(deviceIDs));
@@ -239,6 +250,9 @@ eSTMGRReturns rSTMgrMainClass::getDeviceInfo(char* pDeviceID, eSTMGRDeviceInfo* 
 {
     bool isFound = false;
     rStorageMedia *pMemoryObj = NULL;
+
+    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+
     if ((!pDeviceID) || (!pDeviceInfo))
     {
         STMGRLOG_ERROR ("NULL Pointer input\n");
@@ -275,6 +289,8 @@ eSTMGRReturns rSTMgrMainClass::getDeviceInfoList(eSTMGRDeviceInfoList* pDeviceIn
     int i = 0;
     rStorageMedia *pMemoryObj = NULL;
 
+    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+
     if (!pDeviceInfoList)
     {
         STMGRLOG_ERROR ("NULL Pointer input\n");
@@ -298,6 +314,8 @@ eSTMGRReturns rSTMgrMainClass::getPartitionInfo (char* pDeviceID, char* pPartiti
 {
     rStorageMedia *pMemoryObj = NULL;
     char deviceID[RDK_STMGR_MAX_STRING_LENGTH] = "";
+
+    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
 
     if ((!pDeviceID) || (!pPartitionId) || (!pPartitionInfo))
     {
@@ -336,6 +354,8 @@ eSTMGRReturns rSTMgrMainClass::getTSBStatus (eSTMGRTSBStatus *pTSBStatus)
     rStorageMedia *pMemoryObj = NULL;
     bool isSupported = false;
 
+    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+
     if (!pTSBStatus)
     {
         STMGRLOG_ERROR ("NULL Pointer input\n");
@@ -372,6 +392,8 @@ eSTMGRReturns rSTMgrMainClass::setTSBMaxMinutes (unsigned int minutes)
     rStorageMedia *pMemoryObj = NULL;
     bool isSupported = false;
 
+    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+
     pthread_mutex_lock(&m_mainMutex);
     for (auto it = m_storageDeviceObjects.begin(); it != m_storageDeviceObjects.end(); ++it)
     {
@@ -397,6 +419,8 @@ eSTMGRReturns rSTMgrMainClass::getTSBMaxMinutes (unsigned int *pMinutes)
 {
     rStorageMedia *pMemoryObj = NULL;
     bool isSupported = false;
+
+    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
 
     if (!pMinutes)
     {
@@ -434,6 +458,8 @@ eSTMGRReturns rSTMgrMainClass::getTSBCapacityMinutes(unsigned int *pMinutes)
     rStorageMedia *pMemoryObj = NULL;
     bool isSupported = false;
 
+    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+
     if (!pMinutes)
     {
         STMGRLOG_ERROR ("NULL Pointer input\n");
@@ -469,6 +495,8 @@ eSTMGRReturns rSTMgrMainClass::getTSBCapacity(unsigned long *pCapacityInKB)
 {
     rStorageMedia *pMemoryObj = NULL;
     bool isSupported = false;
+
+    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
 
     if (!pCapacityInKB)
     {
@@ -506,6 +534,8 @@ eSTMGRReturns rSTMgrMainClass::getTSBFreeSpace(unsigned long *pFreeSpaceInKB)
     rStorageMedia *pMemoryObj = NULL;
     bool isSupported = false;
 
+    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+
     if (!pFreeSpaceInKB)
     {
         STMGRLOG_ERROR ("NULL Pointer input\n");
@@ -542,6 +572,8 @@ eSTMGRReturns rSTMgrMainClass::getDVRCapacity(unsigned long *pCapacityInKB)
     rStorageMedia *pMemoryObj = NULL;
     bool isSupported = false;
 
+    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+
     if (!pCapacityInKB)
     {
         STMGRLOG_ERROR ("NULL Pointer input\n");
@@ -577,6 +609,8 @@ eSTMGRReturns rSTMgrMainClass::getDVRFreeSpace(unsigned long *pFreeSpaceInKB)
 {
     rStorageMedia *pMemoryObj = NULL;
     bool isSupported = false;
+
+    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
 
     if (!pFreeSpaceInKB)
     {
@@ -615,6 +649,8 @@ bool rSTMgrMainClass::isTSBEnabled(void)
     bool isSupported = false;
     bool tsbEnabled = false;
 
+    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+
     pthread_mutex_lock(&m_mainMutex);
     for (auto it = m_storageDeviceObjects.begin(); it != m_storageDeviceObjects.end(); ++it)
     {
@@ -639,6 +675,8 @@ bool rSTMgrMainClass::isDVREnabled(void)
     bool isSupported = false;
     bool dvrEnabled = false;
 
+    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+
     pthread_mutex_lock(&m_mainMutex);
     for (auto it = m_storageDeviceObjects.begin(); it != m_storageDeviceObjects.end(); ++it)
     {
@@ -662,6 +700,8 @@ eSTMGRReturns rSTMgrMainClass::setTSBEnabled (bool isEnabled)
     rStorageMedia *pMemoryObj = NULL;
     bool isSupported = false;
     bool isFound = false;
+
+    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
 
     pthread_mutex_lock(&m_mainMutex);
     for (auto it = m_storageDeviceObjects.begin(); it != m_storageDeviceObjects.end(); ++it)
@@ -692,6 +732,8 @@ eSTMGRReturns rSTMgrMainClass::setDVREnabled (bool isEnabled)
     rStorageMedia *pMemoryObj = NULL;
     bool isSupported = false;
     bool isFound = false;
+
+    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
 
     pthread_mutex_lock(&m_mainMutex);
     for (auto it = m_storageDeviceObjects.begin(); it != m_storageDeviceObjects.end(); ++it)
@@ -726,6 +768,8 @@ eSTMGRReturns rSTMgrMainClass::getHealth (char* pDeviceID, eSTMGRHealthInfo* pHe
         return RDK_STMGR_RETURN_INVALID_INPUT;
     }
 
+    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+
     pthread_mutex_lock(&m_mainMutex);
     for (auto it = m_storageDeviceObjects.begin(); it != m_storageDeviceObjects.end(); ++it)
     {
@@ -745,6 +789,8 @@ eSTMGRReturns rSTMgrMainClass::getHealth (char* pDeviceID, eSTMGRHealthInfo* pHe
 
 eSTMGRReturns rSTMgrMainClass::registerEventCallback(fnSTMGR_EventCallback eventCallback)
 {
+    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+
     if (eventCallback != NULL)
     {
         m_eventCallback = eventCallback;
