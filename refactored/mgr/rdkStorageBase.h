@@ -10,7 +10,7 @@ using namespace std;
 
 class rStoragePartition {
 public:
-    rStoragePartition();
+//    rStoragePartition();
     char m_partitionId [RDK_STMGR_MAX_STRING_LENGTH];
     char m_format[RDK_STMGR_MAX_STRING_LENGTH];
     unsigned long m_capacityinKB;
