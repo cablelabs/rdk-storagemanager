@@ -9,6 +9,7 @@
 #include <stdio.h>
 
 
+eSTMGRDeviceIDs gDeviceIDs;
 void _eventCallback (eSTMGREventMessage events)
 {
     std::cout <<"@@@@@@@ events.ID =" << events.m_eventType << "\n";
@@ -39,11 +40,22 @@ void printOptions(void)
     std::cout <<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
 }
 
+void printDeviceIDs ()
+{
+    if (gDeviceIDs.m_numOfDevices > 0)
+    {
+        for (int i = 0; i < gDeviceIDs.m_numOfDevices; i++)
+        {
+            std::cout << (i + 1) << "\t-\t" << gDeviceIDs.m_deviceIDs[i] << "\n";
+        }
+    }
+    else
+        std::cout <<"No device found\n";
+}
 void _getDeviceIds()
 {
     eSTMGRReturns rc;
-    eSTMGRDeviceIDs deviceIDs;
-    rc = rdkStorage_getDeviceIds(&deviceIDs);
+    rc = rdkStorage_getDeviceIds(&gDeviceIDs);
 
     if (rc != RDK_STMGR_RETURN_SUCCESS)
     {
@@ -51,15 +63,7 @@ void _getDeviceIds()
     }
     else
     {
-        if (deviceIDs.m_numOfDevices > 0)
-        {
-            for (int i = 0; i < deviceIDs.m_numOfDevices; i++)
-            {
-                std::cout << deviceIDs.m_deviceIDs[i];
-            }
-        }
-        else
-            std::cout <<"No device found\n";
+        printDeviceIDs();
     }
 }
 
@@ -321,7 +325,7 @@ void _getHealth (char* pDeviceID)
 int main ()
 {
     char processName[256] = "";
-    char deviceID[512] = "";
+    int deviceIDIndex = 0;
     char partitionID[512] = "";
     unsigned short input = 0;
     bool isEnabled = false;
@@ -349,7 +353,7 @@ int main ()
 
         switch (input)
         {
-            case 0:
+            default:
                 std::cout <<"Seems like you typed some wrong keys... :)\n";
                 break;
             case 33:
@@ -360,19 +364,28 @@ int main ()
                 _getDeviceIds();
                 break;
             case 2:
-                std::cout << "Enter the deviceID\n";
-                std::cin >> deviceID;
-                _getDeviceInfo(deviceID);
+                printDeviceIDs();
+                std::cout << "Enter the deviceID Index\n";
+                std::cin >> deviceIDIndex;
+                if ((deviceIDIndex > 0) && (deviceIDIndex <= gDeviceIDs.m_numOfDevices))
+                    _getDeviceInfo( gDeviceIDs.m_deviceIDs[(deviceIDIndex + 1)]);
+                else
+                    std::cout << "Wrong Index\n";
+
                 break;
             case 3:
                 _getDeviceInfoList();
                 break;
             case 4:
-                std::cout << "Enter the deviceID\n";
-                std::cin >> deviceID;
+                std::cout << "Enter the deviceID Index\n";
+                std::cin >> deviceIDIndex;
                 std::cout << "Enter the partitionID\n";
                 std::cin >> partitionID;
-                _getPartitionInfo (deviceID, partitionID);
+                if ((deviceIDIndex > 0) && (deviceIDIndex <= gDeviceIDs.m_numOfDevices))
+                    _getPartitionInfo (gDeviceIDs.m_deviceIDs[(deviceIDIndex + 1)], partitionID);
+                else
+                    std::cout << "Wrong Index\n";
+
                 break;
             case 5:
                 _getTSBStatus();
@@ -417,11 +430,14 @@ int main ()
                 _setDVREnabled(isEnabled);
                 break;
             case 17:
-                std::cout << "Enter the deviceID\n";
-                std::cin >> deviceID;
-                _getHealth (deviceID);
+                printDeviceIDs();
+                std::cout << "Enter the deviceID Index\n";
+                std::cin >> deviceIDIndex;
+                if ((deviceIDIndex > 0) && (deviceIDIndex <= gDeviceIDs.m_numOfDevices))
+                    _getHealth( gDeviceIDs.m_deviceIDs[(deviceIDIndex + 1)]);
+                else
+                    std::cout << "Wrong Index\n";
                 break;
-
         }
     }
     return 0;

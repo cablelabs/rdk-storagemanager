@@ -362,7 +362,7 @@ eSTMGRReturns rSTMgrMainClass::getTSBStatus (eSTMGRTSBStatus *pTSBStatus)
         return RDK_STMGR_RETURN_INVALID_INPUT;
     }
 
-    memset (&pTSBStatus, 0, sizeof(eSTMGRTSBStatus));
+    *pTSBStatus = RDK_STMGR_TSB_STATUS_FAILED;
     pthread_mutex_lock(&m_mainMutex);
     for (auto it = m_storageDeviceObjects.begin(); it != m_storageDeviceObjects.end(); ++it)
     {
@@ -428,7 +428,7 @@ eSTMGRReturns rSTMgrMainClass::getTSBMaxMinutes (unsigned int *pMinutes)
         return RDK_STMGR_RETURN_INVALID_INPUT;
     }
 
-    memset (&pMinutes, 0, sizeof(unsigned int));
+    *pMinutes = 0;
     pthread_mutex_lock(&m_mainMutex);
     for (auto it = m_storageDeviceObjects.begin(); it != m_storageDeviceObjects.end(); ++it)
     {
@@ -466,7 +466,7 @@ eSTMGRReturns rSTMgrMainClass::getTSBCapacityMinutes(unsigned int *pMinutes)
         return RDK_STMGR_RETURN_INVALID_INPUT;
     }
 
-    memset (&pMinutes, 0, sizeof(unsigned int));
+    *pMinutes = 0;
     pthread_mutex_lock(&m_mainMutex);
     for (auto it = m_storageDeviceObjects.begin(); it != m_storageDeviceObjects.end(); ++it)
     {
@@ -504,7 +504,7 @@ eSTMGRReturns rSTMgrMainClass::getTSBCapacity(unsigned long *pCapacityInKB)
         return RDK_STMGR_RETURN_INVALID_INPUT;
     }
 
-    memset (&pCapacityInKB, 0, sizeof(unsigned long));
+    *pCapacityInKB = 0;
     pthread_mutex_lock(&m_mainMutex);
     for (auto it = m_storageDeviceObjects.begin(); it != m_storageDeviceObjects.end(); ++it)
     {
@@ -542,7 +542,7 @@ eSTMGRReturns rSTMgrMainClass::getTSBFreeSpace(unsigned long *pFreeSpaceInKB)
         return RDK_STMGR_RETURN_INVALID_INPUT;
     }
 
-    memset (&pFreeSpaceInKB, 0, sizeof(unsigned long));
+    *pFreeSpaceInKB = 0;
     pthread_mutex_lock(&m_mainMutex);
     for (auto it = m_storageDeviceObjects.begin(); it != m_storageDeviceObjects.end(); ++it)
     {
@@ -580,7 +580,7 @@ eSTMGRReturns rSTMgrMainClass::getDVRCapacity(unsigned long *pCapacityInKB)
         return RDK_STMGR_RETURN_INVALID_INPUT;
     }
 
-    memset (&pCapacityInKB, 0, sizeof(unsigned long));
+    *pCapacityInKB = 0;
     pthread_mutex_lock(&m_mainMutex);
     for (auto it = m_storageDeviceObjects.begin(); it != m_storageDeviceObjects.end(); ++it)
     {
@@ -618,7 +618,7 @@ eSTMGRReturns rSTMgrMainClass::getDVRFreeSpace(unsigned long *pFreeSpaceInKB)
         return RDK_STMGR_RETURN_INVALID_INPUT;
     }
 
-    memset (&pFreeSpaceInKB, 0, sizeof(unsigned long));
+    *pFreeSpaceInKB = 0;
     pthread_mutex_lock(&m_mainMutex);
     for (auto it = m_storageDeviceObjects.begin(); it != m_storageDeviceObjects.end(); ++it)
     {
