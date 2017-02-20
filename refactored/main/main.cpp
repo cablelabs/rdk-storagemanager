@@ -18,8 +18,8 @@ int main ()
 #endif
 
     /* Start the Module */
-    rdkStorage_init();
     stmgr_BeginIARMMode();
+    rdkStorage_init();
 
     while(1)
     {

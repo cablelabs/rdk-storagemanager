@@ -145,7 +145,7 @@ bool rStorageHDDrive::get_DiagnosticAttribues(eSTMGRDiagAttributesList* m_diagno
     string smExePath = "/usr/sbin/smartctl";
     string args = "-A /dev/sda";
 
-    memset(&m_diagnosticsList, '\0', sizeof(eSTMGRDiagAttributesList));
+    memset(m_diagnosticsList, 0, sizeof(eSTMGRDiagAttributesList));
     std::map <string, string> attrList;
 
     smCmd->setCmd(smExePath, args);

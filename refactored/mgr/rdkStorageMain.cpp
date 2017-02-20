@@ -24,6 +24,7 @@ rSTMgrMainClass* rSTMgrMainClass::getInstance()
 rSTMgrMainClass::rSTMgrMainClass ()
 {
     m_mainMutex = PTHREAD_MUTEX_INITIALIZER;
+    STMGRLOG_WARN ("RDK-9318 :: Enabled Refactored Storage Manager Code for storagemanager_3\n");
 }
 
 eSTMGRReturns rSTMgrMainClass::addNewMemoryDevice(std::string devicePath, eSTMGRDeviceType type)
@@ -174,8 +175,8 @@ void rSTMgrMainClass::devHealthMonThreadEntryFunc(void)
     rStorageMedia *pMemoryObj = NULL;
     eSTMGRHealthInfo healthInfo;
 
-    /* Get the periodic polling interval from config file; for now, its 10 mins */
-    unsigned int timeout = 10 * 60;
+    /* Get the periodic polling interval from config file; for now, its 60 mins */
+    unsigned int timeout = 60 * 60;
 
     while (1)
     {

@@ -119,7 +119,7 @@ void*  deviceConnectRemoveMonitorfn  (void *pData)
                     /* FIXME: Get the device Class and Decide on the device type; for now HDD */
                     const char* pDevBus = udev_device_get_property_value(pDevice, "ID_BUS");
                     STMGRLOG_INFO ("ID_BUS      : %s\n", pDevBus);
-                    retCode = rSTMgrMainClass::getInstance()->addNewMemoryDevice(devicePath, RDK_STMGR_DEVICE_TYPE_USB);
+                    retCode = rSTMgrMainClass::getInstance()->addNewMemoryDevice(devicePath, RDK_STMGR_DEVICE_TYPE_HDD);
                 }
                 else if (0 == strcasecmp(pUDevAction, "remove"))
                 {
