@@ -142,7 +142,13 @@ eSTMGRReturns rStorageMedia::setTSBMaxMinutes (unsigned int minutes)
     }
     else
     {
-        m_maxTSBLengthConfigured = minutes;
+        if (m_isTSBSupported)
+            m_maxTSBLengthConfigured = minutes;
+        else
+        {
+            STMGRLOG_WARN ("TSB Support is not present in the memory deivice\n");
+            rc = RDK_STMGR_RETURN_GENERIC_FAILURE;
+        }
     }
     return rc;
 }
@@ -240,16 +246,77 @@ eSTMGRReturns rStorageMedia::getDVRFreeSpace(unsigned long *pFreeSpaceInKB)
 eSTMGRReturns rStorageMedia::setTSBEnabled (bool isEnabled)
 {
     eSTMGRReturns rc = RDK_STMGR_RETURN_SUCCESS;
-    /* Loop thro' the partitions and if any partition supports TSB, take this value. */
-    m_isTSBEnabled = isEnabled;
+    rStoragePartition* pTemp = NULL;
+
+    /* The populateDeviceDetails must ensure that the m_isTSBSupported is updated */
+    if (!m_isTSBSupported)
+    {
+        bool isFound = false;
+        for (auto it = m_partitionInfo.begin(); it != m_partitionInfo.end(); ++it )
+        {
+            pTemp = it->second;
+            if (pTemp->m_isTSBSupported)
+            {
+                isFound = true;
+                break;
+            }
+        }
+
+        if ((isFound) && (pTemp != NULL))
+        {
+            STMGRLOG_ERROR ("Found a partition (partitonID = %s) in this memory (deviceID = %s) that supports TSB.\n", pTemp->m_partitionId, m_deviceID);
+            m_isTSBEnabled = isEnabled;
+        }
+        else
+        {
+            STMGRLOG_ERROR ("Not found any partition of the memory that supports TSB\n");
+            rc = RDK_STMGR_RETURN_GENERIC_FAILURE;
+        }
+    }
+    else
+    {
+        STMGRLOG_ERROR ("Found that this memory (deviceID = %s) is supporting TSB.\n", m_deviceID);
+        m_isTSBEnabled = isEnabled;
+    }
+
     return rc;
 }
 
 eSTMGRReturns rStorageMedia::setDVREnabled (bool isEnabled)
 {
     eSTMGRReturns rc = RDK_STMGR_RETURN_SUCCESS;
-    /* Loop thro' the partitions and if any partition supports DVR, take this value. */
-    m_isDVREnabled = isEnabled;
+    rStoragePartition* pTemp = NULL;
+
+    /* The populateDeviceDetails must ensure that the m_isDVRSupported is updated */
+    if (!m_isDVRSupported)
+    {
+        bool isFound = false;
+        for (auto it = m_partitionInfo.begin(); it != m_partitionInfo.end(); ++it )
+        {
+            pTemp = it->second;
+            if (pTemp->m_isDVRSupported)
+            {
+                isFound = true;
+                break;
+            }
+        }
+
+        if ((isFound) && (pTemp != NULL))
+        {
+            STMGRLOG_ERROR ("Found a partition (partitonID = %s) in this memory (deviceID = %s) that supports DVR.\n", pTemp->m_partitionId, m_deviceID);
+            m_isDVREnabled = isEnabled;
+        }
+        else
+        {
+            STMGRLOG_ERROR ("Not found any partition of the memory that supports DVR\n");
+            rc = RDK_STMGR_RETURN_GENERIC_FAILURE;
+        }
+    }
+    else
+    {
+        STMGRLOG_ERROR ("Found that this memory (deviceID = %s) is supporting DVR.\n", m_deviceID);
+        m_isDVREnabled = isEnabled;
+    }
     return rc;
 }
 
