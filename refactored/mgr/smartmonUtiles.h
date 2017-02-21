@@ -118,7 +118,7 @@ public:
     /* Device Info properties methods */
     bool matchSMARTSupportExpression(std::string &s);
     bool getAtaStandard(std::string& ata_standard);
-    long getCapacity();
+    unsigned long long getCapacity();
     bool getFirmwareVersion(std::string& fwVer);
     bool isSmartSupport();
     bool getManufacture(std::string& manufacture);
@@ -137,7 +137,7 @@ private:
     std::string trim(std::string& str);
     /* smartctl parser methods*/
     bool parse_match_string(const char* pattern, std::string& val);
-    bool parse_capacity_string(std::string& s, long& capacity);
+    bool parse_capacity_string(std::string& s, unsigned long long& capacity);
 
     /* smartctl std output in vector */
     std::vector<std::string> getStdOutlist() {

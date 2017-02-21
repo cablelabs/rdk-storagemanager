@@ -28,12 +28,13 @@
 //#ifdef ENABLE_SMARTMONTOOL_SUPPORT
 
 #include "smartmonUtiles.h"
+#include "rdkStorageMgrLogger.h"
 
 bool smartmonUtiles::execute()
 {
     FILE *stream;
     char buffer[LINE_MAX_BUFFER] = {'\0'};
-
+    int len = 0;
     std::string cmd = this->cmd_name_ + " " + this->cmd_args_;
     cmd.append(" 2>&1");
 
@@ -44,7 +45,13 @@ bool smartmonUtiles::execute()
 
     while (!feof(stream)) {
         if (fgets(buffer, LINE_MAX_BUFFER, stream) != NULL) {
-            this->stdOutlist.push_back(buffer);
+            if(buffer[0] != '\0') {
+                buffer[strcspn(buffer, "\r\n")] = 0;
+                len = strlen(buffer);
+                STMGRLOG_TRACE("[%s:%d] Line: [%s] with length (%d).\n", __FUNCTION__, __LINE__, buffer, len);
+                if(len)
+                    this->stdOutlist.push_back(buffer);
+            }
         }
     }
     pclose(stream);
@@ -67,6 +74,8 @@ bool smartmonUtiles::parse_match_string(const char* pattern, std::string& val)
 
     std::string value = lstr.substr(++dpos, std::string::npos);
     val = trim(value);
+
+    STMGRLOG_TRACE("[%s:%d] Name: [%s] and Value [%s] with length (%d).\n", __FUNCTION__, __LINE__, pattern, val.c_str(), val.length());
     return true;
 }
 
@@ -74,6 +83,9 @@ std::string smartmonUtiles::trim(std::string& str)
 {
     str.erase(0, str.find_first_not_of(' '));
     str.erase(str.find_last_not_of(' ')+1);
+    if (!str.empty() && str[str.length()-1] == '\n') {
+        str.erase(str.length()-1);
+    }
     return str;
 }
 
@@ -108,19 +120,32 @@ bool smartmonUtiles::matchSMARTSupportExpression(std::string &s)
     return smart_enabled_;
 }
 
-bool smartmonUtiles::parse_capacity_string(std::string& s, long& capacity)
+bool smartmonUtiles::parse_capacity_string(std::string& s, unsigned long long& capacity)
 {
     size_t firstMatch=s.find_first_of("[");
     size_t lastMatch=s.find_first_of("]");
     ++firstMatch;
     std::string value = s.substr(firstMatch, (lastMatch - firstMatch));
     std::string::size_type sz;
-    long hdd_capacity = std::stoi(value,&sz);
-    if(hdd_capacity)
-        capacity = (std::stoi(value,&sz))*1e+9;
-    else
-        return false;
 
+    if(value.empty()) {
+        STMGRLOG_ERROR("[%s:%d] Empty string, failed to parse HDD Capacity. \n", __FUNCTION__, __LINE__);
+        return false;
+    }
+
+    unsigned long long hdd_capacity = std::stoull(value,&sz);
+
+    if(hdd_capacity) {
+        capacity = hdd_capacity*1000000; /*!< in KB */
+        STMGRLOG_TRACE("[%s:%d] HDD Capacity [%lld] KB. \n", __FUNCTION__, __LINE__, capacity);
+    }
+    else
+    {
+        capacity = 0;
+        return false;
+    }
+
+    STMGRLOG_TRACE("[%s:%d] Input string [%s], capacity is (%lld) bytes.\n", __FUNCTION__, __LINE__, s.c_str(), capacity);
     return true;
 }
 
@@ -129,9 +154,9 @@ bool smartmonUtiles::getAtaStandard(std::string& ata_standard) {
     return parse_match_string(SMARTMON_ATA_STD_STR , ata_standard);
 }
 
-long smartmonUtiles::getCapacity() {
+unsigned long long smartmonUtiles::getCapacity() {
     std::string capacity_str;
-    long capacity=0;
+    unsigned long long capacity=0;
 
     if(parse_match_string(SMARTMON_CAPACITY_STR , capacity_str)) {
         parse_capacity_string(capacity_str, capacity);
@@ -146,11 +171,15 @@ bool smartmonUtiles::getFirmwareVersion(std::string& firmwareVersion) {
 bool smartmonUtiles::isSmartSupport() {
     std::string smartSupported_str_val;
     bool smartSupport = false;
-    //if(parse_match_string(SMARTMON_SUPPORT_STR , smartSupported_str_val))
-    //{	
+    if(parse_match_string(SMARTMON_SUPPORT_STR , smartSupported_str_val))
+    {
         //smartSupport = matchSMARTSupportExpression(smartSupported_str_val);
-    //}
-
+        std::size_t found = smartSupported_str_val.find("Enabled");
+        if(found != std::string::npos)
+            smartSupport = true;
+        else
+            smartSupport = false;
+    }
     return smartSupport;
 }
 

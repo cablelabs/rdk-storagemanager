@@ -101,7 +101,7 @@ bool rStorageHDDrive::get_SmartMonAttribute_Info()
             strncpy(m_ifATAstandard, ata_standard.c_str(), RDK_STMGR_MAX_STRING_LENGTH);
         }
 
-        m_capacity = smCmd->getCapacity();
+        m_capacity = (unsigned long)smCmd->getCapacity();
         m_hasSMARTSupport = smCmd->isSmartSupport();
 
         m_healthInfo.m_isHealthy = smCmd->isOverallHealthOkay();
@@ -299,7 +299,8 @@ bool rStorageHDDrive::get_Xfs_fs_stat(rStoragePartition *partition, const char* 
 
     STMGRLOG_TRACE("[%s:%d] Entering..\n", __FUNCTION__, __LINE__);
 
-    if((fd = open( mountpoint, O_RDONLY )) < 0)
+    fd = open( mountpoint, O_RDONLY);
+    if ( fd >= 0 )
     {
         rc = xfsctl( mountpoint, fd, XFS_IOC_FSGEOMETRY, &fsInfo );
         if ( rc >= 0 )
@@ -311,6 +312,7 @@ bool rStorageHDDrive::get_Xfs_fs_stat(rStoragePartition *partition, const char* 
             partition->m_capacityinKB = totalCapacity;
             partition->m_freeSpaceinKB = availCapacity;
 
+            STMGRLOG_TRACE("[%s:%d] totalCapacity : %ld\n", __FUNCTION__, __LINE__, totalCapacity);
             partition->m_status =  RDK_STMGR_DEVICE_STATUS_OK;
 
             /* In HDD, tsb stores in XFS file, if xfs file system present, enable tsb */
