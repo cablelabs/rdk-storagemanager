@@ -146,10 +146,10 @@ bool smartmonUtiles::getFirmwareVersion(std::string& firmwareVersion) {
 bool smartmonUtiles::isSmartSupport() {
     std::string smartSupported_str_val;
     bool smartSupport = false;
-    if(parse_match_string(SMARTMON_SUPPORT_STR , smartSupported_str_val))
-    {
-        smartSupport = matchSMARTSupportExpression(smartSupported_str_val);
-    }
+    //if(parse_match_string(SMARTMON_SUPPORT_STR , smartSupported_str_val))
+    //{	
+        //smartSupport = matchSMARTSupportExpression(smartSupported_str_val);
+    //}
 
     return smartSupport;
 }
