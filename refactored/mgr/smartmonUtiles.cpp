@@ -122,10 +122,9 @@ bool smartmonUtiles::matchSMARTSupportExpression(std::string &s)
 
 bool smartmonUtiles::parse_capacity_string(std::string& s, unsigned long long& capacity)
 {
-    size_t firstMatch=s.find_first_of("[");
-    size_t lastMatch=s.find_first_of("]");
-    ++firstMatch;
-    std::string value = s.substr(firstMatch, (lastMatch - firstMatch));
+    size_t lastMatch=s.find_first_of("bytes");
+    std::string value = s.substr(0, lastMatch);
+
     std::string::size_type sz;
 
     if(value.empty()) {
@@ -133,14 +132,15 @@ bool smartmonUtiles::parse_capacity_string(std::string& s, unsigned long long& c
         return false;
     }
 
+    value.erase(std::remove(value.begin(), value.end(), ','), value.end());
+
     unsigned long long hdd_capacity = std::stoull(value,&sz);
 
     if(hdd_capacity) {
-        capacity = hdd_capacity*1000000; /*!< in KB */
-        STMGRLOG_TRACE("[%s:%d] HDD Capacity [%lld] KB. \n", __FUNCTION__, __LINE__, capacity);
+        capacity = hdd_capacity/1024; /*!< in KB */
+        STMGRLOG_DEBUG("[%s:%d] HDD Capacity, (%lld) Bytes, i.e., (%lld) KB. \n", __FUNCTION__, __LINE__, hdd_capacity, capacity);
     }
-    else
-    {
+    else {
         capacity = 0;
         return false;
     }
@@ -171,14 +171,17 @@ bool smartmonUtiles::getFirmwareVersion(std::string& firmwareVersion) {
 bool smartmonUtiles::isSmartSupport() {
     std::string smartSupported_str_val;
     bool smartSupport = false;
-    if(parse_match_string(SMARTMON_SUPPORT_STR , smartSupported_str_val))
-    {
-        //smartSupport = matchSMARTSupportExpression(smartSupported_str_val);
-        std::size_t found = smartSupported_str_val.find("Enabled");
-        if(found != std::string::npos)
+
+    const char *pattern = "SMART support is: Enabled";
+
+    std::string lstr;
+    for(std::string& s:this->stdOutlist) {
+        std::size_t found = s.find(pattern);
+        if(found !=std::string::npos)	{
+            STMGRLOG_DEBUG("[%s:%d] Found [%s]\n", __FUNCTION__, __LINE__, s.c_str());
             smartSupport = true;
-        else
-            smartSupport = false;
+            break;
+        }
     }
     return smartSupport;
 }
@@ -222,11 +225,12 @@ bool smartmonUtiles::getDiagnosticAttributes(std::map<std::string, std::string>&
 
     if(list.empty())
     {
-//		std::cout << "Empty Diagnostic Attributes." << std::endl;
+        STMGRLOG_ERROR("[%s:%d] Empty list for Diagnostic Attributes.\n", __FUNCTION__, __LINE__);
         return false;
     }
 
     int cnt = 0;
+    STMGRLOG_ERROR("[%s:%d] Creating Diagnostic Attributes Maps:\n", __FUNCTION__, __LINE__);
     for (std::string& s:list)
     {
         if(s.length() > 1)
@@ -258,7 +262,10 @@ bool smartmonUtiles::getDiagnosticAttributes(std::map<std::string, std::string>&
                             value = value + ";" + word;
                     }
                 }
-                attrMap.insert(std::make_pair(key, value));
+                auto ret = attrMap.insert(std::make_pair(key, value));
+                if(ret.second == true) {
+                    STMGRLOG_DEBUG(" Inserted with Key [%s] : [%s]\n", key.c_str(), value.c_str());
+                }
             }
         }
     }

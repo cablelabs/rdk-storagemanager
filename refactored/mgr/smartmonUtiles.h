@@ -79,6 +79,7 @@
 #include <cstring>
 #include <sstream>
 #include <map>
+#include <algorithm>
 
 #define LINE_MAX_BUFFER 256
 

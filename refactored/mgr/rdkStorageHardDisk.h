@@ -18,7 +18,7 @@ private:
 
 public:
     rStorageHDDrive(std::string devicePath); /*{};*/
-    ~rStorageHDDrive() {};
+    ~rStorageHDDrive();
 
     /* Populates all the device data base */
     eSTMGRReturns populateDeviceDetails();
@@ -29,7 +29,7 @@ public:
     }*/
     eSTMGRReturns getHealth (eSTMGRHealthInfo* pHealthInfo);
 
-    eSTMGRReturns getPartitionInfo (char* pPartitionId, eSTMGRPartitionInfo* pPartitionInfo);
+//    eSTMGRReturns getPartitionInfo (char* pPartitionId, eSTMGRPartitionInfo* pPartitionInfo);
 
 };
 

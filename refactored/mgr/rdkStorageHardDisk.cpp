@@ -12,12 +12,17 @@ rStorageHDDrive::rStorageHDDrive(std::string devicePath)
     m_devicePath = devicePath;
 };
 
-/*
+
 rStorageHDDrive::~rStorageHDDrive()
 {
-
+    for (auto it = m_partitionInfo.begin(); it != m_partitionInfo.end(); ++it )
+    {
+        rStoragePartition* pObj = it->second;
+        if(pObj) {
+            delete pObj;
+        }
+    }
 };
-*/
 
 
 eSTMGRReturns rStorageHDDrive::populateDeviceDetails()
@@ -49,6 +54,13 @@ eSTMGRReturns rStorageHDDrive::populateDeviceDetails()
         m_freeDVRSpaceLeftinKB = 0;
         m_isDVRSupported = false;
     }
+
+    /* Adding Telemetry Logs:
+     * For Device Info:*/
+    STMGRLOG_WARN ("TELEMETRY_STORAGEMANAGER_DEVICEINFO \n");
+    STMGRLOG_WARN ("deviceID:%s,Manufacturer:%s,Model:%s,SerialNumber:%s,FirmwareVersion:%s,hasSMARTSupport:%d\n",\
+                   m_deviceID, m_manufacturer, m_model,m_serialNumber, m_firmwareVersion, m_hasSMARTSupport);
+
     STMGRLOG_TRACE("[%s:%d] Exiting..\n", __FUNCTION__, __LINE__);
     return RDK_STMGR_RETURN_SUCCESS;
 }
@@ -59,7 +71,8 @@ bool rStorageHDDrive::get_SmartMonAttribute_Info()
     bool ret = true;
     smartmonUtiles *smCmd = new smartmonUtiles();
     string smExePath = "/usr/sbin/smartctl";
-    string args = "-iH /dev/sda";
+//    string args = "-iH /dev/sda";
+    string args = "-iH " + m_devicePath;
 
     smCmd->setCmd(smExePath, args);
 
@@ -121,7 +134,9 @@ bool rStorageHDDrive::get_OverallHealth_State()
     bool overall_health = false;
     smartmonUtiles *smCmd = new smartmonUtiles();
     string smExePath = "/usr/sbin/smartctl";
-    string args = "-H /dev/sda";
+//    string args = "-H /dev/sda";
+    string args = "-H " + m_devicePath;
+
     smCmd->setCmd(smExePath, args);
 
     if(smCmd->execute())
@@ -143,7 +158,7 @@ bool rStorageHDDrive::get_DiagnosticAttribues(eSTMGRDiagAttributesList* m_diagno
 
     smartmonUtiles *smCmd = new smartmonUtiles();
     string smExePath = "/usr/sbin/smartctl";
-    string args = "-A /dev/sda";
+    string args = "-A " + m_devicePath;
 
     memset(m_diagnosticsList, 0, sizeof(eSTMGRDiagAttributesList));
     std::map <string, string> attrList;
@@ -206,6 +221,7 @@ eSTMGRReturns rStorageHDDrive::doDeviceHealthQuery() {
 
 }
 
+/*
 eSTMGRReturns rStorageHDDrive::getPartitionInfo (char* pPartitionId, eSTMGRPartitionInfo* pPartitionInfo) {
 
     if(NULL == pPartitionId)
@@ -214,12 +230,14 @@ eSTMGRReturns rStorageHDDrive::getPartitionInfo (char* pPartitionId, eSTMGRParti
     }
     return RDK_STMGR_RETURN_SUCCESS;
 }
+*/
 
 
 bool rStorageHDDrive::populatePartitionDetails()
 {
     struct mntent *fs = NULL;
-    const char *dev  = "/dev/sda";
+//    const char *dev  = "/dev/sda";
+    const char *dev = m_devicePath.c_str();
     const char *file = "/proc/mounts";
     STMGRLOG_TRACE("[%s:%d] Entering..\n", __FUNCTION__, __LINE__);
 
@@ -258,18 +276,32 @@ bool rStorageHDDrive::get_filesystem_statistics(const struct mntent *fs, const c
 
     STMGRLOG_DEBUG("[%s:%d] %s, mounted on %s: of type: %s option: %s\n",__FUNCTION__, __LINE__, fs->mnt_dir, fs->mnt_fsname, fs->mnt_type, fs->mnt_opts);
 
-    rStoragePartition *pObj = new rStoragePartition();
+
+    std::string key = fs->mnt_fsname;
+    rStoragePartition *pObj = NULL;
+    std::map <std::string, rStoragePartition*> :: const_iterator it = m_partitionInfo.find (key);
+
+    if(it == m_partitionInfo.end()) {
+        pObj = new rStoragePartition();
+        STMGRLOG_DEBUG("[%s:%d] Creating object instance for rStoragePartition class.\n",__FUNCTION__, __LINE__);
+    }
+    else {
+        pObj = it->second;
+        STMGRLOG_DEBUG("[%s:%d] Using object instance for rStoragePartition. key (%s) of m_partitionInfo map.\n",__FUNCTION__, __LINE__, (string(it->first)).c_str());
+    }
+
 
     if(pObj)
     {
+
         if(0 == strcasecmp(fs->mnt_type, (const char *)"xfs"))
         {
             get_Xfs_fs_stat(pObj, (const char*) fs->mnt_dir);
         }
         else
         {
-            unsigned long totat_space 	= (unsigned long)(((long long)(vfs.f_blocks))*((long long)(vfs.f_bsize)))/1024;
-            unsigned long avail_space = (unsigned long)(((long long)(vfs.f_bsize)) * ((long long)(vfs.f_bavail)))/1024;
+            unsigned long long totat_space 	= (unsigned long)(((long long)(vfs.f_blocks))*((long long)(vfs.f_bsize)))/1024;
+            unsigned long long avail_space = (unsigned long)(((long long)(vfs.f_bsize)) * ((long long)(vfs.f_bavail)))/1024;
             pObj->m_capacityinKB = totat_space;
             pObj->m_freeSpaceinKB = avail_space;
             pObj->m_isDVRSupported = false;
@@ -279,13 +311,20 @@ bool rStorageHDDrive::get_filesystem_statistics(const struct mntent *fs, const c
                 pObj->m_status = RDK_STMGR_DEVICE_STATUS_READ_ONLY;
             if(avail_space == 0)
                 pObj->m_status = RDK_STMGR_DEVICE_STATUS_DISK_FULL;
+
+            STMGRLOG_DEBUG("[%s:%d] %s Filesystem Statistics (mounted on [%s]): \n", __FUNCTION__, __LINE__, fs->mnt_type, fs->mnt_dir);
+            STMGRLOG_DEBUG("\t**********************************************\n");
+            STMGRLOG_DEBUG("\t Total Capacity [%lld], Available Capacity [%lld]\n", totat_space, avail_space);
+            STMGRLOG_DEBUG("\t m_isDVRSupported [%d], m_isDVREnabled [%d]\n", pObj->m_isDVRSupported,pObj->m_isTSBSupported);
+            STMGRLOG_DEBUG("\t m_status [%d]\n", pObj->m_status);
+            STMGRLOG_DEBUG("\t**********************************************\n");
         }
+
+        string parName = fs->mnt_fsname;
+        strncpy(pObj->m_partitionId, fs->mnt_fsname, strlen(fs->mnt_fsname));
+        /* Adding to m_partitionInfo map */
+        m_partitionInfo.insert({parName, pObj});
     }
-
-    string parName = fs->mnt_fsname;
-    /* Adding to m_partitionInfo map */
-    m_partitionInfo.insert({parName, pObj});
-
     STMGRLOG_TRACE("[%s:%d] Exiting..\n", __FUNCTION__, __LINE__);
     return true;
 }
@@ -296,23 +335,29 @@ bool rStorageHDDrive::get_Xfs_fs_stat(rStoragePartition *partition, const char* 
     struct xfs_fsop_geom fsInfo;
     int rc;
     int fd;
-
+    unsigned long long totalCapacity= 0;
+    unsigned long long availCapacity= 0;
     STMGRLOG_TRACE("[%s:%d] Entering..\n", __FUNCTION__, __LINE__);
 
     fd = open( mountpoint, O_RDONLY);
     if ( fd >= 0 )
     {
+        rc = xfsctl( mountpoint, fd, XFS_IOC_FSCOUNTS, &xfsFree );
+        if ( rc >= 0 )
+        {
+            availCapacity= (((long long)(xfsFree.freertx))*((long long)(fsInfo.blocksize)))/1024; //*in KB*/;
+        } else {
+            STMGRLOG_ERROR("Failed in xfsctl (XFS_IOC_FSCOUNT) %s (%d), couldn't calculate free capacity.\n", strerror(errno), errno);
+        }
         rc = xfsctl( mountpoint, fd, XFS_IOC_FSGEOMETRY, &fsInfo );
         if ( rc >= 0 )
         {
-            long long totalCapacity= 0;
-            long long availCapacity= 0;
+
             totalCapacity = ((long long)fsInfo.blocksize*(long long)fsInfo.rtblocks)/1024; 	/*in KB*/
-            availCapacity= (((long long)(xfsFree.freertx))*((long long)(fsInfo.rtextsize))*((long long)(fsInfo.blocksize)))/1024;	/*in KB*/
             partition->m_capacityinKB = totalCapacity;
             partition->m_freeSpaceinKB = availCapacity;
 
-            STMGRLOG_TRACE("[%s:%d] totalCapacity : %ld\n", __FUNCTION__, __LINE__, totalCapacity);
+
             partition->m_status =  RDK_STMGR_DEVICE_STATUS_OK;
 
             /* In HDD, tsb stores in XFS file, if xfs file system present, enable tsb */
@@ -335,9 +380,17 @@ bool rStorageHDDrive::get_Xfs_fs_stat(rStoragePartition *partition, const char* 
             m_isDVRSupported = true;
             m_isDVREnabled = true;
             partition->m_isDVRSupported = true;
-            m_maxDVRCapacityinKB = (totalCapacity - m_maxTSBCapacityinKB);
-            m_freeDVRSpaceLeftinKB = (availCapacity - m_maxTSBCapacityinKB);
+            m_maxDVRCapacityinKB = (unsigned long)(totalCapacity - m_maxTSBCapacityinKB);
+            m_freeDVRSpaceLeftinKB = (unsigned long)(availCapacity - m_maxTSBCapacityinKB);
 
+            STMGRLOG_DEBUG("[%s:%d] XFS Filesystem Statistics (mounted on [%s]): \n", __FUNCTION__, __LINE__, mountpoint);
+            STMGRLOG_DEBUG("\t**********************************************\n");
+            STMGRLOG_DEBUG("\t Total Capacity [%lld], Available Capacity [%lld]\n", totalCapacity, availCapacity);
+            STMGRLOG_DEBUG("\t m_isDVRSupported [%d], m_isDVREnabled [%d]\n", m_isDVRSupported,m_isDVREnabled);
+            STMGRLOG_DEBUG("\t m_maxTSBCapacityinKB [%ld], m_freeTSBSpaceLeftinKB [%ld]\n", m_maxTSBCapacityinKB,m_freeTSBSpaceLeftinKB);
+            STMGRLOG_DEBUG("\t m_maxTSBCapacityinMinutes [%ld], m_maxTSBLengthConfigured [%ld]\n",  m_maxTSBCapacityinMinutes,m_maxTSBLengthConfigured);
+            STMGRLOG_DEBUG("\t m_maxDVRCapacityinKB [%ld] m_freeDVRSpaceLeftinKB [%ld]\n", m_maxDVRCapacityinKB,m_freeDVRSpaceLeftinKB);
+            STMGRLOG_DEBUG("\t**********************************************\n");
         } else {
             STMGRLOG_ERROR("Failed in xfsctl (XFS_IOC_FSGEOMETRY) %s (%d)\n", strerror(errno), errno);
             m_isTSBEnabled = false;
