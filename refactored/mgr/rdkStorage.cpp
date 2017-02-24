@@ -119,7 +119,10 @@ void*  deviceConnectRemoveMonitorfn  (void *pData)
                     /* FIXME: Get the device Class and Decide on the device type; for now HDD */
                     const char* pDevBus = udev_device_get_property_value(pDevice, "ID_BUS");
                     STMGRLOG_INFO ("ID_BUS      : %s\n", pDevBus);
-                    retCode = rSTMgrMainClass::getInstance()->addNewMemoryDevice(devicePath, RDK_STMGR_DEVICE_TYPE_HDD);
+                    if ((pDevBus) && ((0 == strcasecmp(pDevBus, "scsi")) || (0 == strcasecmp(pDevBus, "ata"))))
+                        retCode = rSTMgrMainClass::getInstance()->addNewMemoryDevice(devicePath, RDK_STMGR_DEVICE_TYPE_HDD);
+                    else if ((pDevBus) && (0 == strcasecmp(pDevBus, "usb")))
+                        retCode = rSTMgrMainClass::getInstance()->addNewMemoryDevice(devicePath, RDK_STMGR_DEVICE_TYPE_USB);
                 }
                 else if (0 == strcasecmp(pUDevAction, "remove"))
                 {
@@ -215,21 +218,18 @@ void rdkStorage_init (void)
                     pParentDevice = udev_device_get_parent (pDevice);
                     if (pParentDevice)
                     {
-                        /* Set to TRUE now;*/
-                        isAnyDeviceFound = true;
-
                         pDevBus = udev_device_get_property_value(pDevice, "ID_BUS");
                         STMGRLOG_INFO ("ID_BUS      : %s\n", pDevBus);
 
-                        if ((pDevBus) && (strcasecmp(pDevBus, "scsi")))
+                        if ((pDevBus) && ((0 == strcasecmp(pDevBus, "scsi")) || (0 == strcasecmp(pDevBus, "ata"))))
+                        {
+                            isAnyDeviceFound = true;
                             rSTMgrMainClass::getInstance()->addNewMemoryDevice(devicePath, RDK_STMGR_DEVICE_TYPE_HDD);
-                        else if ((pDevBus) && (strcasecmp(pDevBus, "usb")))
+                        }
+                        else if ((pDevBus) && (0 == strcasecmp(pDevBus, "usb")))
                             rSTMgrMainClass::getInstance()->addNewMemoryDevice(devicePath, RDK_STMGR_DEVICE_TYPE_USB);
                         else
                         {
-                            /* Reset the value */
-                            isAnyDeviceFound = false;
-
                             /* FIXME */
                             STMGRLOG_ERROR("Unhandled DISK Storage found!!! Must be analyzed and handled.\n");
                         }
