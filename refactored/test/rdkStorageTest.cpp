@@ -368,7 +368,7 @@ int main ()
                 std::cout << "Enter the deviceID Index\n";
                 std::cin >> deviceIDIndex;
                 if ((deviceIDIndex > 0) && (deviceIDIndex <= gDeviceIDs.m_numOfDevices))
-                    _getDeviceInfo( gDeviceIDs.m_deviceIDs[(deviceIDIndex + 1)]);
+                    _getDeviceInfo( gDeviceIDs.m_deviceIDs[(deviceIDIndex - 1)]);
                 else
                     std::cout << "Wrong Index\n";
 
@@ -382,7 +382,7 @@ int main ()
                 std::cout << "Enter the partitionID\n";
                 std::cin >> partitionID;
                 if ((deviceIDIndex > 0) && (deviceIDIndex <= gDeviceIDs.m_numOfDevices))
-                    _getPartitionInfo (gDeviceIDs.m_deviceIDs[(deviceIDIndex + 1)], partitionID);
+                    _getPartitionInfo (gDeviceIDs.m_deviceIDs[(deviceIDIndex - 1)], partitionID);
                 else
                     std::cout << "Wrong Index\n";
 
@@ -434,7 +434,7 @@ int main ()
                 std::cout << "Enter the deviceID Index\n";
                 std::cin >> deviceIDIndex;
                 if ((deviceIDIndex > 0) && (deviceIDIndex <= gDeviceIDs.m_numOfDevices))
-                    _getHealth( gDeviceIDs.m_deviceIDs[(deviceIDIndex + 1)]);
+                    _getHealth( gDeviceIDs.m_deviceIDs[(deviceIDIndex - 1)]);
                 else
                     std::cout << "Wrong Index\n";
                 break;

@@ -237,7 +237,7 @@ eSTMGRReturns rSTMgrMainClass::getDeviceIds(eSTMGRDeviceIDs* pDeviceIDs)
         pMemoryObj = it->second;
         pMemoryObj->getDeviceId(deviceIDs.m_deviceIDs[i]);
 
-        STMGRLOG_DEBUG("Device ID = @%s@\n", deviceIDs.m_deviceIDs[i]);
+        STMGRLOG_TRACE ("Device ID = @%s@\n", deviceIDs.m_deviceIDs[i]);
         i++;
     }
     deviceIDs.m_numOfDevices = i;
@@ -260,6 +260,8 @@ eSTMGRReturns rSTMgrMainClass::getDeviceInfo(char* pDeviceID, eSTMGRDeviceInfo* 
         return RDK_STMGR_RETURN_INVALID_INPUT;
     }
 
+    STMGRLOG_INFO("Given Device ID is %s\n", pDeviceID);
+
     pthread_mutex_lock(&m_mainMutex);
     for (auto it = m_storageDeviceObjects.begin(); it != m_storageDeviceObjects.end(); ++it)
     {
@@ -267,6 +269,10 @@ eSTMGRReturns rSTMgrMainClass::getDeviceInfo(char* pDeviceID, eSTMGRDeviceInfo* 
 
         pMemoryObj = it->second;
         pMemoryObj->getDeviceInfo(pDeviceInfo);
+
+        /* Trace Log */
+        STMGRLOG_TRACE ("Received Device ID is @@%s@@\n", pDeviceInfo->m_deviceID);
+
         if ( 0 == strncmp (pDeviceInfo->m_deviceID, pDeviceID, RDK_STMGR_MAX_STRING_LENGTH))
         {
             STMGRLOG_INFO ("Found the matching Device..\n");
@@ -278,7 +284,7 @@ eSTMGRReturns rSTMgrMainClass::getDeviceInfo(char* pDeviceID, eSTMGRDeviceInfo* 
 
     if (!isFound)
     {
-        STMGRLOG_ERROR ("Given deviceID is not present\n");
+        STMGRLOG_ERROR ("Given deviceID (%s) is not present\n", pDeviceID);
         return RDK_STMGR_RETURN_GENERIC_FAILURE;
     }
 
@@ -314,6 +320,7 @@ eSTMGRReturns rSTMgrMainClass::getDeviceInfoList(eSTMGRDeviceInfoList* pDeviceIn
 eSTMGRReturns rSTMgrMainClass::getPartitionInfo (char* pDeviceID, char* pPartitionId, eSTMGRPartitionInfo* pPartitionInfo)
 {
     rStorageMedia *pMemoryObj = NULL;
+    bool isFound = false;
     char deviceID[RDK_STMGR_MAX_STRING_LENGTH] = "";
 
     STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
@@ -324,6 +331,9 @@ eSTMGRReturns rSTMgrMainClass::getPartitionInfo (char* pDeviceID, char* pPartiti
         return RDK_STMGR_RETURN_INVALID_INPUT;
     }
 
+    STMGRLOG_INFO("Given pDeviceID is %s\n", pDeviceID);
+    STMGRLOG_INFO("Given pPartitionId is %s\n", pPartitionId);
+
     pthread_mutex_lock(&m_mainMutex);
     for (auto it = m_storageDeviceObjects.begin(); it != m_storageDeviceObjects.end(); ++it)
     {
@@ -333,6 +343,8 @@ eSTMGRReturns rSTMgrMainClass::getPartitionInfo (char* pDeviceID, char* pPartiti
         pMemoryObj->getDeviceId(deviceID);
         if ( 0 == strncmp (deviceID, pDeviceID, RDK_STMGR_MAX_STRING_LENGTH))
         {
+            isFound = true;
+
             STMGRLOG_INFO ("Found the matching Device..\n");
             /* Get the partition info */
             if (RDK_STMGR_RETURN_SUCCESS != pMemoryObj->getPartitionInfo(pPartitionId, pPartitionInfo))
@@ -346,6 +358,12 @@ eSTMGRReturns rSTMgrMainClass::getPartitionInfo (char* pDeviceID, char* pPartiti
         }
     }
     pthread_mutex_unlock(&m_mainMutex);
+
+    if (!isFound)
+    {
+        STMGRLOG_ERROR ("Given deviceID (%s) is not present\n", pDeviceID);
+        return RDK_STMGR_RETURN_GENERIC_FAILURE;
+    }
 
     return RDK_STMGR_RETURN_SUCCESS;
 }
@@ -762,14 +780,18 @@ eSTMGRReturns rSTMgrMainClass::setDVREnabled (bool isEnabled)
 eSTMGRReturns rSTMgrMainClass::getHealth (char* pDeviceID, eSTMGRHealthInfo* pHealthInfo)
 {
     rStorageMedia *pMemoryObj = NULL;
+    bool isFound = false;
     char deviceID[RDK_STMGR_MAX_STRING_LENGTH] = "";
+
+    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+
     if ((!pDeviceID) || (!pHealthInfo))
     {
         STMGRLOG_ERROR ("NULL Pointer input\n");
         return RDK_STMGR_RETURN_INVALID_INPUT;
     }
 
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_INFO("Given pDeviceID is %s\n", pDeviceID);
 
     pthread_mutex_lock(&m_mainMutex);
     for (auto it = m_storageDeviceObjects.begin(); it != m_storageDeviceObjects.end(); ++it)
@@ -778,12 +800,19 @@ eSTMGRReturns rSTMgrMainClass::getHealth (char* pDeviceID, eSTMGRHealthInfo* pHe
         pMemoryObj->getDeviceId(deviceID);
         if ( 0 == strncmp (deviceID, pDeviceID, RDK_STMGR_MAX_STRING_LENGTH))
         {
+            isFound = true;
             STMGRLOG_INFO ("Found the matching Device..\n");
             pMemoryObj->getHealth(pHealthInfo);
             break;
         }
     }
     pthread_mutex_unlock(&m_mainMutex);
+
+    if (!isFound)
+    {
+        STMGRLOG_ERROR ("Given deviceID (%s) is not present\n", pDeviceID);
+        return RDK_STMGR_RETURN_GENERIC_FAILURE;
+    }
 
     return RDK_STMGR_RETURN_SUCCESS;
 }
