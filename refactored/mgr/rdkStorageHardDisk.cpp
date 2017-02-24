@@ -322,6 +322,7 @@ bool rStorageHDDrive::get_filesystem_statistics(const struct mntent *fs, const c
 
         string parName = fs->mnt_fsname;
         strncpy(pObj->m_partitionId, fs->mnt_fsname, strlen(fs->mnt_fsname));
+        strncpy(pObj->m_format, fs->mnt_type, strlen(fs->mnt_type));
         /* Adding to m_partitionInfo map */
         m_partitionInfo.insert({parName, pObj});
     }
