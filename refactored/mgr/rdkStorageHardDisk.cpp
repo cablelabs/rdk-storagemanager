@@ -54,12 +54,8 @@ eSTMGRReturns rStorageHDDrive::populateDeviceDetails()
         m_freeDVRSpaceLeftinKB = 0;
         m_isDVRSupported = false;
     }
-
-    /* Adding Telemetry Logs:
-     * For Device Info:*/
-    STMGRLOG_WARN ("TELEMETRY_STORAGEMANAGER_DEVICEINFO \n");
-    STMGRLOG_WARN ("deviceID:%s,Manufacturer:%s,Model:%s,SerialNumber:%s,FirmwareVersion:%s,hasSMARTSupport:%d\n",\
-                   m_deviceID, m_manufacturer, m_model,m_serialNumber, m_firmwareVersion, m_hasSMARTSupport);
+    /*Add Telemetry logging */
+    telemetry_logging();
 
     STMGRLOG_TRACE("[%s:%d] Exiting..\n", __FUNCTION__, __LINE__);
     return RDK_STMGR_RETURN_SUCCESS;
@@ -185,6 +181,42 @@ bool rStorageHDDrive::get_DiagnosticAttribues(eSTMGRDiagAttributesList* m_diagno
     }
 
     m_diagnosticsList->m_numOfAttributes = i;
+
+    STMGRLOG_TRACE("[%s:%d] Exiting..\n", __FUNCTION__, __LINE__);
+    return overall_health;
+}
+
+
+bool rStorageHDDrive::logTel_DiagnosticAttribues(std::string& teleAttrString )
+{
+    bool overall_health = false;
+
+    STMGRLOG_TRACE("[%s:%d] Entering..\n", __FUNCTION__, __LINE__);
+
+    smartmonUtiles *smCmd = new smartmonUtiles();
+    string smExePath = "/usr/sbin/smartctl";
+    string args = "-A " + m_devicePath;
+
+    std::map <string, string> tel_attr_map;
+
+    smCmd->setCmd(smExePath, args);
+
+    if(smCmd->execute())
+    {
+        overall_health = smCmd->logTelemetry_DiagnosticAttributes(tel_attr_map);
+    }
+
+    delete smCmd;
+
+    if(tel_attr_map.empty())
+        return false;
+
+    for (auto it = tel_attr_map.begin(); it != tel_attr_map.end(); ++it ) {
+        string index = (std::string)(it->first);
+        string value = (std::string)(it->second);
+        teleAttrString.append(index + ":" + value + ",");
+        STMGRLOG_DEBUG("[ %s:%s]\n", index.c_str(), value.c_str());
+    }
 
     STMGRLOG_TRACE("[%s:%d] Exiting..\n", __FUNCTION__, __LINE__);
     return overall_health;
@@ -405,4 +437,26 @@ bool rStorageHDDrive::get_Xfs_fs_stat(rStoragePartition *partition, const char* 
     }
     STMGRLOG_TRACE("[%s:%d] Exiting..\n", __FUNCTION__, __LINE__);
     return true;
+}
+
+void rStorageHDDrive::telemetry_logging() {
+    STMGRLOG_TRACE("[%s:%d] Entering..\n", __FUNCTION__, __LINE__);
+    /* Adding Telemetry Logs:*/
+    std::string tel_log = "TELEMETRY_HDD:";	/*!< Starts with TELEMETRY_HDD String*/
+    tel_log.append(m_manufacturer);	/*!< Add model string*/
+    tel_log.append(",");
+
+    /*Get HDD Overall Health */
+    std::string status = (m_healthInfo.m_isHealthy)?"PASSED":"FAILURE";
+    tel_log.append(status);	/*!< Add Overall Health string*/
+
+    /*Get HDD Attributes*/
+    std::string tel_attr_str;
+    logTel_DiagnosticAttribues(tel_attr_str);
+    if(!tel_attr_str.empty()) {
+        tel_log.append(",");
+        tel_log.append(tel_attr_str);	/*!< Add Attributes with index and raw value string*/
+    }
+    STMGRLOG_WARN ("%s\n", tel_log.c_str());
+    STMGRLOG_TRACE("[%s:%d] Exiting..\n", __FUNCTION__, __LINE__);
 }

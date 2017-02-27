@@ -230,7 +230,7 @@ bool smartmonUtiles::getDiagnosticAttributes(std::map<std::string, std::string>&
     }
 
     int cnt = 0;
-    STMGRLOG_ERROR("[%s:%d] Creating Diagnostic Attributes Maps:\n", __FUNCTION__, __LINE__);
+    STMGRLOG_DEBUG("[%s:%d] Creating Diagnostic Attributes Maps:\n", __FUNCTION__, __LINE__);
     for (std::string& s:list)
     {
         if(s.length() > 1)
@@ -272,4 +272,55 @@ bool smartmonUtiles::getDiagnosticAttributes(std::map<std::string, std::string>&
     return true;
 }
 
+bool smartmonUtiles::logTelemetry_DiagnosticAttributes(std::map<std::string, std::string>& attrMap)
+{
+    int startIndex = 0;
+    std::vector<std::string> list = getStdOutlist();
+
+    if(list.empty())
+    {
+        STMGRLOG_ERROR("[%s:%d] Empty list for Diagnostic Attributes.\n", __FUNCTION__, __LINE__);
+        return false;
+    }
+
+    int cnt = 0;
+    STMGRLOG_TRACE("[%s:%d] Telemetry Diagnostic Attributes Maps:\n", __FUNCTION__, __LINE__);
+    for (std::string& s:list)
+    {
+        if(s.length() > 1)
+        {
+            cnt++;
+            std::size_t found = s.find("RAW_VALUE");
+            if(found !=std::string::npos)	{
+                startIndex = cnt;
+            }
+
+            if(cnt > startIndex && startIndex)
+            {
+                std::istringstream iss(s);
+                int index = 0;
+                std::string key;
+                std::string value;
+                while (iss) {
+                    ++index;
+                    std::string word;
+                    iss >> word;
+                    STMGRLOG_TRACE("[%s:%d] Index: %d, word ( %s).\n", __FUNCTION__, __LINE__, index, word.c_str());
+                    if(index == 1) {
+                        if(!word.empty())
+                            key = word;
+                    }
+                    else if (index == 10) {
+                        value = word;
+                    }
+                }
+                auto ret = attrMap.insert(std::make_pair(key, value));
+                if(ret.second == true) {
+                    STMGRLOG_TRACE(" [%s : %s]\n", key.c_str(), value.c_str());
+                }
+            }
+        }
+    }
+    return true;
+}
 //#endif /* #ifdef ENABLE_SMARTMONTOOL_SUPPORT */

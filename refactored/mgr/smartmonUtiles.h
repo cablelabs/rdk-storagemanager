@@ -128,6 +128,7 @@ public:
     bool getSerialNumber(std::string& srNum);
     bool isOverallHealthOkay();
     bool getDiagnosticAttributes(std::map<std::string, std::string>& attrMap);
+    bool logTelemetry_DiagnosticAttributes(std::map<std::string, std::string>& attrMap);
 
 private:
     std::string cmd_name_;

@@ -15,7 +15,8 @@ private:
     bool populatePartitionDetails();
     bool get_filesystem_statistics(const struct mntent *fs, const char* dev);
     bool get_Xfs_fs_stat(rStoragePartition *partition, const char* mountpoint);
-
+    bool logTel_DiagnosticAttribues(std::string& attrString );
+    void telemetry_logging();
 public:
     rStorageHDDrive(std::string devicePath); /*{};*/
     ~rStorageHDDrive();
