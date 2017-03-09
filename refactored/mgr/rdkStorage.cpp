@@ -166,9 +166,11 @@ void rdkStorage_init (void)
         struct udev_enumerate *pEnumerate = NULL;
         struct udev_list_entry *pDeviceList = NULL;
         struct udev_list_entry *pDeviceListEntry = NULL;
+        bool isNVRAMDeviceFound = false;
 
         pEnumerate = udev_enumerate_new(g_uDevInstance);
         udev_enumerate_add_match_subsystem(pEnumerate, "block");
+        udev_enumerate_add_match_subsystem(pEnumerate, "ubi");
         if (0 != udev_enumerate_scan_devices(pEnumerate))
         {
             STMGRLOG_ERROR("Failed to scan the devices \n");
@@ -203,7 +205,21 @@ void rdkStorage_init (void)
                 STMGRLOG_INFO ("Device Type : %s\n", udev_device_get_devtype(pDevice));
                 STMGRLOG_INFO ("Device Node : %s\n", devicePath.c_str());
 
+                /* This ensures that the disk that is identified is UBI subsystem */
+                if (!isNVRAMDeviceFound)
+                {
+                    pParentDevice = udev_device_get_parent_with_subsystem_devtype(pDevice, "ubi", NULL);
+                    if (pParentDevice)
+                    {
+                        isNVRAMDeviceFound = true;
+                        STMGRLOG_INFO ("IS UBI/NVRAM TYPE : Yes\n");
+                        std::string devicePath2 = udev_device_get_devnode(pParentDevice);
+                        rSTMgrMainClass::getInstance()->addNewMemoryDevice(devicePath2, RDK_STMGR_DEVICE_TYPE_NVRAM);
+                    }
+                }
+
                 //Check the presense of SDCard; Create n Add it to the map
+                pParentDevice = NULL;
 
                 /* This ensures that the disk that is identified is MMC subsystem */
                 pParentDevice = udev_device_get_parent_with_subsystem_devtype(pDevice, "mmc", NULL);
@@ -244,6 +260,12 @@ void rdkStorage_init (void)
             STMGRLOG_ERROR ("Hack it with /dev/sda as we support only HDD platform at this point in time.\n");
             std::string devicePath = "/dev/sda";
             rSTMgrMainClass::getInstance()->addNewMemoryDevice(devicePath, RDK_STMGR_DEVICE_TYPE_HDD);
+        }
+
+        /* NVRAM */
+        if (!isNVRAMDeviceFound)
+        {
+            STMGRLOG_ERROR ("Seems like this platform does not use/support NVRAM\n");
         }
     }
 

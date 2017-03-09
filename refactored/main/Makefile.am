@@ -7,5 +7,6 @@ storageMgrMain_SOURCES  = main.cpp
 storageMgrMain_SOURCES += ${top_srcdir}/refactored/mgr/rdkStorage.cpp
 storageMgrMain_SOURCES += ${top_srcdir}/refactored/mgr/rdkStorageBase.cpp
 storageMgrMain_SOURCES += ${top_srcdir}/refactored/mgr/rdkStorageMain.cpp
+storageMgrMain_SOURCES += ${top_srcdir}/refactored/mgr/rdkStorageNVRAM.cpp
 storageMgrMain_SOURCES += ${top_srcdir}/refactored/mgr/rdkStorageHardDisk.cpp ${top_srcdir}/refactored/mgr/smartmonUtiles.cpp
 storageMgrMain_SOURCES += ${top_srcdir}/refactored/rpc/rdkStorageMgr_iarm_internal.cpp
