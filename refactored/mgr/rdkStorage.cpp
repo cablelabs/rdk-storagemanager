@@ -197,29 +197,29 @@ void rdkStorage_init (void)
             STMGRLOG_INFO ("Device Path : %s\n", udev_device_get_devpath(pDevice));
             STMGRLOG_INFO ("Device Type : %s\n", udev_device_get_devtype(pDevice));
 
+            /* This ensures that the disk that is identified is UBI subsystem */
+            if (!isNVRAMDeviceFound)
+            {
+                pParentDevice = udev_device_get_parent_with_subsystem_devtype(pDevice, "ubi", NULL);
+                if (pParentDevice)
+                {
+                    isNVRAMDeviceFound = true;
+                    STMGRLOG_INFO ("IS UBI/NVRAM TYPE : Yes\n");
+                    std::string devicePath = udev_device_get_devnode(pParentDevice);
+                    rSTMgrMainClass::getInstance()->addNewMemoryDevice(devicePath, RDK_STMGR_DEVICE_TYPE_NVRAM);
+                }
+            }
+
             if ((pDevType) && (strcasecmp (pDevType, "disk") == 0))
             {
+                pParentDevice = NULL;
                 std::string devicePath = udev_device_get_devnode(pDevice);
                 STMGRLOG_INFO ("Sys    Path : %s\n", udev_device_get_syspath(pDevice));
                 STMGRLOG_INFO ("Device Path : %s\n", udev_device_get_devpath(pDevice));
                 STMGRLOG_INFO ("Device Type : %s\n", udev_device_get_devtype(pDevice));
                 STMGRLOG_INFO ("Device Node : %s\n", devicePath.c_str());
 
-                /* This ensures that the disk that is identified is UBI subsystem */
-                if (!isNVRAMDeviceFound)
-                {
-                    pParentDevice = udev_device_get_parent_with_subsystem_devtype(pDevice, "ubi", NULL);
-                    if (pParentDevice)
-                    {
-                        isNVRAMDeviceFound = true;
-                        STMGRLOG_INFO ("IS UBI/NVRAM TYPE : Yes\n");
-                        std::string devicePath2 = udev_device_get_devnode(pParentDevice);
-                        rSTMgrMainClass::getInstance()->addNewMemoryDevice(devicePath2, RDK_STMGR_DEVICE_TYPE_NVRAM);
-                    }
-                }
-
                 //Check the presense of SDCard; Create n Add it to the map
-                pParentDevice = NULL;
 
                 /* This ensures that the disk that is identified is MMC subsystem */
                 pParentDevice = udev_device_get_parent_with_subsystem_devtype(pDevice, "mmc", NULL);

@@ -13,6 +13,7 @@ class rStorageNVRAM : public rStorageMedia
 
     void readEraseCount();
     void readChipDetails();
+    void parseManufData(std::string &parseStr);
 
 public:
     rStorageNVRAM(std::string devicePath);

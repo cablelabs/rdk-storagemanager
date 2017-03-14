@@ -1,11 +1,20 @@
 #include "rdkStorageNVRAM.h"
 #include "rdkStorageMgrLogger.h"
+#include <algorithm>
 #include <fstream>
+#include <sstream>
+#include <string>
+#include <vector>
+#include <limits>
+
 
 #define RDK_STMGR_NVRAM_EC_MAX      100000     /*<! SLC NAND theoretically are good for 100,000 cycles.*/
 #define RDK_STMGR_NVRAM_EC_LIMIT     99000     /*<! Limiting 1000 cycles less to notify that its about to die */
 #define RDK_STMGR_NVRAM_TMP_FILE    "/tmp/rStorageNVRAM.file"
-#define RDK_STMGR_NVRAM_LOG_FILE    "/tmp/rStorageNVRAM.file"
+#define RDK_STMGR_NVRAM_LOG_FILE    "/opt/logs/startup_stdout_log.txt"
+
+const std::string RDK_STMGR_MANF_ID = "Manufacturer ID";
+const std::string RDK_STMGR_CHIP_ID = "Chip ID";
 
 rStorageNVRAM::rStorageNVRAM(std::string devicePath)
 {
@@ -192,10 +201,9 @@ void rStorageNVRAM::readChipDetails()
     }
     else
     {
-        //char line[1024] = {'\0'};
-        //char *isFound = NULL;
         std::string line;
         std::size_t isFound = std::string::npos;
+        std::string newStr;
 
         while(!tmpFile.eof())
         {
@@ -203,7 +211,6 @@ void rStorageNVRAM::readChipDetails()
             isFound = line.find(findStr);
             if (isFound != std::string::npos)
             {
-                isFound += findStr.length();
                 break;
             }
         }
@@ -212,19 +219,130 @@ void rStorageNVRAM::readChipDetails()
         /* Check whether it is found something.. */
         if (isFound == std::string::npos)
         {
+            STMGRLOG_ERROR ("The NAND Device is not found in the file that we monitor\n");
             return;
         }
         else
         {
-            /* TODO here */
-            std::string newStr = line.substr (isFound);
+            isFound += findStr.length();
+
+            /* Write the retrived data into tmp file. */
+            newStr = line.substr (isFound);
             STMGRLOG_INFO ("The line that we found is @%s@\n", newStr.c_str());
+            ofstream writeFile;
+            writeFile.open (RDK_STMGR_NVRAM_TMP_FILE);
+            writeFile << newStr;
+            writeFile.close();
         }
 
+        parseManufData(newStr);
     }
-#if 0
-    //FIXME: Update the followings
-    char m_manufacturer[RDK_STMGR_MAX_STRING_LENGTH];
-    char m_model[RDK_STMGR_MAX_STRING_LENGTH];
-#endif
 }
+
+std::string & ltrim_string (std::string & s)
+{
+    s.erase (s.begin (), std::find_if (s.begin (), s.end (), std::not1 (std::ptr_fun < int, int >(std::isspace))));
+    return s;
+}
+
+std::string & rtrim_string (std::string & s)
+{
+    s.erase (std::find_if (s.rbegin (), s.rend (), std::not1 (std::ptr_fun < int, int >(std::isspace))).base (), s.end ());
+    return s;
+}
+
+std::string & trim_string (std::string & s)
+{
+    return ltrim_string (rtrim_string (s));
+}
+
+std::vector < std::string > &split_string (const std::string & s, char delim, std::vector < std::string > &elems)
+{
+    std::stringstream ss (s);
+    std::string item;
+    while (std::getline (ss, item, delim))
+    {
+        elems.push_back (item);
+    }
+    return elems;
+}
+
+void rStorageNVRAM::parseManufData(std::string &parseStr)
+{
+    std::string nandHeader = parseStr;
+    std::string manufactureStr;
+    std::string chipIdStr;
+    size_t position = 0;
+
+    STMGRLOG_DEBUG ("The received string for parsing is %s\n", nandHeader.c_str());
+
+    size_t manufactureIndex = nandHeader.find(RDK_STMGR_CHIP_ID);
+    if (manufactureIndex != std::string::npos)
+    {
+        manufactureStr = nandHeader.substr(0, manufactureIndex);
+        chipIdStr = nandHeader.substr(manufactureIndex);
+
+        /* Parse Manufacturer ID */
+        position = manufactureStr.find_first_of (':');
+        if (position != std::string::npos)
+        {
+            std::string serialStr = manufactureStr.substr((position + 1));
+            position = serialStr.find_first_of (',');
+            if (position != std::string::npos)
+                serialStr[position] = ' ';
+            serialStr = trim_string (serialStr);
+            strcpy (m_serialNumber, serialStr.c_str());
+            STMGRLOG_INFO ("The serial number that we found is %s\n", serialStr.c_str());
+        }
+
+        /* Parse the Chip ID */
+        position = chipIdStr.find_first_of (':');
+        if (position != std::string::npos)
+        {
+            std::string tmpStr = chipIdStr.substr((position + 1));
+            tmpStr = trim_string (tmpStr);
+
+            std::vector<std::string> splitStr;
+            split_string (tmpStr, ' ', splitStr);
+            if (splitStr.size() == 3)
+            {
+                tmpStr = splitStr.at(0);
+                strcpy (m_firmwareVersion, tmpStr.c_str());
+                STMGRLOG_INFO ("The firmware version that we found is %s\n", tmpStr.c_str());
+
+                std::string manufStr = splitStr.at(1);
+                if (manufStr[0] == '(')
+                {
+                    manufStr[0] = ' ';
+                }
+                manufStr = trim_string(manufStr);
+                STMGRLOG_INFO ("The Manufacturer name that we found is %s\n", manufStr.c_str());
+                strcpy (m_manufacturer, manufStr.c_str());
+
+                std::string modelStr = splitStr.at(2);
+                size_t len = modelStr.length() - 1;
+                if (modelStr[len] == ')')
+                {
+                    modelStr[len] = ' ';
+                }
+                modelStr = trim_string(modelStr);
+                STMGRLOG_INFO ("The Model that we found is %s\n", modelStr.c_str());
+                strcpy(m_model, modelStr.c_str());
+            }
+            else
+            {
+                STMGRLOG_ERROR ("The parsed string does nt hv manufacture name n model\n");
+                strcpy (m_firmwareVersion, tmpStr.c_str());
+                STMGRLOG_INFO ("The firmware version that we found is %s\n", tmpStr.c_str());
+            }
+        }
+    }
+    else
+    {
+        STMGRLOG_ERROR ("The received string does not have manufacture ID (%s)\n", nandHeader.c_str());
+    }
+
+    return;
+}
+
+/* End of File */
