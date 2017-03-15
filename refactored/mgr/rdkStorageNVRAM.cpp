@@ -27,13 +27,18 @@ rStorageNVRAM::rStorageNVRAM(std::string devicePath)
 
     int l = strlen ("/dev/ubi");
     int id = m_devicePath.at(l);
-    sprintf (m_deviceID, "%d", id);
+    sprintf (m_deviceID, "%c", m_devicePath[l]);
+    STMGRLOG_ERROR ("The m_deviceID is %s\n", m_deviceID);
 }
 
 /* Populates all the device data base */
 eSTMGRReturns rStorageNVRAM::populateDeviceDetails()
 {
     eSTMGRReturns rc = RDK_STMGR_RETURN_SUCCESS;
+
+    m_status = RDK_STMGR_DEVICE_STATUS_OK;
+    m_hasSMARTSupport = false;
+    memset (&m_ifATAstandard, 0 , sizeof(m_ifATAstandard));
 
     /* Get the Manufacturer detials */
     {
@@ -113,6 +118,32 @@ eSTMGRReturns rStorageNVRAM::populateDeviceDetails()
                 }
             }
         }
+
+
+        /* Get the m_capacity */
+        if (m_parentDevice)
+        {
+            struct udev_device *pMTDDevice = NULL;
+            std::string mtdNumber = udev_device_get_sysattr_value(m_parentDevice, "mtd_num");
+            STMGRLOG_INFO ("The mtdnumber is, %s\n", mtdNumber.c_str());
+            std::string mtdDev = "mtd";
+            mtdDev += mtdNumber;
+            pMTDDevice = udev_device_new_from_subsystem_sysname(m_pUDevNVRAM, "mtd", mtdDev.c_str());
+            if (pMTDDevice)
+            {
+                const char *pCapacity = udev_device_get_sysattr_value(pMTDDevice, "size");
+                if (pCapacity)
+                {
+                    m_capacity = (unsigned long) (atol(pCapacity)/1024);
+                }
+                STMGRLOG_INFO ("The Capacity of this NVRAM device is, %u\n", m_capacity);
+            }
+            else
+            {
+                STMGRLOG_ERROR ("Could not get the MTD Device info.. \n");
+            }
+
+        }
     }
     return rc;
 }
@@ -189,15 +220,17 @@ void rStorageNVRAM::readChipDetails()
     if(!tmpFile)
     {
         STMGRLOG_ERROR("The temp file is not present; Seems like first time boot..\n");
-    }
-    else
-    {
         tmpFile.open(RDK_STMGR_NVRAM_LOG_FILE);
     }
 
     if(!tmpFile)
     {
         STMGRLOG_ERROR("The log file also not present; Seems like we will not be able to provide the info..\n");
+
+        memset (&m_firmwareVersion, 0, sizeof (m_firmwareVersion));
+        memset (&m_manufacturer, 0, sizeof (m_firmwareVersion));
+        memset (&m_model, 0, sizeof (m_firmwareVersion));
+        memset (&m_serialNumber, 0, sizeof (m_firmwareVersion));
     }
     else
     {
@@ -237,6 +270,7 @@ void rStorageNVRAM::readChipDetails()
 
         parseManufData(newStr);
     }
+    return;
 }
 
 std::string & ltrim_string (std::string & s)

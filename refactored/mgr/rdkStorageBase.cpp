@@ -6,8 +6,28 @@
 using namespace std;
 
 rStorageMedia::rStorageMedia()
+    : m_devicePath("")
+    , m_type(RDK_STMGR_DEVICE_TYPE_MAX)
+    , m_capacity (0)
+    , m_status(RDK_STMGR_DEVICE_STATUS_UNKNOWN)
+    , m_hasSMARTSupport(false)
+    , m_tsbStatus(RDK_STMGR_TSB_STATUS_FAILED)
+    , m_maxTSBCapacityinMinutes(0)
+    , m_maxTSBLengthConfigured(0)
+    , m_maxTSBCapacityinKB(0)
+    , m_freeTSBSpaceLeftinKB(0)
+    , m_maxDVRCapacityinKB(0)
+    , m_freeDVRSpaceLeftinKB(0)
+    , m_isTSBEnabled(false)
+    , m_isDVREnabled(false)
+    , m_isTSBSupported(false)
+    , m_isDVRSupported(false)
 {
-
+    memset (&m_manufacturer, 0, sizeof(m_manufacturer));
+    memset (&m_model, 0, sizeof(m_model));
+    memset (&m_serialNumber, 0, sizeof(m_serialNumber));
+    memset (&m_firmwareVersion, 0, sizeof(m_firmwareVersion));
+    memset (&m_ifATAstandard, 0, sizeof(m_ifATAstandard));
 }
 
 rStorageMedia::~rStorageMedia()

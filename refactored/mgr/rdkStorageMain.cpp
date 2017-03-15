@@ -24,6 +24,7 @@ rSTMgrMainClass* rSTMgrMainClass::getInstance()
 rSTMgrMainClass::rSTMgrMainClass ()
 {
     m_mainMutex = PTHREAD_MUTEX_INITIALIZER;
+    stmgrHealthMonitorTID = 0;
     STMGRLOG_WARN ("RDK-9318 :: Enabled Refactored Storage Manager Code for storagemanager_3\n");
 }
 

@@ -168,9 +168,24 @@ void rdkStorage_init (void)
         struct udev_list_entry *pDeviceListEntry = NULL;
         bool isNVRAMDeviceFound = false;
 
+        /* This ensures that the disk that is identified is UBI subsystem */
+        if (!isNVRAMDeviceFound)
+        {
+            //pParentDevice = udev_device_get_parent_with_subsystem_devtype(pDevice, "ubi", NULL);
+            pParentDevice = udev_device_new_from_subsystem_sysname (g_uDevInstance, "ubi", "ubi0");
+            if (pParentDevice)
+            {
+                isNVRAMDeviceFound = true;
+                STMGRLOG_INFO ("IS UBI/NVRAM TYPE : Yes\n");
+                STMGRLOG_INFO ("Sys 2 Name  : %s\n", udev_device_get_sysname(pParentDevice));
+                std::string devicePath = udev_device_get_devnode(pParentDevice);
+                rSTMgrMainClass::getInstance()->addNewMemoryDevice(devicePath, RDK_STMGR_DEVICE_TYPE_NVRAM);
+            }
+        }
+
+        /* Loop in for other disk devices */
         pEnumerate = udev_enumerate_new(g_uDevInstance);
         udev_enumerate_add_match_subsystem(pEnumerate, "block");
-        udev_enumerate_add_match_subsystem(pEnumerate, "ubi");
         if (0 != udev_enumerate_scan_devices(pEnumerate))
         {
             STMGRLOG_ERROR("Failed to scan the devices \n");
@@ -196,19 +211,6 @@ void rdkStorage_init (void)
             STMGRLOG_INFO ("Sys  2 Path : %s\n", pSysPath);
             STMGRLOG_INFO ("Device Path : %s\n", udev_device_get_devpath(pDevice));
             STMGRLOG_INFO ("Device Type : %s\n", udev_device_get_devtype(pDevice));
-
-            /* This ensures that the disk that is identified is UBI subsystem */
-            if (!isNVRAMDeviceFound)
-            {
-                pParentDevice = udev_device_get_parent_with_subsystem_devtype(pDevice, "ubi", NULL);
-                if (pParentDevice)
-                {
-                    isNVRAMDeviceFound = true;
-                    STMGRLOG_INFO ("IS UBI/NVRAM TYPE : Yes\n");
-                    std::string devicePath = udev_device_get_devnode(pParentDevice);
-                    rSTMgrMainClass::getInstance()->addNewMemoryDevice(devicePath, RDK_STMGR_DEVICE_TYPE_NVRAM);
-                }
-            }
 
             if ((pDevType) && (strcasecmp (pDevType, "disk") == 0))
             {
