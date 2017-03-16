@@ -26,7 +26,6 @@ rStorageNVRAM::rStorageNVRAM(std::string devicePath)
     m_eraseCount = RDK_STMGR_NVRAM_EC_MAX;
 
     int l = strlen ("/dev/ubi");
-    int id = m_devicePath.at(l);
     sprintf (m_deviceID, "%c", m_devicePath[l]);
     STMGRLOG_ERROR ("The m_deviceID is %s\n", m_deviceID);
 }
