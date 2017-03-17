@@ -72,7 +72,6 @@ void*  deviceConnectRemoveMonitorfn  (void *pData)
     pUDevMonitor = udev_monitor_new_from_netlink(g_uDevInstance, "udev");
 
     udev_monitor_filter_add_match_subsystem_devtype(pUDevMonitor, "mmc", NULL);
-    udev_monitor_filter_add_match_subsystem_devtype(pUDevMonitor, "ubi", NULL);
     udev_monitor_filter_add_match_subsystem_devtype(pUDevMonitor, "block", NULL);
     udev_monitor_enable_receiving(pUDevMonitor);
 
