@@ -125,6 +125,7 @@ eSTMGRReturns rStorageMedia::getPartitionInfo (char* pPartitionId, eSTMGRPartiti
             pPartitionInfo->m_freeSpace = pTemp->m_freeSpaceinKB;
             pPartitionInfo->m_status = pTemp->m_status;
             pPartitionInfo->m_isDVRSupported = pTemp->m_isDVRSupported;
+            pPartitionInfo->m_isTSBSupported = pTemp->m_isTSBSupported;
             STMGRLOG_INFO ("copied all the data at %s\n", __FUNCTION__);
         }
     }
