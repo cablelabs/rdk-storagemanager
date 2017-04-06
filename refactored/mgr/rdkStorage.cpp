@@ -259,8 +259,8 @@ void rdkStorage_init (void)
         if (!isAnyDeviceFound)
         {
             STMGRLOG_ERROR ("Hack it with /dev/sda as we support only HDD platform at this point in time.\n");
-            std::string devicePath = "/dev/sda";
-            rSTMgrMainClass::getInstance()->addNewMemoryDevice(devicePath, RDK_STMGR_DEVICE_TYPE_HDD);
+//            std::string devicePath = "/dev/sda";
+//            rSTMgrMainClass::getInstance()->addNewMemoryDevice(devicePath, RDK_STMGR_DEVICE_TYPE_HDD);
         }
 
         /* NVRAM */

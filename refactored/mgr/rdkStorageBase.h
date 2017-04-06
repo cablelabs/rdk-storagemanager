@@ -36,6 +36,7 @@ protected:
     char m_model[RDK_STMGR_MAX_STRING_LENGTH];
     char m_serialNumber[RDK_STMGR_MAX_STRING_LENGTH];
     char m_firmwareVersion[RDK_STMGR_MAX_STRING_LENGTH];
+    char m_hwVersion[RDK_STMGR_MAX_STRING_LENGTH];    /* LotID */
     char m_ifATAstandard[RDK_STMGR_MAX_STRING_LENGTH];
     bool m_hasSMARTSupport;
     eSTMGRHealthInfo m_healthInfo;
