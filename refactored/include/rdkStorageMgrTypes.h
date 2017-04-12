@@ -34,13 +34,13 @@ typedef enum _stmgr_DeviceType {
 
 typedef enum _stmgr_DeviceStatus {
     RDK_STMGR_DEVICE_STATUS_OK              = 0,
-    RDK_STMGR_DEVICE_STATUS_READ_ONLY       = (1 < 0),
-    RDK_STMGR_DEVICE_STATUS_NOT_PRESENT     = (1 < 1),
-    RDK_STMGR_DEVICE_STATUS_NOT_QUALIFIED   = (1 < 2),
-    RDK_STMGR_DEVICE_STATUS_DISK_FULL       = (1 < 3),
-    RDK_STMGR_DEVICE_STATUS_READ_FAILURE    = (1 < 4),
-    RDK_STMGR_DEVICE_STATUS_WRITE_FAILURE   = (1 < 5),
-    RDK_STMGR_DEVICE_STATUS_UNKNOWN         = (1 < 6)
+    RDK_STMGR_DEVICE_STATUS_READ_ONLY       = (1 << 0),
+    RDK_STMGR_DEVICE_STATUS_NOT_PRESENT     = (1 << 1),
+    RDK_STMGR_DEVICE_STATUS_NOT_QUALIFIED   = (1 << 2),
+    RDK_STMGR_DEVICE_STATUS_DISK_FULL       = (1 << 3),
+    RDK_STMGR_DEVICE_STATUS_READ_FAILURE    = (1 << 4),
+    RDK_STMGR_DEVICE_STATUS_WRITE_FAILURE   = (1 << 5),
+    RDK_STMGR_DEVICE_STATUS_UNKNOWN         = (1 << 6)
 } eSTMGRDeviceStatus;
 
 typedef enum _stmgr_TSBStatus {
