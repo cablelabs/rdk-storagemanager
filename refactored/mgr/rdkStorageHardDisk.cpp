@@ -366,7 +366,7 @@ bool rStorageHDDrive::get_Xfs_fs_stat(rStoragePartition *partition, const char* 
 {
     xfs_fsop_counts_t xfsFree;
     struct xfs_fsop_geom fsInfo;
-    int rc;
+    int rc, rc1;
     int fd;
     unsigned long long totalCapacity= 0;
     unsigned long long availCapacity= 0;
@@ -376,20 +376,20 @@ bool rStorageHDDrive::get_Xfs_fs_stat(rStoragePartition *partition, const char* 
     if ( fd >= 0 )
     {
         rc = xfsctl( mountpoint, fd, XFS_IOC_FSCOUNTS, &xfsFree );
+        rc1 = xfsctl( mountpoint, fd, XFS_IOC_FSGEOMETRY, &fsInfo );
         if ( rc >= 0 )
         {
-            availCapacity= (((long long)(xfsFree.freertx))*((long long)(fsInfo.blocksize)))/1024; //*in KB*/;
+            availCapacity= (((long long)(xfsFree.freedata))*((long long)(fsInfo.blocksize)))/1024; //*in KB*/;
         } else {
             STMGRLOG_ERROR("Failed in xfsctl (XFS_IOC_FSCOUNT) %s (%d), couldn't calculate free capacity.\n", strerror(errno), errno);
         }
-        rc = xfsctl( mountpoint, fd, XFS_IOC_FSGEOMETRY, &fsInfo );
-        if ( rc >= 0 )
+
+        if ( rc1 >= 0 )
         {
 
             totalCapacity = ((long long)fsInfo.blocksize*(long long)fsInfo.rtblocks)/1024; 	/*in KB*/
             partition->m_capacityinKB = totalCapacity;
             partition->m_freeSpaceinKB = availCapacity;
-
 
             partition->m_status =  RDK_STMGR_DEVICE_STATUS_OK;
 
