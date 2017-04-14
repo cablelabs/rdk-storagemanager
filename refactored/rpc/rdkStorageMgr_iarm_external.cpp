@@ -665,6 +665,42 @@ eSTMGRReturns rdkStorage_getHealth (char* pDeviceID, eSTMGRHealthInfo* pHealthIn
     return rc;
 }
 
+eSTMGRReturns rdkStorage_getTSBPartitionMountPath (char* pMountPath)
+{
+    eSTMGRReturns rc = RDK_STMGR_RETURN_SUCCESS;
+    IARM_Result_t retCode = IARM_RESULT_SUCCESS;
+    char mountPath[RDK_STMGR_MAX_STRING_LENGTH] = "";
+    memset (&mountPath, 0, sizeof(mountPath));
+
+    if (pMountPath)
+    {
+        rc = RDK_STMGR_RETURN_INVALID_INPUT;
+        STMGRLOG_ERROR ("%s : Invalid input passed\n", __FUNCTION__);
+    }
+    else if (_stmgr_isSTMGRInited())
+    {
+        retCode = IARM_Bus_Call(IARM_BUS_STMGR_NAME, "GetTSBPartitionMountPath", (void *)&mountPath, sizeof(mountPath));
+        if (IARM_RESULT_SUCCESS == retCode)
+        {
+            /* Copy over the data */
+            memcpy (pMountPath, &mountPath, sizeof(mountPath));
+            STMGRLOG_INFO ("%s : Successfully finished \n", __FUNCTION__);
+        }
+        else
+        {
+            STMGRLOG_ERROR ("%s The IARM communication failed with rc = %d\n", __FUNCTION__, retCode);
+            rc = RDK_STMGR_RETURN_GENERIC_FAILURE;
+        }
+    }
+    else
+    {
+        STMGRLOG_ERROR ("Init is not done yet or failed init.\n");
+        rc = RDK_STMGR_RETURN_INIT_FAILURE;
+
+    }
+    return rc;
+}
+
 eSTMGRReturns rdkStorage_RegisterEventCallback(fnSTMGR_EventCallback eventCallback)
 {
     eSTMGRReturns rc = RDK_STMGR_RETURN_SUCCESS;

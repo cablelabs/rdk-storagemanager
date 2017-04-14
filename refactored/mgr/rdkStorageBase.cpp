@@ -359,10 +359,38 @@ bool rStorageMedia::isDVRSupported()
 {
     return m_isDVRSupported;
 }
+
 eSTMGRReturns rStorageMedia::getHealth (eSTMGRHealthInfo* pHealthInfo)
 {
     return RDK_STMGR_RETURN_SUCCESS;
 }
 
+eSTMGRReturns rStorageMedia::getTSBPartitionMountPath(char* pMountPath)
+{
+    eSTMGRReturns rc = RDK_STMGR_RETURN_SUCCESS;
 
+    if (!pMountPath)
+    {
+        STMGRLOG_ERROR ("NULL Pointer input at %s\n", __FUNCTION__);
+        rc = RDK_STMGR_RETURN_INVALID_INPUT;
+    }
+    else if (m_isTSBEnabled)
+    {
+        for (auto it = m_partitionInfo.begin(); it != m_partitionInfo.end(); ++it )
+        {
+            rStoragePartition* pTemp = it->second;
+            if (pTemp->m_isTSBSupported)
+            {
+                strcpy (pMountPath, pTemp->m_mountPath);
+                break;
+            }
+        }
+    }
+    else
+    {
+        STMGRLOG_ERROR ("Found that this storage device (deviceID = %s) is not supporting TSB\n", m_deviceID);
+    }
+
+    return rc;
+}
 /* End of file */

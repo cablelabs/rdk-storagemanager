@@ -82,6 +82,8 @@ typedef struct _stmgr_DeviceInfos {
 
 typedef struct _stmgr_PartitionInfo {
     char m_partitionId [RDK_STMGR_MAX_STRING_LENGTH];
+    char m_name [RDK_STMGR_MAX_STRING_LENGTH];
+    char m_mountPath [RDK_STMGR_MAX_STRING_LENGTH];
     char m_format[RDK_STMGR_MAX_STRING_LENGTH];
     eSTMGRDeviceStatus m_status;
     unsigned long m_capacity;

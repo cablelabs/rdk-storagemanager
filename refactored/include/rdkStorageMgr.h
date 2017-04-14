@@ -65,6 +65,9 @@ eSTMGRReturns rdkStorage_getHealth (char* pDeviceID, eSTMGRHealthInfo* pHealthIn
 /* Callback Function */
 eSTMGRReturns rdkStorage_RegisterEventCallback(fnSTMGR_EventCallback eventCallback);
 
+/* Get TSB Partition Mount Path */
+eSTMGRReturns rdkStorage_getTSBPartitionMountPath (char* pMountPath);
+
 #ifdef __cplusplus
 }
 #endif

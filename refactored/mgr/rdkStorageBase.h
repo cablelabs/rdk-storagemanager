@@ -12,6 +12,8 @@ class rStoragePartition {
 public:
 //    rStoragePartition();
     char m_partitionId [RDK_STMGR_MAX_STRING_LENGTH];
+    char m_name [RDK_STMGR_MAX_STRING_LENGTH];
+    char m_mountPath [RDK_STMGR_MAX_STRING_LENGTH];
     char m_format[RDK_STMGR_MAX_STRING_LENGTH];
     unsigned long m_capacityinKB;
     unsigned long m_freeSpaceinKB;
@@ -76,7 +78,7 @@ public:
     virtual eSTMGRReturns getHealth (eSTMGRHealthInfo* pHealthInfo);
     virtual bool isTSBSupported();
     virtual bool isDVRSupported();
-
+    virtual eSTMGRReturns getTSBPartitionMountPath(char* pMountPath);
     /* Populates all the device data base */
     virtual eSTMGRReturns populateDeviceDetails (void) = 0;
     /* Queries the Device for the health info */

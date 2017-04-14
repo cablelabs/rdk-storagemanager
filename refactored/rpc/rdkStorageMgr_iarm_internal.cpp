@@ -397,6 +397,28 @@ static IARM_Result_t _GetHealthInfo(void *arg)
     return rc;
 }
 
+static IARM_Result_t _GetTSBPartitionMountPath (void *arg)
+{
+    IARM_Result_t rc = IARM_RESULT_SUCCESS;
+    char *pMountPath = (char*) arg;
+
+    if (!pMountPath)
+    {
+        rc = IARM_RESULT_INVALID_PARAM;
+        STMGRLOG_ERROR ("%s : Invalid input passed\n", __FUNCTION__);
+    }
+    else
+    {
+        eSTMGRReturns retCode = rdkStorage_getTSBPartitionMountPath(pMountPath);
+        if (retCode != RDK_STMGR_RETURN_SUCCESS)
+        {
+            STMGRLOG_ERROR ("%s : failed\n", __FUNCTION__);
+            rc = IARM_RESULT_IPCCORE_FAIL; /* We do not have other IARM Error code to describe this. */
+        }
+    }
+    return rc;
+}
+
 void stmgr_BeginIARMMode()
 {
     static bool m_isInited = false;
@@ -425,6 +447,7 @@ void stmgr_BeginIARMMode()
         IARM_Bus_RegisterCall ("GetIsDVREnabled", _GetIsDVREnabled);
         IARM_Bus_RegisterCall ("SetIsDVREnabled", _SetIsDVREnabled);
         IARM_Bus_RegisterCall ("GetHealthInfo", _GetHealthInfo);
+        IARM_Bus_RegisterCall ("GetTSBPartitionMountPath", _GetTSBPartitionMountPath);
 
         IARM_Bus_RegisterEvent(RDK_STMGR_IARM_EVENT_MAX);
 

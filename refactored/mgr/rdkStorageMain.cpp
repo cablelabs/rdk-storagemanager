@@ -818,6 +818,41 @@ eSTMGRReturns rSTMgrMainClass::getHealth (char* pDeviceID, eSTMGRHealthInfo* pHe
     return RDK_STMGR_RETURN_SUCCESS;
 }
 
+eSTMGRReturns rSTMgrMainClass::getTSBPartitionMountPath (char* pMountPath)
+{
+    rStorageMedia *pMemoryObj = NULL;
+    bool isFound = false;
+    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+
+    if (!pMountPath)
+    {
+        STMGRLOG_ERROR ("NULL Pointer input\n");
+        return RDK_STMGR_RETURN_INVALID_INPUT;
+    }
+
+    pthread_mutex_lock(&m_mainMutex);
+    for (auto it = m_storageDeviceObjects.begin(); it != m_storageDeviceObjects.end(); ++it)
+    {
+        pMemoryObj = it->second;
+        if (pMemoryObj->isTSBSupported())
+        {
+            isFound = true;
+            STMGRLOG_INFO ("Found a TSB supported Storage Device..\n");
+            pMemoryObj->getTSBPartitionMountPath (pMountPath);
+            break;
+        }
+    }
+    pthread_mutex_unlock(&m_mainMutex);
+
+    if (!isFound)
+    {
+        STMGRLOG_ERROR ("Found a device which supports TSB n Path has been noted\n");
+        return RDK_STMGR_RETURN_GENERIC_FAILURE;
+    }
+
+    return RDK_STMGR_RETURN_SUCCESS;
+}
+
 eSTMGRReturns rSTMgrMainClass::registerEventCallback(fnSTMGR_EventCallback eventCallback)
 {
     STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);

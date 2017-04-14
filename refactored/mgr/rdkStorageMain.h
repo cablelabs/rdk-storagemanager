@@ -43,6 +43,7 @@ public:
     bool isDVREnabled(void);
     eSTMGRReturns setDVREnabled (bool isEnabled);
     eSTMGRReturns getHealth (char* pDeviceID, eSTMGRHealthInfo* pHealthInfo);
+    eSTMGRReturns getTSBPartitionMountPath (char* pMountPath);
     eSTMGRReturns registerEventCallback(fnSTMGR_EventCallback eventCallback);
 };
 

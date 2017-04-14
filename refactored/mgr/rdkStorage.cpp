@@ -413,6 +413,13 @@ eSTMGRReturns rdkStorage_getHealth (char* pDeviceID, eSTMGRHealthInfo* pHealthIn
     return rSTMgrMainClass::getInstance()->getHealth (pDeviceID, pHealthInfo);
 }
 
+eSTMGRReturns rdkStorage_getTSBPartitionMountPath (char* pMountPath)
+{
+    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+
+    return rSTMgrMainClass::getInstance()->getTSBPartitionMountPath(pMountPath);
+}
+
 /* Callback Function */
 eSTMGRReturns rdkStorage_RegisterEventCallback(fnSTMGR_EventCallback eventCallback)
 {
