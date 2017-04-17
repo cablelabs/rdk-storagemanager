@@ -114,7 +114,7 @@ eSTMGRReturns rSTMgrMainClass::deleteMemoryDevice(std::string key)
         pTemp->getDeviceId(events.m_deviceID);
         events.m_eventType = RDK_STMGR_EVENT_STATUS_CHANGED;
         events.m_deviceType = pTemp->getDeviceType();
-        events.m_deviceStatus = pTemp->getDeviceStatus();
+        events.m_deviceStatus = RDK_STMGR_DEVICE_STATUS_NOT_PRESENT;
 
         STMGRLOG_INFO ("Successfully found the entry and deleted.. \n");
         /* Delete it */
@@ -838,7 +838,7 @@ eSTMGRReturns rSTMgrMainClass::getTSBPartitionMountPath (char* pMountPath)
         if (pMemoryObj->isTSBSupported())
         {
             isFound = true;
-            STMGRLOG_INFO ("Found a TSB supported Storage Device..\n");
+            STMGRLOG_INFO ("Found a device which supports TSB n Path has been noted\n");
             pMemoryObj->getTSBPartitionMountPath (pMountPath);
             break;
         }
@@ -847,9 +847,24 @@ eSTMGRReturns rSTMgrMainClass::getTSBPartitionMountPath (char* pMountPath)
 
     if (!isFound)
     {
-        STMGRLOG_ERROR ("Found a device which supports TSB n Path has been noted\n");
+        STMGRLOG_ERROR ("Not found a device which supports TSB\n");
         return RDK_STMGR_RETURN_GENERIC_FAILURE;
     }
+
+    return RDK_STMGR_RETURN_SUCCESS;
+}
+
+eSTMGRReturns rSTMgrMainClass::notifyMGRAboutFailure (eSTMGRErrorEvent failEvent)
+{
+    eSTMGREventMessage events;
+    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    memset (&events, 0, sizeof(events));
+
+    events.m_eventType = RDK_STMGR_EVENT_TSB_ERROR;
+    events.m_deviceType = RDK_STMGR_DEVICE_TYPE_SDCARD;
+    events.m_deviceStatus = RDK_STMGR_DEVICE_STATUS_WRITE_FAILURE;
+
+    notifyEvent(events);
 
     return RDK_STMGR_RETURN_SUCCESS;
 }

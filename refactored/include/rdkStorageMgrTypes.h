@@ -56,6 +56,11 @@ typedef enum _stmgr_events {
     RDK_STMGR_EVENT_DEVICE_FAILURE
 } eSTMGREvents;
 
+typedef enum _stmgr_ErrorEvent {
+    RDK_STMGR_TSB_WRITE_FAILURE = 100,
+    RDK_STMGR_TSB_UNKNOWN_FAILURE
+} eSTMGRErrorEvent;
+
 typedef struct _stmgr_DeviceIds {
     unsigned short m_numOfDevices;
     char m_deviceIDs[RDK_STMGR_MAX_DEVICES][RDK_STMGR_MAX_STRING_LENGTH];
@@ -120,6 +125,7 @@ typedef struct _stmgr_EventMessage {
 } eSTMGREventMessage;
 
 typedef void (*fnSTMGR_EventCallback)(eSTMGREventMessage);
+
 #ifdef __cplusplus
 }
 #endif

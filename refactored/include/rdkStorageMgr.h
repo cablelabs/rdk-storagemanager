@@ -68,6 +68,7 @@ eSTMGRReturns rdkStorage_RegisterEventCallback(fnSTMGR_EventCallback eventCallba
 /* Get TSB Partition Mount Path */
 eSTMGRReturns rdkStorage_getTSBPartitionMountPath (char* pMountPath);
 
+void rdkStorage_notifyMGRAboutFailure (eSTMGRErrorEvent failEvent);
 #ifdef __cplusplus
 }
 #endif

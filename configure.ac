@@ -20,9 +20,23 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
-AC_INIT([StorageManager], [1.0], [rajnish_dey2@cable.comcast.com])
+m4_define([stmgr_major_version], [2])
+m4_define([stmgr_minor_version], [0])
+m4_define([stmgr_micro_version], [0])
+m4_define([stmgr_version], [stmgr_major_version.stmgr_minor_version.stmgr_micro_version])
+
+AC_INIT([StorageManager], [stmgr_version], [rajnish_dey2@cable.comcast.com])
 AC_CONFIG_SRCDIR([src/rpc/src/storageMgr.cpp])
 #AC_CONFIG_SRCDIR([src/udev_test.c])
+
+STMGR_MAJOR_VERSION=stmgr_major_version
+STMGR_MINOR_VERSION=stmgr_minor_version
+STMGR_MICRO_VERSION=stmgr_micro_version
+
+AC_SUBST(STMGR_MAJOR_VERSION)
+AC_SUBST(STMGR_MINOR_VERSION)
+AC_SUBST(STMGR_MICRO_VERSION)
+
 
 AC_CONFIG_MACRO_DIR([cfg])
 AC_CONFIG_AUX_DIR([cfg])
@@ -114,24 +128,28 @@ AM_CONDITIONAL([SDCSUPPORT], [test x$SDCSUPPORT = xtrue])
 
 AC_CHECK_LIB(gthread-2.0, g_thread_init)
 
-ENABLE_LATEST_CODE=""
+ENABLE_STMGR_V2_CODE=""
 AC_ARG_ENABLE([refactored-mgr],
         AS_HELP_STRING([--enable-refactored-mgr],[This will enable refactored-src compilation instead of legacy src/includes. ]),
         [
           case "${enableval}" in
-           yes) ENABLE_LATEST_CODE=true ;;
-            no) ENABLE_LATEST_CODE=false echo[latest mgr code is disabled & Legacy code is used];;
+           yes) ENABLE_STMGR_V2_CODE=true ;;
+            no) ENABLE_STMGR_V2_CODE=false echo[latest mgr code is disabled & Legacy code is used];;
              *) AC_MSG_ERROR([bad value ${enableval} for --enable-refactored-mgr ]) ;;
           esac
         ],
         [ echo "Used Legacy Code n disabled Refactored Code"])
 
-AM_CONDITIONAL(USE_REFACTORED, test "x$ENABLE_LATEST_CODE" = xtrue)
+AM_CONDITIONAL(USE_REFACTORED, test "x$ENABLE_STMGR_V2_CODE" = xtrue)
 
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_PID_T
 AC_TYPE_SIZE_T
+
+if test "x$ENABLE_STMGR_V2_CODE" = "xtrue"; then
+    AC_CONFIG_FILES([storagemanager.pc])
+fi
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([src/Makefile])

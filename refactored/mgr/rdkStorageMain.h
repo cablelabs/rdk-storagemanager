@@ -43,6 +43,7 @@ public:
     eSTMGRReturns setDVREnabled (bool isEnabled);
     eSTMGRReturns getHealth (char* pDeviceID, eSTMGRHealthInfo* pHealthInfo);
     eSTMGRReturns getTSBPartitionMountPath (char* pMountPath);
+    eSTMGRReturns notifyMGRAboutFailure (eSTMGRErrorEvent failEvent);
     eSTMGRReturns registerEventCallback(fnSTMGR_EventCallback eventCallback);
 };
 

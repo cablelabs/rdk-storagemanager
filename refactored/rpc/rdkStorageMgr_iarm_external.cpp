@@ -701,6 +701,29 @@ eSTMGRReturns rdkStorage_getTSBPartitionMountPath (char* pMountPath)
     return rc;
 }
 
+void rdkStorage_notifyMGRAboutFailure (eSTMGRErrorEvent failEvent)
+{
+    IARM_Result_t retCode = IARM_RESULT_SUCCESS;
+    if (_stmgr_isSTMGRInited())
+    {
+        retCode = IARM_Bus_Call(IARM_BUS_STMGR_NAME, "NotifyMGRAboutFailure", (void *)&failEvent, sizeof(failEvent));
+        if (IARM_RESULT_SUCCESS == retCode)
+        {
+            STMGRLOG_INFO ("%s : Successfully finished \n", __FUNCTION__);
+        }
+        else
+        {
+            STMGRLOG_ERROR ("%s The IARM communication failed with rc = %d\n", __FUNCTION__, retCode);
+        }
+    }
+    else
+    {
+        STMGRLOG_ERROR ("Init is not done yet or failed init.\n");
+
+    }
+    return;
+}
+
 eSTMGRReturns rdkStorage_RegisterEventCallback(fnSTMGR_EventCallback eventCallback)
 {
     eSTMGRReturns rc = RDK_STMGR_RETURN_SUCCESS;

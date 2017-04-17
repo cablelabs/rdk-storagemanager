@@ -420,6 +420,13 @@ eSTMGRReturns rdkStorage_getTSBPartitionMountPath (char* pMountPath)
     return rSTMgrMainClass::getInstance()->getTSBPartitionMountPath(pMountPath);
 }
 
+void rdkStorage_notifyMGRAboutFailure (eSTMGRErrorEvent failEvent)
+{
+    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+
+    rSTMgrMainClass::getInstance()->notifyMGRAboutFailure(failEvent);
+}
+
 /* Callback Function */
 eSTMGRReturns rdkStorage_RegisterEventCallback(fnSTMGR_EventCallback eventCallback)
 {

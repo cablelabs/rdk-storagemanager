@@ -1,0 +1,10 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: Storage Manager 
+Description: Monitoring Memory Devices of the STB
+Version: @VERSION@
+Libs: -L${libdir} -lrdkstmgr
+Cflags: -I${includedir} -DUSE_RDK_STORAGE_MANAGER_V2

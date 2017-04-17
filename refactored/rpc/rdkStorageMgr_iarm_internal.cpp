@@ -419,6 +419,18 @@ static IARM_Result_t _GetTSBPartitionMountPath (void *arg)
     return rc;
 }
 
+static IARM_Result_t _NotifyMGRAboutFailure(void *arg)
+{
+    IARM_Result_t rc = IARM_RESULT_SUCCESS;
+    eSTMGRErrorEvent *pFailEvent = (eSTMGRErrorEvent*) arg;
+
+    if (!pFailEvent)
+    {
+        rdkStorage_notifyMGRAboutFailure (*pFailEvent);
+    }
+    return rc;
+}
+
 void stmgr_BeginIARMMode()
 {
     static bool m_isInited = false;
@@ -448,6 +460,7 @@ void stmgr_BeginIARMMode()
         IARM_Bus_RegisterCall ("SetIsDVREnabled", _SetIsDVREnabled);
         IARM_Bus_RegisterCall ("GetHealthInfo", _GetHealthInfo);
         IARM_Bus_RegisterCall ("GetTSBPartitionMountPath", _GetTSBPartitionMountPath);
+        IARM_Bus_RegisterCall ("NotifyMGRAboutFailure", _NotifyMGRAboutFailure);
 
         IARM_Bus_RegisterEvent(RDK_STMGR_IARM_EVENT_MAX);
 

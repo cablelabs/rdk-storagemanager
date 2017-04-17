@@ -21,6 +21,10 @@
 if USE_REFACTORED
 SUBDIRS = refactored
 DIST_SUBDIRS = refactored
+
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = storagemanager.pc
+
 else
 SUBDIRS = src test
 DIST_SUBDIRS = src test 
