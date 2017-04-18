@@ -21,7 +21,6 @@ public:
     eSTMGRReturns addNewMemoryDevice(std::string devicePath, eSTMGRDeviceType type);
     eSTMGRReturns deleteMemoryDevice(std::string key);
     rStorageMedia* getMemoryDevice(std::string key);
-
     void devHealthMonThreadEntryFunc (void);
     static rSTMgrMainClass* getInstance();
 

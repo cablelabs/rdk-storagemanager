@@ -186,6 +186,16 @@ eSTMGRReturns rStorageSDCard::populateDeviceDetails()
             STMGRLOG_ERROR ("[%s]TSB NOT_QUALIFIED, so disabled tsb.\n", __FUNCTION__);
             m_status = RDK_STMGR_DEVICE_STATUS_NOT_QUALIFIED;
             m_tsbStatus = RDK_STMGR_TSB_STATUS_DISABLED;
+
+            /*Notify Event for Disqualified tsb card */
+            eSTMGREventMessage events;
+            memset (&events, 0, sizeof(events));
+
+            events.m_eventType = RDK_STMGR_EVENT_TSB_ERROR;
+            events.m_deviceType = m_type;
+            events.m_deviceStatus = m_status;
+            sprintf(events.m_description, "%s", "Incompatible SD Card.");
+            notifyEvent(events);
         }
     }
 

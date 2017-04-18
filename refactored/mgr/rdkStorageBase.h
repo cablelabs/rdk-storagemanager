@@ -54,11 +54,11 @@ protected:
     bool m_isDVREnabled; /* This is to track whether this memory device is supporting it our not; ie one of the partition could be used for DVR.*/
     bool m_isTSBSupported;
     bool m_isDVRSupported;
+    fnSTMGR_EventCallback m_eventCallback;
 
 public:
     rStorageMedia();
     virtual ~rStorageMedia();
-
     virtual eSTMGRDeviceType getDeviceType(void) { return m_type; };
     virtual eSTMGRDeviceStatus getDeviceStatus(void) { return m_status; };
     virtual eSTMGRReturns getDeviceId(char* pDeviceID);
@@ -84,6 +84,10 @@ public:
     virtual eSTMGRReturns populateDeviceDetails (void) = 0;
     /* Queries the Device for the health info */
     virtual eSTMGRReturns doDeviceHealthQuery(void) = 0;
+
+    eSTMGRReturns registerEventCallback(fnSTMGR_EventCallback );
+    void notifyEvent(eSTMGREventMessage);
+
 };
 
 #endif /* __RDK_STORAGE_MGR_BASE_H__ */

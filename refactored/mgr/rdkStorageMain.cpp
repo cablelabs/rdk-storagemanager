@@ -58,6 +58,7 @@ eSTMGRReturns rSTMgrMainClass::addNewMemoryDevice(std::string devicePath, eSTMGR
     if (pMemoryObj)
     {
         pMemoryObj->populateDeviceDetails();
+        pMemoryObj->registerEventCallback(m_eventCallback);
         STMGRLOG_INFO ("Done with Init; Add to the hash table.. \n");
         /* Protect the addition */
         pthread_mutex_lock(&m_mainMutex);

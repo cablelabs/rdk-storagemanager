@@ -393,4 +393,29 @@ eSTMGRReturns rStorageMedia::getTSBPartitionMountPath(char* pMountPath)
 
     return rc;
 }
+
+eSTMGRReturns rStorageMedia::registerEventCallback(fnSTMGR_EventCallback eventCallback)
+{
+    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+
+    if (eventCallback != NULL)
+    {
+        m_eventCallback = eventCallback;
+        return RDK_STMGR_RETURN_SUCCESS;
+    }
+    else
+    {
+        STMGRLOG_ERROR ("NULL Pointer input\n");
+        return RDK_STMGR_RETURN_INVALID_INPUT;
+    }
+}
+
+void rStorageMedia::notifyEvent(eSTMGREventMessage events)
+{
+    if (m_eventCallback)
+        m_eventCallback(events);
+
+    return;
+}
+
 /* End of file */
