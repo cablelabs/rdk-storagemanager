@@ -27,37 +27,43 @@
 # use -e to fail on any shell issue
 # -e is the requirement from Build Framework
 set -e
-set -x
 
 
 # default PATHs - use `man readlink` for more info
 # the path to combined build
-export RDK_PROJECT_ROOT_PATH=${RDK_PROJECT_ROOT_PATH-`readlink -m ./..`}/
+export RDK_PROJECT_ROOT_PATH=${RDK_PROJECT_ROOT_PATH-`readlink -m ../../..`}
 export COMBINED_ROOT=$RDK_PROJECT_ROOT_PATH
-export WORK_DIR=${WORK_DIR-${COMBINED_ROOT}/work${RDK_PLATFORM_DEVICE^^}}
+export WORK_DIR=${RDK_PROJECT_ROOT_PATH}/work${RDK_PLATFORM_DEVICE^^}
 
 # path to build script (this script)
-export RDK_SCRIPTS_PATH=${RDK_SCRIPTS_PATH-`readlink -m $0 | xargs dirname`}/
+export RDK_SCRIPTS_PATH=${RDK_SCRIPTS_PATH-`readlink -m $0 | xargs dirname`}
 
 # path to components sources and target
-export RDK_SOURCE_PATH=${RDK_SOURCE_PATH-`readlink -m .`}/
-export RDK_TARGET_PATH=${RDK_TARGET_PATH-$RDK_SOURCE_PATH}/
+export RDK_SOURCE_PATH=${RDK_SOURCE_PATH-$RDK_SCRIPTS_PATH}
+export RDK_TARGET_PATH=${RDK_TARGET_PATH-$RDK_SOURCE_PATH}
 
 # fsroot and toolchain (valid for all devices)
 export RDK_FSROOT_PATH=${RDK_FSROOT_PATH-`readlink -m $RDK_PROJECT_ROOT_PATH/sdk/fsroot/ramdisk`}
 export RDK_TOOLCHAIN_PATH=${RDK_TOOLCHAIN_PATH-`readlink -m $RDK_PROJECT_ROOT_PATH/sdk/toolchain/staging_dir`}
+
 
 # default component name
 export RDK_COMPONENT_NAME=${RDK_COMPONENT_NAME-`basename $RDK_SOURCE_PATH`}
 pd=`pwd`
 cd ${RDK_SOURCE_PATH}
 export FSROOT=$RDK_FSROOT_PATH
-export COMBINED_ROOT=$RDK_PROJECT_ROOT_PATH
 export BUILDS_DIR=$RDK_PROJECT_ROOT_PATH
 export RDK_DIR=$BUILDS_DIR
 
 cd $pd
-
+export LD_LIBRARY_PATH=$FSROOT/usr/local/lib
+export PKG_CONFIG_PATH=$LD_LIBRARY_PATH/pkgconfig
+source $RDK_SOURCE_PATH/env.sh
+HOST=mipsel-linux
+export LDFLAGS="-L${RDK_FSROOT_PATH}/usr/lib -L${RDK_FSROOT_PATH}/usr/local/lib"
+#export LDFLAGS="-Wl,-rpath,${RDK_FSROOT_PATH}/usr/lib, -Wl, -rpath,${RDK_FSROOT_PATH}/usr/local/lib -lm -lintl -lz  -ldl -Wl,--as-needed"
+export LDFLAGS="${LDFLAGS} -Wl,-rpath-link=$RDK_FSROOT_PATH/usr/local/lib"
+export CXXFLAGS+="-I$RDK_FSROOT_PATH/usr/include -I$RDK_FSROOT_PATH/usr/local/include"
 
 # parse arguments
 INITIAL_ARGS=$@
@@ -96,25 +102,6 @@ done
 
 ARGS=$@
 
-
-# component-specific vars
-CC_PATH=$RDK_SOURCE_PATH
-export FSROOT=${RDK_FSROOT_PATH}
-export TOOLCHAIN_DIR=${RDK_TOOLCHAIN_PATH}
-export WORK_DIR=${RDK_PROJECT_ROOT_PATH}/work${RDK_PLATFORM_DEVICE^^}
-export BUILDS_DIR=$RDK_PROJECT_ROOT_PATH
-export COMBINED_DIR=$RDK_PROJECT_ROOT_PATH
-
-if [ "x$RDK_PLATFORM_SOC" = "xstm" ];then
-    source $RDK_SOURCE_PATH/env_stm.sh
-
-    HOST=arm-oe-linux-gnueabi
-else
-    source $RDK_SOURCE_PATH/env.sh
-
-    HOST=mipsel-linux
-fi
-
 # functional modules
 function configure()
 {
@@ -126,12 +113,7 @@ function configure()
    automake --foreign --add-missing
    rm -f configure
    autoconf
-   #./configure --disable-static --host=mipsel-linux --disable-silent-rules --prefix=${RDK_FSROOT_PATH}/usr/
-   if [ "$RDK_PLATFORM_SOC" = "stm" ];then
-       ./configure --disable-static --host=$HOST --disable-silent-rules --with-libtool-sysroot=${RDK_FSROOT_PATH} --prefix=/usr --enable-diskcheck
-   else
-       ./configure --disable-static --host=$HOST --disable-silent-rules --prefix=${RDK_FSROOT_PATH}/usr/ --enable-diskcheck
-   fi
+   ./configure --with-libtool-sysroot=${RDK_FSROOT_PATH} --disable-static --host=$HOST --disable-silent-rules --prefix=${RDK_FSROOT_PATH}/usr/ --enable-diskcheck --enable-refactored-mgr --disable-hdd --disable-sdc
 
    true #use this function to perform any pre-build configuration
 }
@@ -141,15 +123,12 @@ function clean()
     pd=`pwd`
     CLEAN_BUILD=1
     dnames="$RDK_SCRIPTS_PATH"
-    if [ "x$RDK_PLATFORM_SOC" = "xintel" ];then
-    	dnames="$dnames $RDK_SCRIPTS_PATH"
-    fi
     for dName in $dnames
     do
         cd $dName
- 	if [ -f Makefile ]; then
+    	if [ -f Makefile ]; then
     		make distclean
-	fi
+	    fi
     	rm -f configure
     	rm -rf aclocal.m4 autom4te.cache config.log config.status libtool
 	    rm -rf install

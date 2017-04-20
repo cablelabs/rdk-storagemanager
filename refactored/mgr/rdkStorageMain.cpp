@@ -2,8 +2,15 @@
 #include "rdkStorageMgrLogger.h"
 #include "rdkStorageMain.h"
 #include "rdkStorageBase.h"
+
+#ifdef ENABLE_HDD_SUPPORT_IN_V2_CODE
 #include "rdkStorageHardDisk.h"
+#endif /* ENABLE_HDD_SUPPORT_IN_V2_CODE */
+
+#ifdef ENABLE_SDC_SUPPORT_IN_V2_CODE
 #include "rdkStorageSDCard.h"
+#endif /* ENABLE_SDC_SUPPORT_IN_V2_CODE */
+
 #include "rdkStorageNVRAM.h"
 #include <unistd.h>
 
@@ -40,16 +47,20 @@ eSTMGRReturns rSTMgrMainClass::addNewMemoryDevice(std::string devicePath, eSTMGR
         STMGRLOG_ERROR ("Requested to create class for NVRAM Memory with the device path = %s\n", devicePath.c_str());
         pMemoryObj = new rStorageNVRAM (devicePath);
     }
+#ifdef ENABLE_HDD_SUPPORT_IN_V2_CODE
     else if (type == RDK_STMGR_DEVICE_TYPE_HDD)
     {
         STMGRLOG_ERROR ("Requested to create class for HDD Memory with the device path = %s\n", devicePath.c_str());
         pMemoryObj = new rStorageHDDrive (devicePath);
     }
+#endif /* ENABLE_HDD_SUPPORT_IN_V2_CODE */
+#ifdef ENABLE_SDC_SUPPORT_IN_V2_CODE
     else if (type == RDK_STMGR_DEVICE_TYPE_SDCARD)
     {
         STMGRLOG_ERROR ("Requested to create class for SDC Memory with the device path = %s\n", devicePath.c_str());
         pMemoryObj = new rStorageSDCard (devicePath);
     }
+#endif /* ENABLE_SDC_SUPPORT_IN_V2_CODE */
     else
     {
         STMGRLOG_ERROR ("Unsupprted Memory type.. \n");

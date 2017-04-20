@@ -1,5 +1,5 @@
 if USE_REFACTORED
-AM_CPPFLAGS = -Wall -Werror -I${top_srcdir}/refactored/src/main -I${top_srcdir}/refactored/include -I=${includedir}/rdk/iarmbus
+AM_CPPFLAGS = -Wall -Werror -I${top_srcdir}/refactored/src/main -I${top_srcdir}/refactored/include -I${includedir}/rdk/iarmbus
 
 lib_LTLIBRARIES = librdkstmgr.la
 librdkstmgr_la_SOURCES = rdkStorageMgr_iarm_external.cpp

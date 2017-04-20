@@ -21,14 +21,8 @@
   <components>
      <storagemanager>
       <dependencies>sdk, iarmmgrs</dependencies>
-    
       <is_coverity_supported>True</is_coverity_supported>
-
-     <paths>
-        <scripts>storagemanager</scripts>
-      </paths>
      </storagemanager>
-
   </components>
 </environment>
 

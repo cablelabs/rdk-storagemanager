@@ -124,7 +124,7 @@ AC_ARG_ENABLE([sdc],
            esac
            ],
          [echo " SDCard storage api support is enable"])
-AM_CONDITIONAL([SDCSUPPORT], [test x$SDCSUPPORT = xtrue])
+AM_CONDITIONAL([ENABLE_SDC_SUPPORT_IN_V2_CODE], [test x$SDCSUPPORT = xtrue])
 
 AC_CHECK_LIB(gthread-2.0, g_thread_init)
 
@@ -141,6 +141,9 @@ AC_ARG_ENABLE([refactored-mgr],
         [ echo "Used Legacy Code n disabled Refactored Code"])
 
 AM_CONDITIONAL(USE_REFACTORED, test "x$ENABLE_STMGR_V2_CODE" = xtrue)
+
+AC_ARG_ENABLE([hdd], AS_HELP_STRING([--enable-hdd], [This will enable refactored-src with hdd-support; default is enabled]), ,[enable_hdd=yes])
+AM_CONDITIONAL(ENABLE_HDD_SUPPORT_IN_V2_CODE, test "x$enable_hdd" != "xno")
 
 
 # Checks for typedefs, structures, and compiler characteristics.

@@ -8,6 +8,7 @@
 /* For file access */
 #include <sys/types.h>
 #include <unistd.h>
+#include <errno.h>
 
 /* Storage Main Class */
 #include "rdkStorageMain.h"

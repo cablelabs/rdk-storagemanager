@@ -41,10 +41,6 @@ if SMARTSUPPORT
 AM_CXXFLAGS += -DENABLE_SMARTMONTOOL_SUPPORT
 endif
 
-if SDCSUPPORT
-AM_CXXFLAGS += -DENABLE_SDCARD_SUPPORT
-endif
-
 noinst_LTLIBRARIES = libstmgrutils.la
 libstmgrutils_la_SOURCES = 	$(top_srcdir)/src/utils/src/udevUtils.cpp $(top_srcdir)/src/utils/src/sdCardReader.cpp
 
