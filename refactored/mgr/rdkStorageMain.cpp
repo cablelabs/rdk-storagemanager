@@ -394,7 +394,7 @@ eSTMGRReturns rSTMgrMainClass::getTSBStatus (eSTMGRTSBStatus *pTSBStatus)
         return RDK_STMGR_RETURN_INVALID_INPUT;
     }
 
-    *pTSBStatus = RDK_STMGR_TSB_STATUS_FAILED;
+    *pTSBStatus = RDK_STMGR_TSB_STATUS_UNKNOWN;
     pthread_mutex_lock(&m_mainMutex);
     for (auto it = m_storageDeviceObjects.begin(); it != m_storageDeviceObjects.end(); ++it)
     {
@@ -409,12 +409,6 @@ eSTMGRReturns rSTMgrMainClass::getTSBStatus (eSTMGRTSBStatus *pTSBStatus)
         }
     }
     pthread_mutex_unlock(&m_mainMutex);
-
-    if (!isSupported)
-    {
-        STMGRLOG_ERROR ("As NO memory device found that supports TSB, we return that TSB is disabled; not failed\n");
-        *pTSBStatus = RDK_STMGR_TSB_STATUS_DISABLED;
-    }
 
     return RDK_STMGR_RETURN_SUCCESS;
 }

@@ -46,7 +46,6 @@ eSTMGRReturns rStorageHDDrive::populateDeviceDetails()
         m_freeTSBSpaceLeftinKB = 0;
         m_maxTSBCapacityinMinutes = 0;
         m_maxTSBLengthConfigured = 0;
-        m_tsbStatus = RDK_STMGR_TSB_STATUS_DISABLED;
     }
     /* This is to track whether this memory device is supporting it our not; ie one of the partition could be used for DVR.*/
     if(false == m_isDVREnabled) {
@@ -404,7 +403,7 @@ bool rStorageHDDrive::get_Xfs_fs_stat(rStoragePartition *partition, const char* 
 
             if(availCapacity == 0) {
                 partition->m_status = RDK_STMGR_DEVICE_STATUS_DISK_FULL;
-                m_tsbStatus = RDK_STMGR_TSB_STATUS_FAILED;
+                m_tsbStatus = RDK_STMGR_TSB_STATUS_DISK_FULL;
             }
             else
                 m_tsbStatus = RDK_STMGR_TSB_STATUS_OK;

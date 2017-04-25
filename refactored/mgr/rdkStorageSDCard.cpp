@@ -178,14 +178,14 @@ eSTMGRReturns rStorageSDCard::populateDeviceDetails()
             }
             else {
                 STMGRLOG_ERROR ("[%s]Failed to mount, so disabled tsb.\n", __FUNCTION__);
-                m_tsbStatus = RDK_STMGR_TSB_STATUS_DISABLED;
+                m_tsbStatus = RDK_STMGR_TSB_STATUS_READ_ONLY;
             }
         }
         else
         {
             STMGRLOG_ERROR ("[%s]TSB NOT_QUALIFIED, so disabled tsb.\n", __FUNCTION__);
             m_status = RDK_STMGR_DEVICE_STATUS_NOT_QUALIFIED;
-            m_tsbStatus = RDK_STMGR_TSB_STATUS_DISABLED;
+            m_tsbStatus = RDK_STMGR_TSB_STATUS_NOT_QUALIFIED;
 
             /*Notify Event for Disqualified tsb card */
             eSTMGREventMessage events;
@@ -576,7 +576,7 @@ bool rStorageSDCard::get_SdcPropertiesStatvfs()
                     }
 
                     if((pObj->m_capacityinKB - pObj->m_freeSpaceinKB)<= 0) {
-                        m_tsbStatus = RDK_STMGR_TSB_STATUS_FAILED;
+                        m_tsbStatus = RDK_STMGR_TSB_STATUS_DISK_FULL;
                     }
                     else
                     {
