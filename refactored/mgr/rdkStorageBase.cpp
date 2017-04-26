@@ -28,6 +28,7 @@ rStorageMedia::rStorageMedia()
     memset (&m_serialNumber, 0, sizeof(m_serialNumber));
     memset (&m_firmwareVersion, 0, sizeof(m_firmwareVersion));
     memset (&m_ifATAstandard, 0, sizeof(m_ifATAstandard));
+    memset (&m_hwVersion, 0, sizeof(m_hwVersion));
 }
 
 rStorageMedia::~rStorageMedia()
@@ -77,6 +78,7 @@ eSTMGRReturns rStorageMedia::getDeviceInfo(eSTMGRDeviceInfo* pDeviceInfo)
         strncpy (pDeviceInfo->m_serialNumber, m_serialNumber, (RDK_STMGR_MAX_STRING_LENGTH - 1));
         strncpy (pDeviceInfo->m_firmwareVersion, m_firmwareVersion, (RDK_STMGR_MAX_STRING_LENGTH - 1));
         strncpy (pDeviceInfo->m_ifATAstandard, m_ifATAstandard, (RDK_STMGR_MAX_STRING_LENGTH - 1));
+        strncpy (pDeviceInfo->m_hwVersion, m_hwVersion, (RDK_STMGR_MAX_STRING_LENGTH - 1));
 
         int length = m_partitionInfo.size();
         int loopCnt = 0;
