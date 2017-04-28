@@ -87,7 +87,17 @@ eSTMGRReturns rStorageNVRAM::populateDeviceDetails()
                     rStoragePartition *pPartitionPtr = new rStoragePartition;
                     if (pPartitionPtr)
                     {
+                        std::string deviceName = udev_device_get_sysname(pDevice);
                         const char *pDevicePartitionID = udev_device_get_devnode(pDevice);
+
+                        STMGRLOG_INFO ("The Partition name is, %s\n", deviceName.c_str());
+                        if (!pDevicePartitionID)
+                        {
+                            STMGRLOG_INFO ("Lets makeup a device path..\n");
+                            deviceName = "/dev/" + deviceName;
+                            STMGRLOG_INFO ("The Partition name is, %s\n", deviceName.c_str());
+                            pDevicePartitionID = deviceName.c_str();
+                        }
 
                         if (pDevicePartitionID)
                         {
@@ -135,7 +145,7 @@ eSTMGRReturns rStorageNVRAM::populateDeviceDetails()
                 {
                     m_capacity = (unsigned long) (atol(pCapacity)/1024);
                 }
-                STMGRLOG_INFO ("The Capacity of this NVRAM device is, %u\n", m_capacity);
+                STMGRLOG_INFO ("The Capacity of this NVRAM device is, %lu\n", m_capacity);
             }
             else
             {

@@ -175,10 +175,21 @@ void rdkStorage_init (void)
             pParentDevice = udev_device_new_from_subsystem_sysname (g_uDevInstance, "ubi", "ubi0");
             if (pParentDevice)
             {
+                const char* pData = NULL;
+                std::string devicePath;
                 isNVRAMDeviceFound = true;
                 STMGRLOG_INFO ("IS UBI/NVRAM TYPE : Yes\n");
                 STMGRLOG_INFO ("Sys 2 Name  : %s\n", udev_device_get_sysname(pParentDevice));
-                std::string devicePath = udev_device_get_devnode(pParentDevice);
+                pData = udev_device_get_devnode(pParentDevice);
+                if (pData)
+                {
+                    devicePath = pData;
+                }
+                else
+                {
+                    STMGRLOG_INFO ("UBI/NVRAM TYPE is Yes but could not able to get dev node.. lets hard code it to /dev/ubi0\n");
+                    devicePath = "/dev/ubi0";
+                }
                 rSTMgrMainClass::getInstance()->addNewMemoryDevice(devicePath, RDK_STMGR_DEVICE_TYPE_NVRAM);
             }
         }
