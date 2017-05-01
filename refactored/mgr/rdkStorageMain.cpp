@@ -225,7 +225,7 @@ void* healthMonitoringThreadfn  (void *pData)
 {
     pData = pData;
 
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
     rSTMgrMainClass::getInstance()->devHealthMonThreadEntryFunc();
     return NULL;
 }
@@ -237,7 +237,7 @@ eSTMGRReturns rSTMgrMainClass::getDeviceIds(eSTMGRDeviceIDs* pDeviceIDs)
     int i = 0;
     memset (&deviceIDs, 0, sizeof(deviceIDs));
 
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
     if (!pDeviceIDs)
     {
         STMGRLOG_ERROR ("NULL Pointer input\n");
@@ -265,7 +265,7 @@ eSTMGRReturns rSTMgrMainClass::getDeviceInfo(char* pDeviceID, eSTMGRDeviceInfo* 
     bool isFound = false;
     rStorageMedia *pMemoryObj = NULL;
 
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
     if ((!pDeviceID) || (!pDeviceInfo))
     {
@@ -273,7 +273,7 @@ eSTMGRReturns rSTMgrMainClass::getDeviceInfo(char* pDeviceID, eSTMGRDeviceInfo* 
         return RDK_STMGR_RETURN_INVALID_INPUT;
     }
 
-    STMGRLOG_INFO("Given Device ID is %s\n", pDeviceID);
+    STMGRLOG_DEBUG("Given Device ID is %s\n", pDeviceID);
 
     pthread_mutex_lock(&m_mainMutex);
     for (auto it = m_storageDeviceObjects.begin(); it != m_storageDeviceObjects.end(); ++it)
@@ -309,7 +309,7 @@ eSTMGRReturns rSTMgrMainClass::getDeviceInfoList(eSTMGRDeviceInfoList* pDeviceIn
     int i = 0;
     rStorageMedia *pMemoryObj = NULL;
 
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
     if (!pDeviceInfoList)
     {
@@ -336,7 +336,7 @@ eSTMGRReturns rSTMgrMainClass::getPartitionInfo (char* pDeviceID, char* pPartiti
     bool isFound = false;
     char deviceID[RDK_STMGR_MAX_STRING_LENGTH] = "";
 
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
     if ((!pDeviceID) || (!pPartitionId) || (!pPartitionInfo))
     {
@@ -386,7 +386,7 @@ eSTMGRReturns rSTMgrMainClass::getTSBStatus (eSTMGRTSBStatus *pTSBStatus)
     rStorageMedia *pMemoryObj = NULL;
     bool isSupported = false;
 
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
     if (!pTSBStatus)
     {
@@ -418,7 +418,7 @@ eSTMGRReturns rSTMgrMainClass::setTSBMaxMinutes (unsigned int minutes)
     rStorageMedia *pMemoryObj = NULL;
     bool isSupported = false;
 
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
     pthread_mutex_lock(&m_mainMutex);
     for (auto it = m_storageDeviceObjects.begin(); it != m_storageDeviceObjects.end(); ++it)
@@ -446,7 +446,7 @@ eSTMGRReturns rSTMgrMainClass::getTSBMaxMinutes (unsigned int *pMinutes)
     rStorageMedia *pMemoryObj = NULL;
     bool isSupported = false;
 
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
     if (!pMinutes)
     {
@@ -484,7 +484,7 @@ eSTMGRReturns rSTMgrMainClass::getTSBCapacityMinutes(unsigned int *pMinutes)
     rStorageMedia *pMemoryObj = NULL;
     bool isSupported = false;
 
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
     if (!pMinutes)
     {
@@ -522,7 +522,7 @@ eSTMGRReturns rSTMgrMainClass::getTSBCapacity(unsigned long *pCapacityInKB)
     rStorageMedia *pMemoryObj = NULL;
     bool isSupported = false;
 
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
     if (!pCapacityInKB)
     {
@@ -560,7 +560,7 @@ eSTMGRReturns rSTMgrMainClass::getTSBFreeSpace(unsigned long *pFreeSpaceInKB)
     rStorageMedia *pMemoryObj = NULL;
     bool isSupported = false;
 
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
     if (!pFreeSpaceInKB)
     {
@@ -598,7 +598,7 @@ eSTMGRReturns rSTMgrMainClass::getDVRCapacity(unsigned long *pCapacityInKB)
     rStorageMedia *pMemoryObj = NULL;
     bool isSupported = false;
 
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
     if (!pCapacityInKB)
     {
@@ -636,7 +636,7 @@ eSTMGRReturns rSTMgrMainClass::getDVRFreeSpace(unsigned long *pFreeSpaceInKB)
     rStorageMedia *pMemoryObj = NULL;
     bool isSupported = false;
 
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
     if (!pFreeSpaceInKB)
     {
@@ -675,7 +675,7 @@ bool rSTMgrMainClass::isTSBEnabled(void)
     bool isSupported = false;
     bool tsbEnabled = false;
 
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
     pthread_mutex_lock(&m_mainMutex);
     for (auto it = m_storageDeviceObjects.begin(); it != m_storageDeviceObjects.end(); ++it)
@@ -701,7 +701,7 @@ bool rSTMgrMainClass::isDVREnabled(void)
     bool isSupported = false;
     bool dvrEnabled = false;
 
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
     pthread_mutex_lock(&m_mainMutex);
     for (auto it = m_storageDeviceObjects.begin(); it != m_storageDeviceObjects.end(); ++it)
@@ -727,7 +727,7 @@ eSTMGRReturns rSTMgrMainClass::setTSBEnabled (bool isEnabled)
     bool isSupported = false;
     bool isFound = false;
 
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
     pthread_mutex_lock(&m_mainMutex);
     for (auto it = m_storageDeviceObjects.begin(); it != m_storageDeviceObjects.end(); ++it)
@@ -759,7 +759,7 @@ eSTMGRReturns rSTMgrMainClass::setDVREnabled (bool isEnabled)
     bool isSupported = false;
     bool isFound = false;
 
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
     pthread_mutex_lock(&m_mainMutex);
     for (auto it = m_storageDeviceObjects.begin(); it != m_storageDeviceObjects.end(); ++it)
@@ -790,7 +790,7 @@ eSTMGRReturns rSTMgrMainClass::getHealth (char* pDeviceID, eSTMGRHealthInfo* pHe
     bool isFound = false;
     char deviceID[RDK_STMGR_MAX_STRING_LENGTH] = "";
 
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
     if ((!pDeviceID) || (!pHealthInfo))
     {
@@ -828,7 +828,7 @@ eSTMGRReturns rSTMgrMainClass::getTSBPartitionMountPath (char* pMountPath)
 {
     rStorageMedia *pMemoryObj = NULL;
     bool isFound = false;
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
     if (!pMountPath)
     {
@@ -862,7 +862,7 @@ eSTMGRReturns rSTMgrMainClass::getTSBPartitionMountPath (char* pMountPath)
 eSTMGRReturns rSTMgrMainClass::notifyMGRAboutFailure (eSTMGRErrorEvent failEvent)
 {
     eSTMGREventMessage events;
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
     memset (&events, 0, sizeof(events));
 
     events.m_eventType = RDK_STMGR_EVENT_TSB_ERROR;
@@ -876,7 +876,7 @@ eSTMGRReturns rSTMgrMainClass::notifyMGRAboutFailure (eSTMGRErrorEvent failEvent
 
 eSTMGRReturns rSTMgrMainClass::registerEventCallback(fnSTMGR_EventCallback eventCallback)
 {
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
     if (eventCallback != NULL)
     {

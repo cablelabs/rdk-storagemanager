@@ -398,7 +398,7 @@ eSTMGRReturns rStorageMedia::getTSBPartitionMountPath(char* pMountPath)
 
 eSTMGRReturns rStorageMedia::registerEventCallback(fnSTMGR_EventCallback eventCallback)
 {
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
     if (eventCallback != NULL)
     {

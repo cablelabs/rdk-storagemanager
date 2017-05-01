@@ -102,8 +102,20 @@ void*  deviceConnectRemoveMonitorfn  (void *pData)
 
             pUDevAction = udev_device_get_action(pDevice);
             STMGRLOG_INFO("udev_device_get_action() returns: %s\n", pUDevAction);
-            std::string deviceType = udev_device_get_devtype(pDevice);
-            std::string devicePath = udev_device_get_devnode(pDevice);
+            const char* pDevType = NULL;
+            const char* pDevPath = NULL;
+            std::string deviceType;
+            std::string devicePath;
+            pDevType = udev_device_get_devtype(pDevice);
+            if(pDevType)
+            {
+              deviceType = pDevType;
+            }
+            pDevPath = udev_device_get_devnode(pDevice);
+            if(pDevPath)
+            {
+              devicePath = udev_device_get_devnode(pDevice);
+            }
             eSTMGRReturns retCode = RDK_STMGR_RETURN_INVALID_INPUT;
 
                 STMGRLOG_INFO ("Sys    Path : %s\n", udev_device_get_syspath(pDevice));
@@ -217,53 +229,65 @@ void rdkStorage_init (void)
             pSysPath = udev_list_entry_get_name(pDeviceListEntry);
             pDevice = udev_device_new_from_syspath(g_uDevInstance, pSysPath);
             pDevType = udev_device_get_devtype(pDevice);
-            /* FIXME:: Remove these debug lines; added for initial debug */
-            STMGRLOG_INFO ("Sys    Path : %s\n", udev_device_get_syspath(pDevice));
-            STMGRLOG_INFO ("Sys  2 Path : %s\n", pSysPath);
-            STMGRLOG_INFO ("Device Path : %s\n", udev_device_get_devpath(pDevice));
-            STMGRLOG_INFO ("Device Type : %s\n", udev_device_get_devtype(pDevice));
+            STMGRLOG_DEBUG ("Sys    Path : %s\n", udev_device_get_syspath(pDevice));
+            STMGRLOG_DEBUG ("Sys  2 Path : %s\n", pSysPath);
+            STMGRLOG_DEBUG ("Device Path : %s\n", udev_device_get_devpath(pDevice));
+            STMGRLOG_DEBUG ("Device Type : %s\n", udev_device_get_devtype(pDevice));
 
             if ((pDevType) && (strcasecmp (pDevType, "disk") == 0))
             {
                 pParentDevice = NULL;
-                std::string devicePath = udev_device_get_devnode(pDevice);
+                const char* pDevNode = NULL;
+                std::string devicePath;
+                pDevNode = udev_device_get_devnode(pDevice);
+                if(pDevNode)
+                {
+                  devicePath = udev_device_get_devnode(pDevice);
+                }
                 STMGRLOG_INFO ("Sys    Path : %s\n", udev_device_get_syspath(pDevice));
                 STMGRLOG_INFO ("Device Path : %s\n", udev_device_get_devpath(pDevice));
                 STMGRLOG_INFO ("Device Type : %s\n", udev_device_get_devtype(pDevice));
-                STMGRLOG_INFO ("Device Node : %s\n", devicePath.c_str());
+                STMGRLOG_INFO ("Device Node : %s\n", pDevNode);
 
                 //Check the presense of SDCard; Create n Add it to the map
 
                 /* This ensures that the disk that is identified is MMC subsystem */
-                pParentDevice = udev_device_get_parent_with_subsystem_devtype(pDevice, "mmc", NULL);
-                if (pParentDevice)
+                if(pDevNode) 
                 {
-                    STMGRLOG_INFO ("IS MMC TYPE : Yes\n");
-                    rSTMgrMainClass::getInstance()->addNewMemoryDevice(devicePath, RDK_STMGR_DEVICE_TYPE_SDCARD);
-                }
-                else
-                {
-                    /* This check is to avoid RAM & other devices */
-                    pParentDevice = udev_device_get_parent (pDevice);
+                    pParentDevice = udev_device_get_parent_with_subsystem_devtype(pDevice, "mmc", NULL);
                     if (pParentDevice)
                     {
-                        pDevBus = udev_device_get_property_value(pDevice, "ID_BUS");
-                        STMGRLOG_INFO ("ID_BUS      : %s\n", pDevBus);
+                        STMGRLOG_INFO ("IS MMC TYPE : Yes\n");
+                        rSTMgrMainClass::getInstance()->addNewMemoryDevice(devicePath, RDK_STMGR_DEVICE_TYPE_SDCARD);
+                    }
+                    else
+                    {
+                        /* This check is to avoid RAM & other devices */
+                        pParentDevice = udev_device_get_parent (pDevice);
+                        if (pParentDevice)
+                        {
+                            pDevBus = udev_device_get_property_value(pDevice, "ID_BUS");
+                            STMGRLOG_INFO ("ID_BUS      : %s\n", pDevBus);
 
-                        if ((pDevBus) && ((0 == strcasecmp(pDevBus, "scsi")) || (0 == strcasecmp(pDevBus, "ata"))))
-                        {
-                            isAnyDeviceFound = true;
-                            rSTMgrMainClass::getInstance()->addNewMemoryDevice(devicePath, RDK_STMGR_DEVICE_TYPE_HDD);
-                        }
-                        else if ((pDevBus) && (0 == strcasecmp(pDevBus, "usb")))
-                            rSTMgrMainClass::getInstance()->addNewMemoryDevice(devicePath, RDK_STMGR_DEVICE_TYPE_USB);
-                        else
-                        {
-                            /* FIXME */
-                            STMGRLOG_ERROR("Unhandled DISK Storage found!!! Must be analyzed and handled.\n");
+                            if ((pDevBus) && ((0 == strcasecmp(pDevBus, "scsi")) || (0 == strcasecmp(pDevBus, "ata"))))
+                            {
+                                isAnyDeviceFound = true;
+                                rSTMgrMainClass::getInstance()->addNewMemoryDevice(devicePath, RDK_STMGR_DEVICE_TYPE_HDD);
+                            }
+                            else if ((pDevBus) && (0 == strcasecmp(pDevBus, "usb")))
+                                rSTMgrMainClass::getInstance()->addNewMemoryDevice(devicePath, RDK_STMGR_DEVICE_TYPE_USB);
+                            else
+                            {
+                                /* FIXME */
+                                STMGRLOG_ERROR("Unhandled DISK Storage found!!! Must be analyzed and handled.\n");
+                            }
                         }
                     }
                 }
+            }
+            else 
+            {
+                STMGRLOG_ERROR("Failed to addNewMemoryDevice for storage. Device Node is NULL !!! Must have valid \'dev/<node>\'.\n");
             }
         }
 
@@ -292,7 +316,7 @@ void rdkStorage_init (void)
 /* Get DeviceIDs*/
 eSTMGRReturns rdkStorage_getDeviceIds(eSTMGRDeviceIDs* pDeviceIDs)
 {
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
     return rSTMgrMainClass::getInstance()->getDeviceIds(pDeviceIDs);
 }
@@ -300,7 +324,7 @@ eSTMGRReturns rdkStorage_getDeviceIds(eSTMGRDeviceIDs* pDeviceIDs)
 /* Get DeviceInfo */
 eSTMGRReturns rdkStorage_getDeviceInfo(char* pDeviceID, eSTMGRDeviceInfo* pDeviceInfo)
 {
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
     return rSTMgrMainClass::getInstance()->getDeviceInfo(pDeviceID, pDeviceInfo);
 }
@@ -308,7 +332,7 @@ eSTMGRReturns rdkStorage_getDeviceInfo(char* pDeviceID, eSTMGRDeviceInfo* pDevic
 /* Get DeviceInfoList */
 eSTMGRReturns rdkStorage_getDeviceInfoList(eSTMGRDeviceInfoList* pDeviceInfoList)
 {
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
     return rSTMgrMainClass::getInstance()->getDeviceInfoList(pDeviceInfoList);
 }
@@ -316,7 +340,7 @@ eSTMGRReturns rdkStorage_getDeviceInfoList(eSTMGRDeviceInfoList* pDeviceInfoList
 /* Get PartitionInfo */
 eSTMGRReturns rdkStorage_getPartitionInfo (char* pDeviceID, char* pPartitionId, eSTMGRPartitionInfo* pPartitionInfo)
 {
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
     return rSTMgrMainClass::getInstance()->getPartitionInfo (pDeviceID, pPartitionId, pPartitionInfo);
 }
@@ -324,7 +348,7 @@ eSTMGRReturns rdkStorage_getPartitionInfo (char* pDeviceID, char* pPartitionId, 
 /* Get TSBStatus */
 eSTMGRReturns rdkStorage_getTSBStatus (eSTMGRTSBStatus *pTSBStatus)
 {
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
     return rSTMgrMainClass::getInstance()->getTSBStatus (pTSBStatus);
 }
@@ -332,7 +356,7 @@ eSTMGRReturns rdkStorage_getTSBStatus (eSTMGRTSBStatus *pTSBStatus)
 /* Set TSBMaxMinutes */
 eSTMGRReturns rdkStorage_setTSBMaxMinutes (unsigned int minutes)
 {
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
     return rSTMgrMainClass::getInstance()->setTSBMaxMinutes (minutes);
 }
@@ -340,7 +364,7 @@ eSTMGRReturns rdkStorage_setTSBMaxMinutes (unsigned int minutes)
 /* Get TSBMaxMinutes */
 eSTMGRReturns rdkStorage_getTSBMaxMinutes (unsigned int *pMinutes)
 {
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
     return rSTMgrMainClass::getInstance()->getTSBMaxMinutes (pMinutes);
 }
@@ -348,7 +372,7 @@ eSTMGRReturns rdkStorage_getTSBMaxMinutes (unsigned int *pMinutes)
 /* Get TSBCapacityMinutes */
 eSTMGRReturns rdkStorage_getTSBCapacityMinutes(unsigned int *pMinutes)
 {
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
     return rSTMgrMainClass::getInstance()->getTSBCapacityMinutes(pMinutes);
 }
@@ -356,7 +380,7 @@ eSTMGRReturns rdkStorage_getTSBCapacityMinutes(unsigned int *pMinutes)
 /* Get TSBCapacity*/
 eSTMGRReturns rdkStorage_getTSBCapacity(unsigned long *pCapacityInKB)
 {
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
     return rSTMgrMainClass::getInstance()->getTSBCapacity(pCapacityInKB);
 }
@@ -364,7 +388,7 @@ eSTMGRReturns rdkStorage_getTSBCapacity(unsigned long *pCapacityInKB)
 /* Get TSBFreeSpace*/
 eSTMGRReturns rdkStorage_getTSBFreeSpace(unsigned long *pFreeSpaceInKB)
 {
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
     return rSTMgrMainClass::getInstance()->getTSBFreeSpace(pFreeSpaceInKB);
 }
@@ -372,7 +396,7 @@ eSTMGRReturns rdkStorage_getTSBFreeSpace(unsigned long *pFreeSpaceInKB)
 /* Get DVRCapacity */
 eSTMGRReturns rdkStorage_getDVRCapacity(unsigned long *pCapacityInKB)
 {
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
     return rSTMgrMainClass::getInstance()->getDVRCapacity(pCapacityInKB);
 }
@@ -380,7 +404,7 @@ eSTMGRReturns rdkStorage_getDVRCapacity(unsigned long *pCapacityInKB)
 /* Get DVRFreeSpace*/
 eSTMGRReturns rdkStorage_getDVRFreeSpace(unsigned long *pFreeSpaceInKB)
 {
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
     return rSTMgrMainClass::getInstance()->getDVRFreeSpace(pFreeSpaceInKB);
 }
@@ -388,7 +412,7 @@ eSTMGRReturns rdkStorage_getDVRFreeSpace(unsigned long *pFreeSpaceInKB)
 /* Get isTSBEnabled*/
 bool rdkStorage_isTSBEnabled()
 {
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
     return rSTMgrMainClass::getInstance()->isTSBEnabled();
 }
@@ -396,7 +420,7 @@ bool rdkStorage_isTSBEnabled()
 /* Set TSBEnabled */
 eSTMGRReturns rdkStorage_setTSBEnabled (bool isEnabled)
 {
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
     return rSTMgrMainClass::getInstance()->setTSBEnabled(isEnabled);
 }
@@ -404,7 +428,7 @@ eSTMGRReturns rdkStorage_setTSBEnabled (bool isEnabled)
 /* Get isDVREnabled*/
 bool rdkStorage_isDVREnabled()
 {
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
     return rSTMgrMainClass::getInstance()->isDVREnabled();
 }
@@ -412,7 +436,7 @@ bool rdkStorage_isDVREnabled()
 /* Set DVREnabled */
 eSTMGRReturns rdkStorage_setDVREnabled (bool isEnabled)
 {
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
     return rSTMgrMainClass::getInstance()->setDVREnabled(isEnabled);
 }
@@ -420,21 +444,21 @@ eSTMGRReturns rdkStorage_setDVREnabled (bool isEnabled)
 /* Get Health */
 eSTMGRReturns rdkStorage_getHealth (char* pDeviceID, eSTMGRHealthInfo* pHealthInfo)
 {
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
     return rSTMgrMainClass::getInstance()->getHealth (pDeviceID, pHealthInfo);
 }
 
 eSTMGRReturns rdkStorage_getTSBPartitionMountPath (char* pMountPath)
 {
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
     return rSTMgrMainClass::getInstance()->getTSBPartitionMountPath(pMountPath);
 }
 
 void rdkStorage_notifyMGRAboutFailure (eSTMGRErrorEvent failEvent)
 {
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
     rSTMgrMainClass::getInstance()->notifyMGRAboutFailure(failEvent);
 }
@@ -442,7 +466,7 @@ void rdkStorage_notifyMGRAboutFailure (eSTMGRErrorEvent failEvent)
 /* Callback Function */
 eSTMGRReturns rdkStorage_RegisterEventCallback(fnSTMGR_EventCallback eventCallback)
 {
-    STMGRLOG_INFO("ENTRY of %s\n", __FUNCTION__);
+    STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
     return rSTMgrMainClass::getInstance()->registerEventCallback(eventCallback);
 }
