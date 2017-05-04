@@ -180,18 +180,19 @@ void rdkStorage_init (void)
         struct udev_list_entry *pDeviceListEntry = NULL;
         bool isNVRAMDeviceFound = false;
 
+        /* FIXME: This below check can be removed as the ubi enumeratation search below will take care */
         /* This ensures that the disk that is identified is UBI subsystem */
         if (!isNVRAMDeviceFound)
         {
-            //pParentDevice = udev_device_get_parent_with_subsystem_devtype(pDevice, "ubi", NULL);
             pParentDevice = udev_device_new_from_subsystem_sysname (g_uDevInstance, "ubi", "ubi0");
             if (pParentDevice)
             {
                 const char* pData = NULL;
                 std::string devicePath;
+                std::string sysname = udev_device_get_sysname(pParentDevice);
                 isNVRAMDeviceFound = true;
                 STMGRLOG_INFO ("IS UBI/NVRAM TYPE : Yes\n");
-                STMGRLOG_INFO ("Sys 2 Name  : %s\n", udev_device_get_sysname(pParentDevice));
+                STMGRLOG_INFO ("Sys  Name  : %s\n", sysname.c_str());
                 pData = udev_device_get_devnode(pParentDevice);
                 if (pData)
                 {
@@ -199,8 +200,8 @@ void rdkStorage_init (void)
                 }
                 else
                 {
-                    STMGRLOG_INFO ("UBI/NVRAM TYPE is Yes but could not able to get dev node.. lets hard code it to /dev/ubi0\n");
-                    devicePath = "/dev/ubi0";
+                    STMGRLOG_INFO ("UBI/NVRAM TYPE is Yes but could not able to get dev node.. lets concatenate the /dev with sysname\n");
+                    devicePath = "/dev/" + sysname;
                 }
                 rSTMgrMainClass::getInstance()->addNewMemoryDevice(devicePath, RDK_STMGR_DEVICE_TYPE_NVRAM);
             }
@@ -209,16 +210,13 @@ void rdkStorage_init (void)
         /* Loop in for other disk devices */
         pEnumerate = udev_enumerate_new(g_uDevInstance);
         udev_enumerate_add_match_subsystem(pEnumerate, "block");
+        if(!isNVRAMDeviceFound)
+            udev_enumerate_add_match_subsystem(pEnumerate, "ubi");
+
         if (0 != udev_enumerate_scan_devices(pEnumerate))
         {
             STMGRLOG_ERROR("Failed to scan the devices \n");
         }
-
-        /* FIXME :
-         * HACK  : At this point in time we support only HDD platform,
-         * So if no HDD found; means udev logic failure; so hard code to /dev/sda n proceed
-         */
-        bool isAnyDeviceFound = false;
 
         pDeviceList = udev_enumerate_get_list_entry(pEnumerate);
         udev_list_entry_foreach(pDeviceListEntry, pDeviceList)
@@ -229,11 +227,34 @@ void rdkStorage_init (void)
             pSysPath = udev_list_entry_get_name(pDeviceListEntry);
             pDevice = udev_device_new_from_syspath(g_uDevInstance, pSysPath);
             pDevType = udev_device_get_devtype(pDevice);
-            STMGRLOG_DEBUG ("Sys    Path : %s\n", udev_device_get_syspath(pDevice));
+            STMGRLOG_DEBUG ("Sys  2 Path : %s\n", udev_device_get_syspath(pDevice));
             STMGRLOG_DEBUG ("Sys  2 Path : %s\n", pSysPath);
             STMGRLOG_DEBUG ("Device Path : %s\n", udev_device_get_devpath(pDevice));
             STMGRLOG_DEBUG ("Device Type : %s\n", udev_device_get_devtype(pDevice));
 
+            if((!isNVRAMDeviceFound) && (pSysPath) && (strstr(pSysPath, "ubi")))
+            {
+                pParentDevice = udev_device_get_parent_with_subsystem_devtype(pDevice, "ubi", NULL);
+                if (pParentDevice)
+                {
+                    const char* pData = NULL;
+                    std::string devicePath;
+                    std::string sysname = udev_device_get_sysname(pParentDevice);
+                    isNVRAMDeviceFound = true;
+                    STMGRLOG_INFO ("IS UBI/NVRAM TYPE : Yes\n");
+                    STMGRLOG_INFO ("Sys 3 Name  : %s\n", sysname.c_str());
+                    pData = udev_device_get_devnode(pParentDevice);
+                    STMGRLOG_INFO ("Sys 3 Path  : %s\n", pData);
+                    if (pData)
+                        devicePath = pData;
+                    else
+                    {
+                        STMGRLOG_INFO ("UBI/NVRAM TYPE is Yes but could not able to get dev node.. lets make it up\n");
+                        devicePath = "/dev/" + sysname;
+                    }
+                    rSTMgrMainClass::getInstance()->addNewMemoryDevice(devicePath, RDK_STMGR_DEVICE_TYPE_NVRAM);
+                }
+            }
             if ((pDevType) && (strcasecmp (pDevType, "disk") == 0))
             {
                 pParentDevice = NULL;
@@ -271,7 +292,6 @@ void rdkStorage_init (void)
 
                             if ((pDevBus) && ((0 == strcasecmp(pDevBus, "scsi")) || (0 == strcasecmp(pDevBus, "ata"))))
                             {
-                                isAnyDeviceFound = true;
                                 rSTMgrMainClass::getInstance()->addNewMemoryDevice(devicePath, RDK_STMGR_DEVICE_TYPE_HDD);
                             }
                             else if ((pDevBus) && (0 == strcasecmp(pDevBus, "usb")))
@@ -289,14 +309,6 @@ void rdkStorage_init (void)
             {
                 STMGRLOG_ERROR("Failed to addNewMemoryDevice for storage. Device Node is NULL !!! Must have valid \'dev/<node>\'.\n");
             }
-        }
-
-        /* is there any HDD device found, if not, hack it with /dev/sda as we support only HDD platform at this point in time. */
-        if (!isAnyDeviceFound)
-        {
-            STMGRLOG_ERROR ("Hack it with /dev/sda as we support only HDD platform at this point in time.\n");
-//            std::string devicePath = "/dev/sda";
-//            rSTMgrMainClass::getInstance()->addNewMemoryDevice(devicePath, RDK_STMGR_DEVICE_TYPE_HDD);
         }
 
         /* NVRAM */
