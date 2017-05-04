@@ -104,6 +104,7 @@ eSTMGRReturns rSTMgrMainClass::addNewMemoryDevice(std::string devicePath, eSTMGR
 
 eSTMGRReturns rSTMgrMainClass::deleteMemoryDevice(std::string key)
 {
+    bool isFound = false;
     eSTMGRReturns rc = RDK_STMGR_RETURN_SUCCESS;
     eSTMGREventMessage events;
     memset (&events, 0, sizeof(events));
@@ -126,6 +127,7 @@ eSTMGRReturns rSTMgrMainClass::deleteMemoryDevice(std::string key)
         events.m_eventType = RDK_STMGR_EVENT_STATUS_CHANGED;
         events.m_deviceType = pTemp->getDeviceType();
         events.m_deviceStatus = RDK_STMGR_DEVICE_STATUS_NOT_PRESENT;
+        isFound = true;
 
         STMGRLOG_INFO ("Successfully found the entry and deleted.. \n");
         /* Delete it */
@@ -140,7 +142,10 @@ eSTMGRReturns rSTMgrMainClass::deleteMemoryDevice(std::string key)
     /* Protect the addition */
     pthread_mutex_unlock(&m_mainMutex);
 
-    notifyEvent(events);
+    /* Send the event as the key matching found */
+    if (isFound)
+        notifyEvent(events);
+
     return rc;
 }
 
