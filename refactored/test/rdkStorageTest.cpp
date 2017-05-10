@@ -138,6 +138,7 @@ void _getPartitionInfo (char* pDeviceID, char* pPartitionId)
         std::cout << "PartitionId       " << partitionInfo.m_partitionId << "\n";
         std::cout << "Format            " << partitionInfo.m_format << "\n";
         std::cout << "Status            " << partitionInfo.m_status << "\n";
+        std::cout << "MountPath         " << partitionInfo.m_mountPath << "\n";
         std::cout << "Capacity          " << partitionInfo.m_capacity << "\n";
         std::cout << "FreeSpace         " << partitionInfo.m_freeSpace << "\n";
         std::cout << "Is TSB Supported  " << partitionInfo.m_isTSBSupported << "\n";

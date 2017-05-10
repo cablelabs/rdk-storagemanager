@@ -146,6 +146,7 @@ eSTMGRReturns rStorageSDCard::populateDeviceDetails()
                             if(ro)
                             {
                                 pPartitionPtr->m_status = (atoi(ro) == 0)?RDK_STMGR_DEVICE_STATUS_OK:RDK_STMGR_DEVICE_STATUS_READ_ONLY;
+                                sprintf(pPartitionPtr->m_mountPath, "%s", SM_MOUNT_PATH);
 
                             }
 
