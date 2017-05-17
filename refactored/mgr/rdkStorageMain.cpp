@@ -9,6 +9,7 @@
 
 #ifdef ENABLE_SDC_SUPPORT_IN_V2_CODE
 #include "rdkStorageSDCard.h"
+#include "rdkStorageeMMC.h"
 #endif /* ENABLE_SDC_SUPPORT_IN_V2_CODE */
 
 #include "rdkStorageNVRAM.h"
@@ -59,6 +60,11 @@ eSTMGRReturns rSTMgrMainClass::addNewMemoryDevice(std::string devicePath, eSTMGR
     {
         STMGRLOG_ERROR ("Requested to create class for SDC Memory with the device path = %s\n", devicePath.c_str());
         pMemoryObj = new rStorageSDCard (devicePath);
+    }
+    else if (type == RDK_STMGR_DEVICE_TYPE_EMMCCARD)
+    {
+        STMGRLOG_ERROR ("Requested to create class for eMMC Memory with the device path = %s\n", devicePath.c_str());
+        pMemoryObj = new rStorageeMMC (devicePath);
     }
 #endif /* ENABLE_SDC_SUPPORT_IN_V2_CODE */
     else

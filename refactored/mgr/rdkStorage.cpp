@@ -13,7 +13,7 @@
 /* Storage Main Class */
 #include "rdkStorageMain.h"
 
-
+#define EMMC_TSB_DEV_NODE "/dev/mmcblk0"
 
 /* Global variables */
 pthread_t stmgrDeviceMonitorTID;
@@ -234,6 +234,7 @@ void rdkStorage_init (void)
             const char* pSysPath = NULL;
             const char* pDevType = NULL;
             const char* pDevBus = NULL;
+            const char* pSysAttrType = NULL;
             pSysPath = udev_list_entry_get_name(pDeviceListEntry);
             pDevice = udev_device_new_from_syspath(g_uDevInstance, pSysPath);
             pDevType = udev_device_get_devtype(pDevice);
@@ -288,8 +289,18 @@ void rdkStorage_init (void)
                     pParentDevice = udev_device_get_parent_with_subsystem_devtype(pDevice, "mmc", NULL);
                     if (pParentDevice)
                     {
-                        STMGRLOG_INFO ("IS MMC TYPE : Yes\n");
-                        rSTMgrMainClass::getInstance()->addNewMemoryDevice(devicePath, RDK_STMGR_DEVICE_TYPE_SDCARD);
+                        pSysAttrType = udev_device_get_sysattr_value(pParentDevice, "type");
+                        if ((pSysAttrType && (strcasecmp (pSysAttrType, "MMC") == 0)) &&
+                            (pDevNode && (strcasecmp (pDevNode, EMMC_TSB_DEV_NODE) == 0)))
+                        {
+                            STMGRLOG_INFO ("IS MMC TYPE : Yes\n");
+                            rSTMgrMainClass::getInstance()->addNewMemoryDevice(devicePath, RDK_STMGR_DEVICE_TYPE_EMMCCARD);
+                        }
+                        else if (pSysAttrType && (strcasecmp (pSysAttrType, "SD") == 0))
+                        {
+                            STMGRLOG_INFO ("IS SD TYPE : Yes\n");
+                            rSTMgrMainClass::getInstance()->addNewMemoryDevice(devicePath, RDK_STMGR_DEVICE_TYPE_SDCARD);
+                        }
                     }
                     else
                     {

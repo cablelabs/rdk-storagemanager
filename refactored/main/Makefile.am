@@ -21,5 +21,6 @@ endif
 
 if ENABLE_SDC_SUPPORT_IN_V2_CODE
 storageMgrMain_SOURCES += ${top_srcdir}/refactored/mgr/rdkStorageSDCard.cpp
+storageMgrMain_SOURCES += ${top_srcdir}/refactored/mgr/rdkStorageeMMC.cpp
 AM_CPPFLAGS += -DENABLE_SDC_SUPPORT_IN_V2_CODE
 endif
