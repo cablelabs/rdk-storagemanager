@@ -59,7 +59,7 @@ rStorageSDCard::~rStorageSDCard()
 eSTMGRReturns rStorageSDCard::populateDeviceDetails()
 {
     eSTMGRReturns rc = RDK_STMGR_RETURN_SUCCESS;
-    STMGRLOG_TRACE("[%s:%d] Entering..\n", __FUNCTION__, __LINE__);
+    STMGRLOG_INFO("[%s:%d] Entering..\n", __FUNCTION__, __LINE__);
     if (!m_pUDevSDC)
     {
         STMGRLOG_ERROR ("NVRAM Storage Class: Could not able to create udev instance of its own.\n");
@@ -200,7 +200,7 @@ eSTMGRReturns rStorageSDCard::populateDeviceDetails()
         }
     }
 
-    STMGRLOG_TRACE("[%s:%d] Exiting..\n", __FUNCTION__, __LINE__);
+    STMGRLOG_INFO("[%s:%d] Exiting..\n", __FUNCTION__, __LINE__);
     return rc;
 
 }
@@ -584,10 +584,20 @@ bool rStorageSDCard::get_SdcPropertiesStatvfs()
                         m_tsbStatus = RDK_STMGR_TSB_STATUS_OK;
                     }
 
-                    STMGRLOG_DEBUG("[%s:%d] Partition Details: \n", __FUNCTION__, __LINE__);
-                    STMGRLOG_DEBUG("===========================================\n");
-                    STMGRLOG_DEBUG("[%s, mounted on %s: of type: %s option: %s\n",
+                    STMGRLOG_INFO("[%s:%d] Partition Details: \n", __FUNCTION__, __LINE__);
+                    STMGRLOG_INFO("===========================================\n");
+                    STMGRLOG_INFO("[%s, mounted on %s: of type: %s option: %s\n",
                                    fs->mnt_dir, fs->mnt_fsname, fs->mnt_type, fs->mnt_opts);
+                    STMGRLOG_INFO("\tm_partitionId: %s\n",  pObj->m_partitionId);
+                    STMGRLOG_INFO("\tm_format: %s\n",  pObj->m_format);
+                    STMGRLOG_INFO("\tm_mountPath: %s\n",  pObj->m_mountPath);
+                    STMGRLOG_INFO("\tm_capacityinKB: %d\n",  pObj->m_capacityinKB);
+                    STMGRLOG_INFO("\tm_freeSpaceinKB: %d\n",  pObj->m_freeSpaceinKB);
+                    STMGRLOG_INFO("\tm_maxTSBCapacityinMinutes: %d\n",  m_maxTSBCapacityinMinutes);
+                    STMGRLOG_INFO("\tm_status: %d\n",  pObj->m_status);
+                    STMGRLOG_INFO("\tm_isTSBSupported: %d\n",  pObj->m_isTSBSupported);
+                    STMGRLOG_INFO("\tm_isDVRSupported: %d\n",  pObj->m_isDVRSupported);
+
                     STMGRLOG_DEBUG("\tf_bsize: %ld\n",  (long) vfs.f_bsize);
                     STMGRLOG_DEBUG("\tf_frsize: %ld\n", (long) vfs.f_frsize);
                     STMGRLOG_DEBUG("\tf_blocks: %lu\n", (unsigned long) vfs.f_blocks);

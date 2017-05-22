@@ -159,9 +159,9 @@ eSTMGRReturns rStorageMedia::getTSBStatus (eSTMGRTSBStatus *pTSBStatus)
 eSTMGRReturns rStorageMedia::setTSBMaxMinutes (unsigned int minutes)
 {
     eSTMGRReturns rc = RDK_STMGR_RETURN_SUCCESS;
-    if (minutes >= m_maxTSBCapacityinMinutes)
+    if (minutes > m_maxTSBCapacityinMinutes)
     {
-        STMGRLOG_ERROR ("Invalid input at %s\n", __FUNCTION__);
+        STMGRLOG_ERROR ("Invalid input (minutes:%d & maxTSBCapacityinMinutes:%d) at %s\n",minutes, m_maxTSBCapacityinMinutes, __FUNCTION__);
         rc = RDK_STMGR_RETURN_INVALID_INPUT;
     }
     else
