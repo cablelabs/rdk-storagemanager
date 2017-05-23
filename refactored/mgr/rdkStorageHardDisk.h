@@ -5,6 +5,8 @@
 #include <xfs/xfs.h>
 #include <mntent.h>
 #include <sys/statvfs.h>
+#include <sys/fcntl.h>
+#include <unistd.h>
 
 class rStorageHDDrive : public rStorageMedia
 {

@@ -15,7 +15,7 @@
 #include <sys/statvfs.h>
 #include <linux/types.h>
 #include <linux/mmc/ioctl.h>
-#include <sys/mount.h>
+#include <sys/fcntl.h>
 
 
 typedef struct _sdCard_Health_Status {
