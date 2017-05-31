@@ -672,7 +672,7 @@ eSTMGRReturns rdkStorage_getTSBPartitionMountPath (char* pMountPath)
     char mountPath[RDK_STMGR_MAX_STRING_LENGTH] = "";
     memset (&mountPath, 0, sizeof(mountPath));
 
-    if (pMountPath)
+    if (!pMountPath)
     {
         rc = RDK_STMGR_RETURN_INVALID_INPUT;
         STMGRLOG_ERROR ("%s : Invalid input passed\n", __FUNCTION__);

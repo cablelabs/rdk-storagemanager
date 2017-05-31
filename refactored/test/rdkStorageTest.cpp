@@ -36,6 +36,7 @@ void printOptions(void)
     std::cout <<"15. IsDVREnabled\n";
     std::cout <<"16. SetDVREnabled\n";
     std::cout <<"17. GetHealth\n";
+    std::cout <<"18. GetTSBPartitionMountPath\n";
     std::cout <<"33. EXIT\n";
     std::cout <<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
 }
@@ -323,6 +324,21 @@ void _getHealth (char* pDeviceID)
     }
 }
 
+void _getTSBPartitionMountPath ()
+{
+    char mountPath[200];
+    eSTMGRReturns rc;
+    rc = rdkStorage_getTSBPartitionMountPath (mountPath);
+    if (rc != RDK_STMGR_RETURN_SUCCESS)
+    {
+        std::cout <<"Sorry failed..\n";
+    }
+    else
+    {
+        std::cout << "TSB MountPath = " << mountPath << "\n";
+    }
+}
+
 int main ()
 {
     char processName[256] = "";
@@ -354,91 +370,93 @@ int main ()
 
         switch (input)
         {
-            default:
-                std::cout <<"Seems like you typed some wrong keys... :)\n";
-                break;
-            case 33:
-                std::cout <<"Seems like you wanted to Quit.. Bye Bye... :)\n";
-                exit(0);
-                break;
-            case 1:
-                _getDeviceIds();
-                break;
-            case 2:
-                printDeviceIDs();
-                std::cout << "Enter the deviceID Index\n";
-                std::cin >> deviceIDIndex;
-                if ((deviceIDIndex > 0) && (deviceIDIndex <= gDeviceIDs.m_numOfDevices))
-                    _getDeviceInfo( gDeviceIDs.m_deviceIDs[(deviceIDIndex - 1)]);
-                else
-                    std::cout << "Wrong Index\n";
+        default:
+            std::cout <<"Seems like you typed some wrong keys... :)\n";
+            break;
+        case 33:
+            std::cout <<"Seems like you wanted to Quit.. Bye Bye... :)\n";
+            exit(0);
+            break;
+        case 1:
+            _getDeviceIds();
+            break;
+        case 2:
+            printDeviceIDs();
+            std::cout << "Enter the deviceID Index\n";
+            std::cin >> deviceIDIndex;
+            if ((deviceIDIndex > 0) && (deviceIDIndex <= gDeviceIDs.m_numOfDevices))
+                _getDeviceInfo( gDeviceIDs.m_deviceIDs[(deviceIDIndex - 1)]);
+            else
+                std::cout << "Wrong Index\n";
 
-                break;
-            case 3:
-                _getDeviceInfoList();
-                break;
-            case 4:
-                std::cout << "Enter the deviceID Index\n";
-                std::cin >> deviceIDIndex;
-                std::cout << "Enter the partitionID\n";
-                std::cin >> partitionID;
-                if ((deviceIDIndex > 0) && (deviceIDIndex <= gDeviceIDs.m_numOfDevices))
-                    _getPartitionInfo (gDeviceIDs.m_deviceIDs[(deviceIDIndex - 1)], partitionID);
-                else
-                    std::cout << "Wrong Index\n";
+            break;
+        case 3:
+            _getDeviceInfoList();
+            break;
+        case 4:
+            std::cout << "Enter the deviceID Index\n";
+            std::cin >> deviceIDIndex;
+            std::cout << "Enter the partitionID\n";
+            std::cin >> partitionID;
+            if ((deviceIDIndex > 0) && (deviceIDIndex <= gDeviceIDs.m_numOfDevices))
+                _getPartitionInfo (gDeviceIDs.m_deviceIDs[(deviceIDIndex - 1)], partitionID);
+            else
+                std::cout << "Wrong Index\n";
 
-                break;
-            case 5:
-                _getTSBStatus();
-                break;
-            case 6:
-                std::cout << "Enter the TSB Mins\n";
-                std::cin >> minutes;
-                _setTSBMaxMinutes(minutes);
-                break;
-            case 7:
-                _getTSBMaxMinutes();
-                break;
-            case 8:
-                _getTSBCapacityMinutes();
-                break;
-            case 9:
-                _getTSBCapacity();
-                break;
-            case 10:
-                _getTSBFreeSpace();
-                break;
-            case 11:
-                _getDVRCapacity();
-                break;
-            case 12:
-                _getDVRFreeSpace();
-                break;
-            case 13:
-                _isTSBEnabled();
-                break;
-            case 14:
-                std::cout << "Enter TSB Enable or Disable";
-                std::cin >> isEnabled;
-                _setTSBEnabled(isEnabled);
-                break;
-            case 15:
-                _isDVREnabled();
-                break;
-            case 16:
-                std::cout << "Enter DVR Enable or Disable";
-                std::cin >> isEnabled;
-                _setDVREnabled(isEnabled);
-                break;
-            case 17:
-                printDeviceIDs();
-                std::cout << "Enter the deviceID Index\n";
-                std::cin >> deviceIDIndex;
-                if ((deviceIDIndex > 0) && (deviceIDIndex <= gDeviceIDs.m_numOfDevices))
-                    _getHealth( gDeviceIDs.m_deviceIDs[(deviceIDIndex - 1)]);
-                else
-                    std::cout << "Wrong Index\n";
-                break;
+            break;
+        case 5:
+            _getTSBStatus();
+            break;
+        case 6:
+            std::cout << "Enter the TSB Mins\n";
+            std::cin >> minutes;
+            _setTSBMaxMinutes(minutes);
+            break;
+        case 7:
+            _getTSBMaxMinutes();
+            break;
+        case 8:
+            _getTSBCapacityMinutes();
+            break;
+        case 9:
+            _getTSBCapacity();
+            break;
+        case 10:
+            _getTSBFreeSpace();
+            break;
+        case 11:
+            _getDVRCapacity();
+            break;
+        case 12:
+            _getDVRFreeSpace();
+            break;
+        case 13:
+            _isTSBEnabled();
+            break;
+        case 14:
+            std::cout << "Enter TSB Enable or Disable";
+            std::cin >> isEnabled;
+            _setTSBEnabled(isEnabled);
+            break;
+        case 15:
+            _isDVREnabled();
+            break;
+        case 16:
+            std::cout << "Enter DVR Enable or Disable";
+            std::cin >> isEnabled;
+            _setDVREnabled(isEnabled);
+            break;
+        case 17:
+            printDeviceIDs();
+            std::cout << "Enter the deviceID Index\n";
+            std::cin >> deviceIDIndex;
+            if ((deviceIDIndex > 0) && (deviceIDIndex <= gDeviceIDs.m_numOfDevices))
+                _getHealth( gDeviceIDs.m_deviceIDs[(deviceIDIndex - 1)]);
+            else
+                std::cout << "Wrong Index\n";
+            break;
+        case 18:
+            _getTSBPartitionMountPath();
         }
     }
     return 0;
