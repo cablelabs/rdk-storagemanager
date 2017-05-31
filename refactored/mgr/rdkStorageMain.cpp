@@ -422,6 +422,7 @@ eSTMGRReturns rSTMgrMainClass::setTSBMaxMinutes (unsigned int minutes)
 {
     rStorageMedia *pMemoryObj = NULL;
     bool isSupported = false;
+    eSTMGRReturns rc = RDK_STMGR_RETURN_SUCCESS;
 
     STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
@@ -434,7 +435,8 @@ eSTMGRReturns rSTMgrMainClass::setTSBMaxMinutes (unsigned int minutes)
         /* We just take it from the first TSB Supported Memory device as of now.. we will workout extending the logic/API for device ID based */
         if (isSupported)
         {
-            if (RDK_STMGR_RETURN_SUCCESS != pMemoryObj->setTSBMaxMinutes(minutes))
+            rc = pMemoryObj->setTSBMaxMinutes(minutes);
+            if (rc != RDK_STMGR_RETURN_SUCCESS)
             {
                 STMGRLOG_ERROR ("Set TSB Max mins failed\n");
             }
@@ -443,7 +445,7 @@ eSTMGRReturns rSTMgrMainClass::setTSBMaxMinutes (unsigned int minutes)
     }
     pthread_mutex_unlock(&m_mainMutex);
 
-    return RDK_STMGR_RETURN_SUCCESS;
+    return rc;
 }
 
 eSTMGRReturns rSTMgrMainClass::getTSBMaxMinutes (unsigned int *pMinutes)

@@ -549,8 +549,13 @@ bool rStorageSDCard::get_SdcPropertiesStatvfs()
                         return ret;
                     }
 
+                    unsigned long capacity  = vfs.f_blocks * (vfs.f_frsize/1024);
+                    unsigned long freeSpace = vfs.f_bavail * (vfs.f_frsize/1024);
+                    STMGRLOG_INFO ("Update the capacity n freespace as per STATVFS\n");
+
+                    pObj->m_capacityinKB = capacity; /* in KB */
                     /*Actual values */
-                    pObj->m_freeSpaceinKB = (unsigned long long)(vfs.f_bsize * vfs.f_bfree)/1024; /* In KB */
+                    pObj->m_freeSpaceinKB = freeSpace; /* in KB */
                     sprintf(pObj->m_format, fs->mnt_type);
                     sprintf(pObj->m_mountPath, fs->mnt_dir);
 
@@ -573,7 +578,9 @@ bool rStorageSDCard::get_SdcPropertiesStatvfs()
                         {
                             m_maxTSBCapacityinMinutes = actualTsbMaxMin;
                         }
-                        m_maxTSBLengthConfigured = DEFULT_TSB_MIN_MINUTE;
+
+                        /* Set the TSB Length to m_maxTSBCapacityinMinutes && Let the Service Manager Decide how much TSB is wanted */
+                        m_maxTSBLengthConfigured = m_maxTSBCapacityinMinutes;
                     }
 
                     if((pObj->m_capacityinKB - pObj->m_freeSpaceinKB)<= 0) {
