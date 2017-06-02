@@ -128,13 +128,23 @@ void*  deviceConnectRemoveMonitorfn  (void *pData)
                 if(0 == strcasecmp(pUDevAction, "add"))
                 {
                     /* Add the new device */
-                    /* FIXME: Get the device Class and Decide on the device type; for now HDD */
-                    const char* pDevBus = udev_device_get_property_value(pDevice, "ID_BUS");
-                    STMGRLOG_INFO ("ID_BUS      : %s\n", pDevBus);
-                    if ((pDevBus) && ((0 == strcasecmp(pDevBus, "scsi")) || (0 == strcasecmp(pDevBus, "ata"))))
-                        retCode = rSTMgrMainClass::getInstance()->addNewMemoryDevice(devicePath, RDK_STMGR_DEVICE_TYPE_HDD);
-                    else if ((pDevBus) && (0 == strcasecmp(pDevBus, "usb")))
-                        retCode = rSTMgrMainClass::getInstance()->addNewMemoryDevice(devicePath, RDK_STMGR_DEVICE_TYPE_USB);
+                    struct udev_device *pParentDevice = NULL;
+                    pParentDevice = udev_device_get_parent_with_subsystem_devtype(pDevice, "mmc", NULL);
+                    if (pParentDevice)
+                    {
+                        STMGRLOG_INFO ("IS MMC TYPE : Yes\n");
+                        rSTMgrMainClass::getInstance()->addNewMemoryDevice(devicePath, RDK_STMGR_DEVICE_TYPE_SDCARD);
+                    }
+                    else
+                    {
+                        /* FIXME: Get the device Class and Decide on the device type; for now HDD */
+                        const char* pDevBus = udev_device_get_property_value(pDevice, "ID_BUS");
+                        STMGRLOG_INFO ("ID_BUS      : %s\n", pDevBus);
+                        if ((pDevBus) && ((0 == strcasecmp(pDevBus, "scsi")) || (0 == strcasecmp(pDevBus, "ata"))))
+                            retCode = rSTMgrMainClass::getInstance()->addNewMemoryDevice(devicePath, RDK_STMGR_DEVICE_TYPE_HDD);
+                        else if ((pDevBus) && (0 == strcasecmp(pDevBus, "usb")))
+                            retCode = rSTMgrMainClass::getInstance()->addNewMemoryDevice(devicePath, RDK_STMGR_DEVICE_TYPE_USB);
+                    }
                 }
                 else if (0 == strcasecmp(pUDevAction, "remove"))
                 {
