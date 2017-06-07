@@ -22,7 +22,7 @@ After=iarmbusd.service disk-check.service pwrmgr.service
 Before=xre-receiver.service
 
 [Service]
-EnvironmentFile=-/lib/rdk/opt-override.sh
+ExecStartPre=/bin/sh -c 'if [ "$BUILD_TYPE" != "prod" ];then /lib/rdk/opt-override.sh; fi'
 ExecStart=/usr/bin/storageMgrMain --debugconfig $DEBUGINIFILE --configFilePath /etc/storageMgr.conf
 Type=notify
 ExecStop=/bin/kill -15 $MAINPID
