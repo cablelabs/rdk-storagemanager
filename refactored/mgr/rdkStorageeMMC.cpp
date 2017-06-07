@@ -127,32 +127,12 @@ eSTMGRReturns rStorageeMMC::populateDeviceDetails()
                             {
                                 pPartitionPtr->m_capacityinKB = (unsigned long) (((atol(pCapacity))*512)/1024);
                                 STMGRLOG_INFO("[%s] Partition capacity is : [%lu]\n", __FUNCTION__, pPartitionPtr->m_capacityinKB);
-
-                                unsigned long frameRate = DEFULT_DATARATE_PER_SEC*(60*1024)/8;
-
-                                unsigned short actualTsbMaxMin = pPartitionPtr->m_capacityinKB/frameRate;
-                                STMGRLOG_INFO("[%s] frameRate is : [%lu], actualTsbMaxMin is : [%d]\n", 
-                                              __FUNCTION__, frameRate, actualTsbMaxMin);
-
-                                if(actualTsbMaxMin)
-                                {
-                                    /* Need to check whether tsbMaxMin is less than that supported by the platform */
-                                    if((actualTsbMaxMin >= DEFULT_TSB_MAX_MINUTE) || ((actualTsbMaxMin < DEFULT_TSB_MAX_MINUTE) 
-                                       && (actualTsbMaxMin >= DEFULT_TSB_MIN_MINUTE)))
-                                    {
-                                        m_maxTSBCapacityinMinutes = DEFULT_TSB_MIN_MINUTE;
-                                    }
-                                    else if(actualTsbMaxMin < DEFULT_TSB_MIN_MINUTE)
-                                    {
-                                        m_maxTSBCapacityinMinutes = actualTsbMaxMin;
-                                    }
-                                    m_maxTSBLengthConfigured = DEFULT_TSB_MIN_MINUTE;
-                                }
                             }
                             const char* ro = udev_device_get_sysattr_value(pDevice, "ro");
                             if(ro)
                             {
                                 pPartitionPtr->m_status = (atoi(ro) == 0)?RDK_STMGR_DEVICE_STATUS_OK:RDK_STMGR_DEVICE_STATUS_READ_ONLY;
+                                sprintf(pPartitionPtr->m_mountPath, "%s", SM_EMMC_MOUNT_PATH);
                             }
 
                             /* Set default */
@@ -273,7 +253,7 @@ bool rStorageeMMC::doMounteMMC()
         return true;
     }
 
-    /* Now mount : disk_check mount /dev/mmcpblkp01 /media/tsb*/
+    /* Now mount : disk_check mount /dev/mmcpblkp01 /tmp/data*/
     sprintf(mountbuff, "%s %s %s %s %s", "sh", SM_EMMC_DISK_CHECK, "mount", EMMC_TSB_DEV_PARTITION, SM_EMMC_MOUNT_PATH);
 
     ret = system(mountbuff);
@@ -310,7 +290,7 @@ bool rStorageeMMC::doUmounteMMC()
 
     pthread_mutex_lock(&m_mountLock);
 
-    /* Now mount : disk_check umount /media/tsb*/
+    /* Now mount : disk_check umount /tmp/data*/
     sprintf(umountbuff, "%s %s %s %s %s", "sh", SM_EMMC_DISK_CHECK, "umount", EMMC_TSB_DEV_PARTITION, SM_EMMC_MOUNT_PATH);
 
     ret = system(umountbuff);
@@ -391,13 +371,115 @@ bool rStorageeMMC::readeMMCSysAttributes(struct udev_device *device)
     return ret;
 }
 
-
 bool rStorageeMMC::get_eMMCPropertiesStatvfs()
 {
     STMGRLOG_TRACE("[%s:%d] Entering..\n", __FUNCTION__, __LINE__);
+    bool ret = false;
 
-    m_tsbStatus = RDK_STMGR_TSB_STATUS_OK;
+    const char *file = "/etc/mtab";
+    struct mntent *fs = NULL;
+    FILE *fp = setmntent(file, "r");
 
-    return true;
+    if (fp == NULL) {
+        STMGRLOG_ERROR("[%s:%d] %s: could not open: %s\n", __FUNCTION__, __LINE__, file, strerror(errno));
+        return ret;
+    }
+
+
+    for (auto it = m_partitionInfo.begin(); it != m_partitionInfo.end(); ++it )
+    {
+        rStoragePartition* pObj = it->second;
+        if(pObj)
+        {
+
+            while ((fs = getmntent(fp)) != NULL)
+            {
+                if (fs->mnt_fsname[0] != '/')	/* skip nonreal filesystems */
+                    continue;
+
+                if(0 == strncasecmp(fs->mnt_fsname, pObj->m_partitionId, strlen((const char *)pObj->m_partitionId)))
+                {
+                    struct statvfs vfs;
+                    if (statvfs(fs->mnt_dir, & vfs) != 0) {
+                        STMGRLOG_ERROR("[%s:%d] %s: statvfs failed: %s\n", __FUNCTION__, __LINE__, fs->mnt_dir, strerror(errno));
+                        return ret;
+                    }
+
+                    unsigned long capacity  = vfs.f_blocks * (vfs.f_frsize/1024);
+                    unsigned long freeSpace = vfs.f_bavail * (vfs.f_frsize/1024);
+                    STMGRLOG_INFO ("Update the capacity n freespace as per STATVFS\n");
+
+                    pObj->m_capacityinKB = capacity; /* in KB */
+                    /*Actual values */
+                    pObj->m_freeSpaceinKB = freeSpace; /* in KB */
+                    sprintf(pObj->m_format, fs->mnt_type);
+                    sprintf(pObj->m_mountPath, fs->mnt_dir);
+
+                    pObj->m_status = RDK_STMGR_DEVICE_STATUS_OK;
+                    pObj->m_isTSBSupported = true;
+                    pObj->m_isDVRSupported = false;
+
+                    unsigned long long frameRate = DEFULT_DATARATE_PER_SEC*(60*1024)/8;
+
+                    unsigned short actualTsbMaxMin = pObj->m_capacityinKB/frameRate;
+
+                    if(actualTsbMaxMin)
+                    {
+                        /* Need to check whether tsbMaxMin is less than that supported by the platform */
+                        if((actualTsbMaxMin >= DEFULT_TSB_MAX_MINUTE) || ((actualTsbMaxMin < DEFULT_TSB_MAX_MINUTE) && (actualTsbMaxMin >= DEFULT_TSB_MIN_MINUTE)))
+                        {
+                            m_maxTSBCapacityinMinutes = DEFULT_TSB_MIN_MINUTE;
+                        }
+                        else if(actualTsbMaxMin < DEFULT_TSB_MIN_MINUTE)
+                        {
+                            m_maxTSBCapacityinMinutes = actualTsbMaxMin;
+                        }
+
+                        /* Set the TSB Length to m_maxTSBCapacityinMinutes && Let the Service Manager Decide how much TSB is wanted */
+                        m_maxTSBLengthConfigured = m_maxTSBCapacityinMinutes;
+                    }
+
+                    if((pObj->m_capacityinKB - pObj->m_freeSpaceinKB)<= 0) {
+                        m_tsbStatus = RDK_STMGR_TSB_STATUS_DISK_FULL;
+                    }
+                    else
+                    {
+                        m_tsbStatus = RDK_STMGR_TSB_STATUS_OK;
+                    }
+
+                    STMGRLOG_INFO("[%s:%d] Partition Details: \n", __FUNCTION__, __LINE__);
+                    STMGRLOG_INFO("===========================================\n");
+                    STMGRLOG_INFO("[%s, mounted on %s: of type: %s option: %s\n",
+                                   fs->mnt_dir, fs->mnt_fsname, fs->mnt_type, fs->mnt_opts);
+                    STMGRLOG_INFO("\tm_partitionId: %s\n",  pObj->m_partitionId);
+                    STMGRLOG_INFO("\tm_format: %s\n",  pObj->m_format);
+                    STMGRLOG_INFO("\tm_mountPath: %s\n",  pObj->m_mountPath);
+                    STMGRLOG_INFO("\tm_capacityinKB: %d\n",  pObj->m_capacityinKB);
+                    STMGRLOG_INFO("\tm_freeSpaceinKB: %d\n",  pObj->m_freeSpaceinKB);
+                    STMGRLOG_INFO("\tm_maxTSBCapacityinMinutes: %d\n",  m_maxTSBCapacityinMinutes);
+                    STMGRLOG_INFO("\tm_status: %d\n",  pObj->m_status);
+                    STMGRLOG_INFO("\tm_isTSBSupported: %d\n",  pObj->m_isTSBSupported);
+                    STMGRLOG_INFO("\tm_isDVRSupported: %d\n",  pObj->m_isDVRSupported);
+
+                    STMGRLOG_DEBUG("\tf_bsize: %ld\n",  (long) vfs.f_bsize);
+                    STMGRLOG_DEBUG("\tf_frsize: %ld\n", (long) vfs.f_frsize);
+                    STMGRLOG_DEBUG("\tf_blocks: %lu\n", (unsigned long) vfs.f_blocks);
+                    STMGRLOG_DEBUG("\tf_bfree: %lu\n",  (unsigned long) vfs.f_bfree);
+                    STMGRLOG_DEBUG("\tf_bavail: %lu\n", (unsigned long) vfs.f_bavail);
+                    STMGRLOG_DEBUG("\tf_files: %lu\n",  (unsigned long) vfs.f_files);
+                    STMGRLOG_DEBUG("\tf_ffree: %lu\n",  (unsigned long) vfs.f_ffree);
+                    STMGRLOG_DEBUG("\tf_favail: %lu\n", (unsigned long) vfs.f_favail);
+                    STMGRLOG_DEBUG("\tf_fsid: %#lx\n",  (unsigned long) vfs.f_fsid);
+                    STMGRLOG_DEBUG("\tf_flag: %lu\n", (unsigned long) vfs.f_flag);
+                    STMGRLOG_DEBUG("===========================================\n");
+                    ret = true;
+                    break;
+                }
+            }
+            endmntent(fp);
+        }
+    }
+
+    return ret;
     STMGRLOG_TRACE("[%s:%d] Exiting..\n", __FUNCTION__, __LINE__);
 }
