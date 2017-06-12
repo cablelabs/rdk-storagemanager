@@ -202,7 +202,7 @@ void _getTSBCapacityMinutes()
     }
     else
     {
-        std::cout << "GetTSBCapacity = " << minutes << "\n";
+        std::cout << "GetTSBCapacity (in Mins) = " << minutes << "\n";
     }
 }
 
@@ -217,7 +217,7 @@ void _getTSBCapacity()
     }
     else
     {
-        std::cout << "GetTSBCapacity = " << capacityInKB << "\n";
+        std::cout << "GetTSBCapacity (in KB) = " << capacityInKB << "\n";
     }
 }
 
@@ -339,7 +339,7 @@ void _getTSBPartitionMountPath ()
     }
 }
 
-int main ()
+int main (int argc, char* argv[])
 {
     char processName[256] = "";
     int deviceIDIndex = 0;
@@ -360,6 +360,42 @@ int main ()
     if (rc != RDK_STMGR_RETURN_SUCCESS)
     {
         std::cout <<"Event Subscription Failed\n";
+    }
+
+    /* Add this for Automation team to get all the info */
+    if (argc >= 2)
+    {
+        /* Print All the device Info */
+        _getDeviceInfoList();
+
+        /* TSB Status */
+        _getTSBStatus();
+
+        /* TSB Mins */
+        _getTSBMaxMinutes();
+
+        /* TSB Capacity in mins */
+        _getTSBCapacityMinutes();
+
+        /* TSB Capacity */
+        _getTSBCapacity();
+
+        /* TSB Free Space */
+        _getTSBFreeSpace();
+
+        /* DVR Capacity */
+        _getDVRCapacity();
+
+        /* DVR Free Space */
+        _getDVRFreeSpace();
+
+        /* Is TSB Enabled */
+        _isTSBEnabled();
+
+        /* Is DVR Enabled */
+        _isDVREnabled();
+
+        return 0;
     }
 
     while (1)
