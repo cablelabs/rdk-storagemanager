@@ -591,6 +591,10 @@ bool rStorageSDCard::get_SdcPropertiesStatvfs()
                         m_tsbStatus = RDK_STMGR_TSB_STATUS_OK;
                     }
 
+                    /* Update the BaseClass members */
+                    m_maxTSBCapacityinKB = pObj->m_capacityinKB;
+                    m_freeTSBSpaceLeftinKB = pObj->m_freeSpaceinKB;
+
                     STMGRLOG_INFO("[%s:%d] Partition Details: \n", __FUNCTION__, __LINE__);
                     STMGRLOG_INFO("===========================================\n");
                     STMGRLOG_INFO("[%s, mounted on %s: of type: %s option: %s\n",
