@@ -33,10 +33,10 @@ public:
     eSTMGRReturns setTSBMaxMinutes (unsigned int minutes);
     eSTMGRReturns getTSBMaxMinutes (unsigned int *pMinutes);
     eSTMGRReturns getTSBCapacityMinutes(unsigned int *pMinutes);
-    eSTMGRReturns getTSBCapacity(unsigned long *pCapacityInKB);
-    eSTMGRReturns getTSBFreeSpace(unsigned long *pFreeSpaceInKB);
-    eSTMGRReturns getDVRCapacity(unsigned long *pCapacityInKB);
-    eSTMGRReturns getDVRFreeSpace(unsigned long *pFreeSpaceInKB);
+    eSTMGRReturns getTSBCapacity(unsigned long *pCapacity);
+    eSTMGRReturns getTSBFreeSpace(unsigned long *pFreeSpace);
+    eSTMGRReturns getDVRCapacity(unsigned long *pCapacity);
+    eSTMGRReturns getDVRFreeSpace(unsigned long *pFreeSpace);
     bool isTSBEnabled(void);
     eSTMGRReturns setTSBEnabled (bool isEnabled);
     bool isDVREnabled(void);

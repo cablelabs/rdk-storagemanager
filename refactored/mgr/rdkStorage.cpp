@@ -411,35 +411,35 @@ eSTMGRReturns rdkStorage_getTSBCapacityMinutes(unsigned int *pMinutes)
 }
 
 /* Get TSBCapacity*/
-eSTMGRReturns rdkStorage_getTSBCapacity(unsigned long *pCapacityInKB)
+eSTMGRReturns rdkStorage_getTSBCapacity(unsigned long *pCapacity)
 {
     STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
-    return rSTMgrMainClass::getInstance()->getTSBCapacity(pCapacityInKB);
+    return rSTMgrMainClass::getInstance()->getTSBCapacity(pCapacity);
 }
 
 /* Get TSBFreeSpace*/
-eSTMGRReturns rdkStorage_getTSBFreeSpace(unsigned long *pFreeSpaceInKB)
+eSTMGRReturns rdkStorage_getTSBFreeSpace(unsigned long *pFreeSpace)
 {
     STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
-    return rSTMgrMainClass::getInstance()->getTSBFreeSpace(pFreeSpaceInKB);
+    return rSTMgrMainClass::getInstance()->getTSBFreeSpace(pFreeSpace);
 }
 
 /* Get DVRCapacity */
-eSTMGRReturns rdkStorage_getDVRCapacity(unsigned long *pCapacityInKB)
+eSTMGRReturns rdkStorage_getDVRCapacity(unsigned long *pCapacity)
 {
     STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
-    return rSTMgrMainClass::getInstance()->getDVRCapacity(pCapacityInKB);
+    return rSTMgrMainClass::getInstance()->getDVRCapacity(pCapacity);
 }
 
 /* Get DVRFreeSpace*/
-eSTMGRReturns rdkStorage_getDVRFreeSpace(unsigned long *pFreeSpaceInKB)
+eSTMGRReturns rdkStorage_getDVRFreeSpace(unsigned long *pFreeSpace)
 {
     STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
-    return rSTMgrMainClass::getInstance()->getDVRFreeSpace(pFreeSpaceInKB);
+    return rSTMgrMainClass::getInstance()->getDVRFreeSpace(pFreeSpace);
 }
 
 /* Get isTSBEnabled*/

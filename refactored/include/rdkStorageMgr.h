@@ -36,16 +36,16 @@ eSTMGRReturns rdkStorage_getTSBMaxMinutes (unsigned int *pMinutes);
 eSTMGRReturns rdkStorage_getTSBCapacityMinutes(unsigned int *pMinutes);
 
 /* Get TSBCapacity*/
-eSTMGRReturns rdkStorage_getTSBCapacity(unsigned long *pCapacityInKB);
+eSTMGRReturns rdkStorage_getTSBCapacity(unsigned long *pCapacity);
 
 /* Get TSBFreeSpace*/
-eSTMGRReturns rdkStorage_getTSBFreeSpace(unsigned long *pFreeSpaceInKB);
+eSTMGRReturns rdkStorage_getTSBFreeSpace(unsigned long *pFreeSpace);
 
 /* Get DVRCapacity */
-eSTMGRReturns rdkStorage_getDVRCapacity(unsigned long *pCapacityInKB);
+eSTMGRReturns rdkStorage_getDVRCapacity(unsigned long *pCapacity);
 
 /* Get DVRFreeSpace*/
-eSTMGRReturns rdkStorage_getDVRFreeSpace(unsigned long *pFreeSpaceInKB);
+eSTMGRReturns rdkStorage_getDVRFreeSpace(unsigned long *pFreeSpace);
 
 /* Get isTSBEnabled*/
 bool rdkStorage_isTSBEnabled();

@@ -208,61 +208,61 @@ void _getTSBCapacityMinutes()
 
 void _getTSBCapacity()
 {
-    unsigned long capacityInKB;
+    unsigned long capacity;
     eSTMGRReturns rc;
-    rc = rdkStorage_getTSBCapacity(&capacityInKB);
+    rc = rdkStorage_getTSBCapacity(&capacity);
     if (rc != RDK_STMGR_RETURN_SUCCESS)
     {
         std::cout <<"Sorry failed..\n";
     }
     else
     {
-        std::cout << "GetTSBCapacity (in KB) = " << capacityInKB << "\n";
+        std::cout << "GetTSBCapacity = " << capacity << "\n";
     }
 }
 
 void _getDVRCapacity()
 {
-    unsigned long capacityInKB;
+    unsigned long capacity;
     eSTMGRReturns rc;
-    rc = rdkStorage_getDVRCapacity(&capacityInKB);
+    rc = rdkStorage_getDVRCapacity(&capacity);
     if (rc != RDK_STMGR_RETURN_SUCCESS)
     {
         std::cout <<"Sorry failed..\n";
     }
     else
     {
-        std::cout << "GetDVRCapacity = " << capacityInKB << "\n";
+        std::cout << "GetDVRCapacity = " << capacity << "\n";
     }
 }
 
 void _getTSBFreeSpace()
 {
-    unsigned long freeSpaceInKB;
+    unsigned long freeSpace;
     eSTMGRReturns rc;
-    rc = rdkStorage_getTSBFreeSpace(&freeSpaceInKB);
+    rc = rdkStorage_getTSBFreeSpace(&freeSpace);
     if (rc != RDK_STMGR_RETURN_SUCCESS)
     {
         std::cout <<"Sorry failed..\n";
     }
     else
     {
-        std::cout << "getTSBFreeSpace = " << freeSpaceInKB << "\n";
+        std::cout << "getTSBFreeSpace = " << freeSpace << "\n";
     }
 }
 
 void _getDVRFreeSpace()
 {
-    unsigned long freeSpaceInKB;
+    unsigned long freeSpace;
     eSTMGRReturns rc;
-    rc = rdkStorage_getDVRFreeSpace(&freeSpaceInKB);
+    rc = rdkStorage_getDVRFreeSpace(&freeSpace);
     if (rc != RDK_STMGR_RETURN_SUCCESS)
     {
         std::cout <<"Sorry failed..\n";
     }
     else
     {
-        std::cout << "getDVRFreeSpace = " << freeSpaceInKB << "\n";
+        std::cout << "getDVRFreeSpace = " << freeSpace << "\n";
     }
 }
 
