@@ -14,10 +14,10 @@ rStorageMedia::rStorageMedia()
     , m_tsbStatus(RDK_STMGR_TSB_STATUS_UNKNOWN)
     , m_maxTSBCapacityinMinutes(0)
     , m_maxTSBLengthConfigured(0)
-    , m_maxTSBCapacityinKB(0)
-    , m_freeTSBSpaceLeftinKB(0)
-    , m_maxDVRCapacityinKB(0)
-    , m_freeDVRSpaceLeftinKB(0)
+    , m_maxTSBCapacity(0)
+    , m_freeTSBSpaceLeft(0)
+    , m_maxDVRCapacity(0)
+    , m_freeDVRSpaceLeft(0)
     , m_isTSBEnabled(false)
     , m_isDVREnabled(false)
     , m_isTSBSupported(false)
@@ -123,8 +123,8 @@ eSTMGRReturns rStorageMedia::getPartitionInfo (char* pPartitionId, eSTMGRPartiti
             /* Copy over */
             strncpy (pPartitionInfo->m_partitionId, pTemp->m_partitionId, (RDK_STMGR_MAX_STRING_LENGTH - 1));
             strncpy (pPartitionInfo->m_format, pTemp->m_format, (RDK_STMGR_MAX_STRING_LENGTH - 1));
-            pPartitionInfo->m_capacity = pTemp->m_capacityinKB;
-            pPartitionInfo->m_freeSpace = pTemp->m_freeSpaceinKB;
+            pPartitionInfo->m_capacity = pTemp->m_capacity;
+            pPartitionInfo->m_freeSpace = pTemp->m_freeSpace;
             strncpy(pPartitionInfo->m_mountPath, pTemp->m_mountPath, (RDK_STMGR_MAX_STRING_LENGTH -1));
             pPartitionInfo->m_status = pTemp->m_status;
             pPartitionInfo->m_isDVRSupported = pTemp->m_isDVRSupported;
@@ -207,62 +207,62 @@ eSTMGRReturns rStorageMedia::getTSBCapacityMinutes(unsigned int *pMinutes)
     return rc;
 }
 
-eSTMGRReturns rStorageMedia::getTSBCapacity(unsigned long *pCapacityInKB)
+eSTMGRReturns rStorageMedia::getTSBCapacity(unsigned long *pCapacity)
 {
     eSTMGRReturns rc = RDK_STMGR_RETURN_SUCCESS;
-    if (!pCapacityInKB)
+    if (!pCapacity)
     {
         STMGRLOG_ERROR ("NULL Pointer input at %s\n", __FUNCTION__);
         rc = RDK_STMGR_RETURN_INVALID_INPUT;
     }
     else
     {
-        *pCapacityInKB = m_maxTSBCapacityinKB;
+        *pCapacity = m_maxTSBCapacity;
     }
     return rc;
 }
 
-eSTMGRReturns rStorageMedia::getTSBFreeSpace(unsigned long *pFreeSpaceInKB)
+eSTMGRReturns rStorageMedia::getTSBFreeSpace(unsigned long *pFreeSpace)
 {
     eSTMGRReturns rc = RDK_STMGR_RETURN_SUCCESS;
-    if (!pFreeSpaceInKB)
+    if (!pFreeSpace)
     {
         STMGRLOG_ERROR ("NULL Pointer input at %s\n", __FUNCTION__);
         rc = RDK_STMGR_RETURN_INVALID_INPUT;
     }
     else
     {
-        *pFreeSpaceInKB = m_freeTSBSpaceLeftinKB;
+        *pFreeSpace = m_freeTSBSpaceLeft;
     }
     return rc;
 }
 
-eSTMGRReturns rStorageMedia::getDVRCapacity(unsigned long *pCapacityInKB)
+eSTMGRReturns rStorageMedia::getDVRCapacity(unsigned long *pCapacity)
 {
     eSTMGRReturns rc = RDK_STMGR_RETURN_SUCCESS;
-    if (!pCapacityInKB)
+    if (!pCapacity)
     {
         STMGRLOG_ERROR ("NULL Pointer input at %s\n", __FUNCTION__);
         rc = RDK_STMGR_RETURN_INVALID_INPUT;
     }
     else
     {
-        *pCapacityInKB = m_maxDVRCapacityinKB;
+        *pCapacity = m_maxDVRCapacity;
     }
     return rc;
 }
 
-eSTMGRReturns rStorageMedia::getDVRFreeSpace(unsigned long *pFreeSpaceInKB)
+eSTMGRReturns rStorageMedia::getDVRFreeSpace(unsigned long *pFreeSpace)
 {
     eSTMGRReturns rc = RDK_STMGR_RETURN_SUCCESS;
-    if (!pFreeSpaceInKB)
+    if (!pFreeSpace)
     {
         STMGRLOG_ERROR ("NULL Pointer input at %s\n", __FUNCTION__);
         rc = RDK_STMGR_RETURN_INVALID_INPUT;
     }
     else
     {
-        *pFreeSpaceInKB = m_freeDVRSpaceLeftinKB;
+        *pFreeSpace = m_freeDVRSpaceLeft;
     }
     return rc;
 }

@@ -42,15 +42,15 @@ eSTMGRReturns rStorageHDDrive::populateDeviceDetails()
     if(false == m_isTSBEnabled)
     {
         m_isTSBSupported = false;
-        m_maxTSBCapacityinKB = 0;
-        m_freeTSBSpaceLeftinKB = 0;
+        m_maxTSBCapacity = 0;
+        m_freeTSBSpaceLeft = 0;
         m_maxTSBCapacityinMinutes = 0;
         m_maxTSBLengthConfigured = 0;
     }
     /* This is to track whether this memory device is supporting it our not; ie one of the partition could be used for DVR.*/
     if(false == m_isDVREnabled) {
-        m_maxDVRCapacityinKB = 0;
-        m_freeDVRSpaceLeftinKB = 0;
+        m_maxDVRCapacity = 0;
+        m_freeDVRSpaceLeft = 0;
         m_isDVRSupported = false;
     }
     /*Add Telemetry logging */
@@ -331,10 +331,10 @@ bool rStorageHDDrive::get_filesystem_statistics(const struct mntent *fs, const c
         }
         else
         {
-            unsigned long long totat_space 	= (unsigned long)(((long long)(vfs.f_blocks))*((long long)(vfs.f_bsize)))/1024;
-            unsigned long long avail_space = (unsigned long)(((long long)(vfs.f_bsize)) * ((long long)(vfs.f_bavail)))/1024;
-            pObj->m_capacityinKB = totat_space;
-            pObj->m_freeSpaceinKB = avail_space;
+            unsigned long totat_space = vfs.f_blocks * vfs.f_frsize;
+            unsigned long avail_space = vfs.f_bavail * vfs.f_frsize;
+            pObj->m_capacity = totat_space;
+            pObj->m_freeSpace = avail_space;
             pObj->m_isDVRSupported = false;
             pObj->m_isTSBSupported = false;
 
@@ -378,7 +378,7 @@ bool rStorageHDDrive::get_Xfs_fs_stat(rStoragePartition *partition, const char* 
         rc1 = xfsctl( mountpoint, fd, XFS_IOC_FSGEOMETRY, &fsInfo );
         if ( rc >= 0 )
         {
-            availCapacity= (((long long)(xfsFree.freedata))*((long long)(fsInfo.blocksize)))/1024; //*in KB*/;
+            availCapacity= (((long long)(xfsFree.freedata))*((long long)(fsInfo.blocksize)));
         } else {
             STMGRLOG_ERROR("Failed in xfsctl (XFS_IOC_FSCOUNT) %s (%d), couldn't calculate free capacity.\n", strerror(errno), errno);
         }
@@ -386,9 +386,9 @@ bool rStorageHDDrive::get_Xfs_fs_stat(rStoragePartition *partition, const char* 
         if ( rc1 >= 0 )
         {
 
-            totalCapacity = ((long long)fsInfo.blocksize*(long long)fsInfo.rtblocks)/1024; 	/*in KB*/
-            partition->m_capacityinKB = totalCapacity;
-            partition->m_freeSpaceinKB = availCapacity;
+            totalCapacity = ((long long)fsInfo.blocksize*(long long)fsInfo.rtblocks);
+            partition->m_capacity = totalCapacity;
+            partition->m_freeSpace = availCapacity;
 
             partition->m_status =  RDK_STMGR_DEVICE_STATUS_OK;
 
@@ -396,8 +396,8 @@ bool rStorageHDDrive::get_Xfs_fs_stat(rStoragePartition *partition, const char* 
             m_isTSBEnabled = true;
             m_isTSBSupported = true;
             partition->m_isTSBSupported = true;
-            m_maxTSBCapacityinKB = 40*1024*1024; /*!< reserved 40GB in dvr */
-            m_freeTSBSpaceLeftinKB = 0;			/*!< Now way to calculate since same partition used for dvr and tsb */
+            m_maxTSBCapacity = 40*1024*1024; /*!< reserved 40GB in dvr */
+            m_freeTSBSpaceLeft = 0;			/*!< Now way to calculate since same partition used for dvr and tsb */
             m_maxTSBCapacityinMinutes = 60; 	/*!< Reserved 1hr in tsb, defined in rmfconfig.ini as 'dvr.info.tsb.maxDuration = 3600 seconds'*/
             m_maxTSBLengthConfigured = 60;
 
@@ -412,16 +412,16 @@ bool rStorageHDDrive::get_Xfs_fs_stat(rStoragePartition *partition, const char* 
             m_isDVRSupported = true;
             m_isDVREnabled = true;
             partition->m_isDVRSupported = true;
-            m_maxDVRCapacityinKB = (unsigned long)(totalCapacity - m_maxTSBCapacityinKB);
-            m_freeDVRSpaceLeftinKB = (unsigned long)(availCapacity - m_maxTSBCapacityinKB);
+            m_maxDVRCapacity = (unsigned long)(totalCapacity - m_maxTSBCapacity);
+            m_freeDVRSpaceLeft = (unsigned long)(availCapacity - m_maxTSBCapacity);
 
             STMGRLOG_DEBUG("[%s:%d] XFS Filesystem Statistics (mounted on [%s]): \n", __FUNCTION__, __LINE__, mountpoint);
             STMGRLOG_DEBUG("\t**********************************************\n");
             STMGRLOG_DEBUG("\t Total Capacity [%lld], Available Capacity [%lld]\n", totalCapacity, availCapacity);
             STMGRLOG_DEBUG("\t m_isDVRSupported [%d], m_isDVREnabled [%d]\n", m_isDVRSupported,m_isDVREnabled);
-            STMGRLOG_DEBUG("\t m_maxTSBCapacityinKB [%ld], m_freeTSBSpaceLeftinKB [%ld]\n", m_maxTSBCapacityinKB,m_freeTSBSpaceLeftinKB);
+            STMGRLOG_DEBUG("\t m_maxTSBCapacity [%ld], m_freeTSBSpaceLeft [%ld]\n", m_maxTSBCapacity,m_freeTSBSpaceLeft);
             STMGRLOG_DEBUG("\t m_maxTSBCapacityinMinutes [%ld], m_maxTSBLengthConfigured [%ld]\n",  m_maxTSBCapacityinMinutes,m_maxTSBLengthConfigured);
-            STMGRLOG_DEBUG("\t m_maxDVRCapacityinKB [%ld] m_freeDVRSpaceLeftinKB [%ld]\n", m_maxDVRCapacityinKB,m_freeDVRSpaceLeftinKB);
+            STMGRLOG_DEBUG("\t m_maxDVRCapacity [%ld] m_freeDVRSpaceLeft [%ld]\n", m_maxDVRCapacity,m_freeDVRSpaceLeft);
             STMGRLOG_DEBUG("\t**********************************************\n");
         } else {
             STMGRLOG_ERROR("Failed in xfsctl (XFS_IOC_FSGEOMETRY) %s (%d)\n", strerror(errno), errno);

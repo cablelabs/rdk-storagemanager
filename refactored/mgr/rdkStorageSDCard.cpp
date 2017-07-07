@@ -114,7 +114,7 @@ eSTMGRReturns rStorageSDCard::populateDeviceDetails()
                     if((0 == strcasecmp(pDevType, "disk") && (0 == strcasecmp (pDevNode, m_devicePath.c_str())))) {
                         const char *pCapacity = udev_device_get_sysattr_value(pDevice, "size");
                         if(pCapacity) {
-                            m_capacity = (unsigned long) (((atol(pCapacity))*512)/1024);
+                            m_capacity = (unsigned long) ((atol(pCapacity))*512);
                         }
                         const char* ro = udev_device_get_sysattr_value(pDevice, "ro");
                         STMGRLOG_INFO("[%s] The SD Card \'READ ONLY\' attribute is %s.\n", __FUNCTION__, ro);
@@ -140,7 +140,7 @@ eSTMGRReturns rStorageSDCard::populateDeviceDetails()
 
                             if (pCapacity)
                             {
-                                pPartitionPtr->m_capacityinKB = (unsigned long) ((atol(pCapacity))*512)/1024;
+                                pPartitionPtr->m_capacity = (unsigned long) ((atol(pCapacity))*512);
                             }
                             const char* ro = udev_device_get_sysattr_value(pDevice, "ro");
                             if(ro)
@@ -151,7 +151,7 @@ eSTMGRReturns rStorageSDCard::populateDeviceDetails()
                             }
 
                             /* Set default */
-                            pPartitionPtr->m_freeSpaceinKB = 0;
+                            pPartitionPtr->m_freeSpace = 0;
 
                             /* @TODO: Update m_isTSBSupported after successful mounting */
                             pPartitionPtr->m_isTSBSupported = false;
@@ -549,13 +549,13 @@ bool rStorageSDCard::get_SdcPropertiesStatvfs()
                         return ret;
                     }
 
-                    unsigned long capacity  = vfs.f_blocks * (vfs.f_frsize/1024);
-                    unsigned long freeSpace = vfs.f_bavail * (vfs.f_frsize/1024);
+                    unsigned long capacity  = vfs.f_blocks * vfs.f_frsize;
+                    unsigned long freeSpace = vfs.f_bavail * vfs.f_frsize;
                     STMGRLOG_INFO ("Update the capacity n freespace as per STATVFS\n");
 
-                    pObj->m_capacityinKB = capacity; /* in KB */
+                    pObj->m_capacityinKB = capacity;
                     /*Actual values */
-                    pObj->m_freeSpaceinKB = freeSpace; /* in KB */
+                    pObj->m_freeSpaceinKB = freeSpace;
                     sprintf(pObj->m_format, fs->mnt_type);
                     sprintf(pObj->m_mountPath, fs->mnt_dir);
 
@@ -563,9 +563,9 @@ bool rStorageSDCard::get_SdcPropertiesStatvfs()
                     pObj->m_isTSBSupported = true;
                     pObj->m_isDVRSupported = false;
 
-                    unsigned long long frameRate = DEFULT_DATARATE_PER_SEC*(60*1024)/8;
+                    unsigned long long frameRate = DEFULT_DATARATE_PER_SEC*(60 * 1024 * 1024)/8;
 
-                    unsigned short actualTsbMaxMin = pObj->m_capacityinKB/frameRate;
+                    unsigned short actualTsbMaxMin = pObj->m_capacity/frameRate;
 
                     if(actualTsbMaxMin)
                     {
@@ -583,7 +583,7 @@ bool rStorageSDCard::get_SdcPropertiesStatvfs()
                         m_maxTSBLengthConfigured = m_maxTSBCapacityinMinutes;
                     }
 
-                    if((pObj->m_capacityinKB - pObj->m_freeSpaceinKB)<= 0) {
+                    if((pObj->m_capacity - pObj->m_freeSpace)<= 0) {
                         m_tsbStatus = RDK_STMGR_TSB_STATUS_DISK_FULL;
                     }
                     else
@@ -592,8 +592,8 @@ bool rStorageSDCard::get_SdcPropertiesStatvfs()
                     }
 
                     /* Update the BaseClass members */
-                    m_maxTSBCapacityinKB = pObj->m_capacityinKB;
-                    m_freeTSBSpaceLeftinKB = pObj->m_freeSpaceinKB;
+                    m_maxTSBCapacity = pObj->m_capacity;
+                    m_freeTSBSpaceLeft = pObj->m_freeSpace;
 
                     STMGRLOG_INFO("[%s:%d] Partition Details: \n", __FUNCTION__, __LINE__);
                     STMGRLOG_INFO("===========================================\n");
@@ -602,8 +602,8 @@ bool rStorageSDCard::get_SdcPropertiesStatvfs()
                     STMGRLOG_INFO("\tm_partitionId: %s\n",  pObj->m_partitionId);
                     STMGRLOG_INFO("\tm_format: %s\n",  pObj->m_format);
                     STMGRLOG_INFO("\tm_mountPath: %s\n",  pObj->m_mountPath);
-                    STMGRLOG_INFO("\tm_capacityinKB: %d\n",  pObj->m_capacityinKB);
-                    STMGRLOG_INFO("\tm_freeSpaceinKB: %d\n",  pObj->m_freeSpaceinKB);
+                    STMGRLOG_INFO("\tm_capacity: %d\n",  pObj->m_capacity);
+                    STMGRLOG_INFO("\tm_freeSpace: %d\n",  pObj->m_freeSpace);
                     STMGRLOG_INFO("\tm_maxTSBCapacityinMinutes: %d\n",  m_maxTSBCapacityinMinutes);
                     STMGRLOG_INFO("\tm_status: %d\n",  pObj->m_status);
                     STMGRLOG_INFO("\tm_isTSBSupported: %d\n",  pObj->m_isTSBSupported);

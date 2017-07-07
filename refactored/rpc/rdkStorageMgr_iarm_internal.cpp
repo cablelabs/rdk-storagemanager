@@ -209,19 +209,19 @@ static IARM_Result_t _GetTSBCapacityInMinutes(void *arg)
     return rc;
 }
 
-static IARM_Result_t _GetTSBCapacityInKB(void *arg)
+static IARM_Result_t _GetTSBCapacity(void *arg)
 {
     IARM_Result_t rc = IARM_RESULT_SUCCESS;
-    unsigned long *pCapacityInKB = (unsigned long*) arg;
+    unsigned long *pCapacity = (unsigned long*) arg;
 
-    if (!pCapacityInKB)
+    if (!pCapacity)
     {
         rc = IARM_RESULT_INVALID_PARAM;
         STMGRLOG_ERROR ("%s : Invalid input passed\n", __FUNCTION__);
     }
     else
     {
-        eSTMGRReturns retCode = rdkStorage_getTSBCapacity(pCapacityInKB);
+        eSTMGRReturns retCode = rdkStorage_getTSBCapacity(pCapacity);
         if (retCode != RDK_STMGR_RETURN_SUCCESS)
         {
             STMGRLOG_ERROR ("%s : failed\n", __FUNCTION__);
@@ -231,19 +231,19 @@ static IARM_Result_t _GetTSBCapacityInKB(void *arg)
     return rc;
 }
 
-static IARM_Result_t _GetTSBFreeSpaceInKB(void *arg)
+static IARM_Result_t _GetTSBFreeSpace(void *arg)
 {
     IARM_Result_t rc = IARM_RESULT_SUCCESS;
-    unsigned long *pFreeSpaceInKB = (unsigned long*) arg;
+    unsigned long *pFreeSpace = (unsigned long*) arg;
 
-    if (!pFreeSpaceInKB)
+    if (!pFreeSpace)
     {
         rc = IARM_RESULT_INVALID_PARAM;
         STMGRLOG_ERROR ("%s : Invalid input passed\n", __FUNCTION__);
     }
     else
     {
-        eSTMGRReturns retCode = rdkStorage_getTSBFreeSpace(pFreeSpaceInKB);
+        eSTMGRReturns retCode = rdkStorage_getTSBFreeSpace(pFreeSpace);
         if (retCode != RDK_STMGR_RETURN_SUCCESS)
         {
             STMGRLOG_ERROR ("%s : failed\n", __FUNCTION__);
@@ -253,19 +253,19 @@ static IARM_Result_t _GetTSBFreeSpaceInKB(void *arg)
     return rc;
 }
 
-static IARM_Result_t _GetDVRCapacityInKB(void *arg)
+static IARM_Result_t _GetDVRCapacity(void *arg)
 {
     IARM_Result_t rc = IARM_RESULT_SUCCESS;
-    unsigned long *pCapacityInKB = (unsigned long*) arg;
+    unsigned long *pCapacity = (unsigned long*) arg;
 
-    if (!pCapacityInKB)
+    if (!pCapacity)
     {
         rc = IARM_RESULT_INVALID_PARAM;
         STMGRLOG_ERROR ("%s : Invalid input passed\n", __FUNCTION__);
     }
     else
     {
-        eSTMGRReturns retCode = rdkStorage_getDVRCapacity(pCapacityInKB);
+        eSTMGRReturns retCode = rdkStorage_getDVRCapacity(pCapacity);
         if (retCode != RDK_STMGR_RETURN_SUCCESS)
         {
             STMGRLOG_ERROR ("%s : failed\n", __FUNCTION__);
@@ -275,19 +275,19 @@ static IARM_Result_t _GetDVRCapacityInKB(void *arg)
     return rc;
 }
 
-static IARM_Result_t _GetDVRFreeSpaceInKB(void *arg)
+static IARM_Result_t _GetDVRFreeSpace(void *arg)
 {
     IARM_Result_t rc = IARM_RESULT_SUCCESS;
-    unsigned long *pFreeSpaceInKB = (unsigned long*) arg;
+    unsigned long *pFreeSpace = (unsigned long*) arg;
 
-    if (!pFreeSpaceInKB)
+    if (!pFreeSpace)
     {
         rc = IARM_RESULT_INVALID_PARAM;
         STMGRLOG_ERROR ("%s : Invalid input passed\n", __FUNCTION__);
     }
     else
     {
-        eSTMGRReturns retCode = rdkStorage_getDVRFreeSpace(pFreeSpaceInKB);
+        eSTMGRReturns retCode = rdkStorage_getDVRFreeSpace(pFreeSpace);
         if (retCode != RDK_STMGR_RETURN_SUCCESS)
         {
             STMGRLOG_ERROR ("%s : failed\n", __FUNCTION__);
@@ -450,10 +450,10 @@ void stmgr_BeginIARMMode()
         IARM_Bus_RegisterCall ("SetTSBMaxMinutes", _SetTSBMaxMinutes);
         IARM_Bus_RegisterCall ("GetTSBMaxMinutes", _GetTSBMaxMinutes);
         IARM_Bus_RegisterCall ("GetTSBCapacityInMinutes", _GetTSBCapacityInMinutes);
-        IARM_Bus_RegisterCall ("GetTSBCapacityInKB", _GetTSBCapacityInKB);
-        IARM_Bus_RegisterCall ("GetTSBFreeSpaceInKB", _GetTSBFreeSpaceInKB);
-        IARM_Bus_RegisterCall ("GetDVRCapacityInKB", _GetDVRCapacityInKB);
-        IARM_Bus_RegisterCall ("GetDVRFreeSpaceInKB", _GetDVRFreeSpaceInKB);
+        IARM_Bus_RegisterCall ("GetTSBCapacity", _GetTSBCapacity);
+        IARM_Bus_RegisterCall ("GetTSBFreeSpace", _GetTSBFreeSpace);
+        IARM_Bus_RegisterCall ("GetDVRCapacity", _GetDVRCapacity);
+        IARM_Bus_RegisterCall ("GetDVRFreeSpace", _GetDVRFreeSpace);
         IARM_Bus_RegisterCall ("GetIsTSBEnabled", _GetIsTSBEnabled);
         IARM_Bus_RegisterCall ("SetIsTSBEnabled", _SetIsTSBEnabled);
         IARM_Bus_RegisterCall ("GetIsDVREnabled", _GetIsDVREnabled);

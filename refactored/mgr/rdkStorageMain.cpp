@@ -530,20 +530,20 @@ eSTMGRReturns rSTMgrMainClass::getTSBCapacityMinutes(unsigned int *pMinutes)
     return RDK_STMGR_RETURN_SUCCESS;
 }
 
-eSTMGRReturns rSTMgrMainClass::getTSBCapacity(unsigned long *pCapacityInKB)
+eSTMGRReturns rSTMgrMainClass::getTSBCapacity(unsigned long *pCapacity)
 {
     rStorageMedia *pMemoryObj = NULL;
     bool isSupported = false;
 
     STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
-    if (!pCapacityInKB)
+    if (!pCapacity)
     {
         STMGRLOG_ERROR ("NULL Pointer input\n");
         return RDK_STMGR_RETURN_INVALID_INPUT;
     }
 
-    *pCapacityInKB = 0;
+    *pCapacity = 0;
     pthread_mutex_lock(&m_mainMutex);
     for (auto it = m_storageDeviceObjects.begin(); it != m_storageDeviceObjects.end(); ++it)
     {
@@ -553,7 +553,7 @@ eSTMGRReturns rSTMgrMainClass::getTSBCapacity(unsigned long *pCapacityInKB)
         /* We just take it from the first TSB Supported Memory device as of now.. we will workout extending the logic/API for device ID based */
         if (isSupported)
         {
-            pMemoryObj->getTSBCapacity(pCapacityInKB);
+            pMemoryObj->getTSBCapacity(pCapacity);
             break;
         }
     }
@@ -562,26 +562,26 @@ eSTMGRReturns rSTMgrMainClass::getTSBCapacity(unsigned long *pCapacityInKB)
     if (!isSupported)
     {
         STMGRLOG_ERROR ("As NO memory device found that supports TSB, we return that TSB is disabled; not failed\n");
-        *pCapacityInKB = 0;
+        *pCapacity = 0;
     }
 
     return RDK_STMGR_RETURN_SUCCESS;
 }
 
-eSTMGRReturns rSTMgrMainClass::getTSBFreeSpace(unsigned long *pFreeSpaceInKB)
+eSTMGRReturns rSTMgrMainClass::getTSBFreeSpace(unsigned long *pFreeSpace)
 {
     rStorageMedia *pMemoryObj = NULL;
     bool isSupported = false;
 
     STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
-    if (!pFreeSpaceInKB)
+    if (!pFreeSpace)
     {
         STMGRLOG_ERROR ("NULL Pointer input\n");
         return RDK_STMGR_RETURN_INVALID_INPUT;
     }
 
-    *pFreeSpaceInKB = 0;
+    *pFreeSpace = 0;
     pthread_mutex_lock(&m_mainMutex);
     for (auto it = m_storageDeviceObjects.begin(); it != m_storageDeviceObjects.end(); ++it)
     {
@@ -591,7 +591,7 @@ eSTMGRReturns rSTMgrMainClass::getTSBFreeSpace(unsigned long *pFreeSpaceInKB)
         /* We just take it from the first TSB Supported Memory device as of now.. we will workout extending the logic/API for device ID based */
         if (isSupported)
         {
-            pMemoryObj->getTSBFreeSpace(pFreeSpaceInKB);
+            pMemoryObj->getTSBFreeSpace(pFreeSpace);
             break;
         }
     }
@@ -600,26 +600,26 @@ eSTMGRReturns rSTMgrMainClass::getTSBFreeSpace(unsigned long *pFreeSpaceInKB)
     if (!isSupported)
     {
         STMGRLOG_ERROR ("As NO memory device found that supports TSB, we return that TSB is disabled; not failed\n");
-        *pFreeSpaceInKB = 0;
+        *pFreeSpace = 0;
     }
 
     return RDK_STMGR_RETURN_SUCCESS;
 }
 
-eSTMGRReturns rSTMgrMainClass::getDVRCapacity(unsigned long *pCapacityInKB)
+eSTMGRReturns rSTMgrMainClass::getDVRCapacity(unsigned long *pCapacity)
 {
     rStorageMedia *pMemoryObj = NULL;
     bool isSupported = false;
 
     STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
-    if (!pCapacityInKB)
+    if (!pCapacity)
     {
         STMGRLOG_ERROR ("NULL Pointer input\n");
         return RDK_STMGR_RETURN_INVALID_INPUT;
     }
 
-    *pCapacityInKB = 0;
+    *pCapacity = 0;
     pthread_mutex_lock(&m_mainMutex);
     for (auto it = m_storageDeviceObjects.begin(); it != m_storageDeviceObjects.end(); ++it)
     {
@@ -629,7 +629,7 @@ eSTMGRReturns rSTMgrMainClass::getDVRCapacity(unsigned long *pCapacityInKB)
         /* We just take it from the first DVR Supported Memory device as of now.. we will workout extending the logic/API for device ID based */
         if (isSupported)
         {
-            pMemoryObj->getDVRCapacity(pCapacityInKB);
+            pMemoryObj->getDVRCapacity(pCapacity);
             break;
         }
     }
@@ -638,26 +638,26 @@ eSTMGRReturns rSTMgrMainClass::getDVRCapacity(unsigned long *pCapacityInKB)
     if (!isSupported)
     {
         STMGRLOG_ERROR ("As NO memory device found that supports DVR, we return that DVR is disabled; not failed\n");
-        *pCapacityInKB = 0;
+        *pCapacity = 0;
     }
 
     return RDK_STMGR_RETURN_SUCCESS;
 }
 
-eSTMGRReturns rSTMgrMainClass::getDVRFreeSpace(unsigned long *pFreeSpaceInKB)
+eSTMGRReturns rSTMgrMainClass::getDVRFreeSpace(unsigned long *pFreeSpace)
 {
     rStorageMedia *pMemoryObj = NULL;
     bool isSupported = false;
 
     STMGRLOG_DEBUG("ENTRY of %s\n", __FUNCTION__);
 
-    if (!pFreeSpaceInKB)
+    if (!pFreeSpace)
     {
         STMGRLOG_ERROR ("NULL Pointer input\n");
         return RDK_STMGR_RETURN_INVALID_INPUT;
     }
 
-    *pFreeSpaceInKB = 0;
+    *pFreeSpace = 0;
     pthread_mutex_lock(&m_mainMutex);
     for (auto it = m_storageDeviceObjects.begin(); it != m_storageDeviceObjects.end(); ++it)
     {
@@ -667,7 +667,7 @@ eSTMGRReturns rSTMgrMainClass::getDVRFreeSpace(unsigned long *pFreeSpaceInKB)
         /* We just take it from the first DVR Supported Memory device as of now.. we will workout extending the logic/API for device ID based */
         if (isSupported)
         {
-            pMemoryObj->getDVRFreeSpace(pFreeSpaceInKB);
+            pMemoryObj->getDVRFreeSpace(pFreeSpace);
             break;
         }
     }
@@ -676,7 +676,7 @@ eSTMGRReturns rSTMgrMainClass::getDVRFreeSpace(unsigned long *pFreeSpaceInKB)
     if (!isSupported)
     {
         STMGRLOG_ERROR ("As NO memory device found that supports DVR, we return that DVR is disabled; not failed\n");
-        *pFreeSpaceInKB = 0;
+        *pFreeSpace = 0;
     }
 
     return RDK_STMGR_RETURN_SUCCESS;

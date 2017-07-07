@@ -378,24 +378,24 @@ eSTMGRReturns rdkStorage_getTSBCapacityMinutes(unsigned int *pMinutes)
 }
 
 /* Get TSBCapacity*/
-eSTMGRReturns rdkStorage_getTSBCapacity(unsigned long *pCapacityInKB)
+eSTMGRReturns rdkStorage_getTSBCapacity(unsigned long *pCapacity)
 {
     eSTMGRReturns rc = RDK_STMGR_RETURN_SUCCESS;
     IARM_Result_t retCode = IARM_RESULT_SUCCESS;
     unsigned long capacity;
 
-    if (!pCapacityInKB)
+    if (!pCapacity)
     {
         rc = RDK_STMGR_RETURN_INVALID_INPUT;
         STMGRLOG_ERROR ("%s : Invalid input passed\n", __FUNCTION__);
     }
     else if (_stmgr_isSTMGRInited())
     {
-        retCode = IARM_Bus_Call(IARM_BUS_STMGR_NAME, "GetTSBCapacityInKB", (void *)&capacity, sizeof(capacity));
+        retCode = IARM_Bus_Call(IARM_BUS_STMGR_NAME, "GetTSBCapacity", (void *)&capacity, sizeof(capacity));
         if (IARM_RESULT_SUCCESS == retCode)
         {
             /* Copy over the data */
-            *pCapacityInKB = capacity;
+            *pCapacity = capacity;
             STMGRLOG_INFO ("%s : Successfully finished \n", __FUNCTION__);
         }
         else
@@ -414,24 +414,24 @@ eSTMGRReturns rdkStorage_getTSBCapacity(unsigned long *pCapacityInKB)
 }
 
 /* Get TSBFreeSpace*/
-eSTMGRReturns rdkStorage_getTSBFreeSpace(unsigned long *pFreeSpaceInKB)
+eSTMGRReturns rdkStorage_getTSBFreeSpace(unsigned long *pFreeSpace)
 {
     eSTMGRReturns rc = RDK_STMGR_RETURN_SUCCESS;
     IARM_Result_t retCode = IARM_RESULT_SUCCESS;
     unsigned long freespace;
 
-    if (!pFreeSpaceInKB)
+    if (!pFreeSpace)
     {
         rc = RDK_STMGR_RETURN_INVALID_INPUT;
         STMGRLOG_ERROR ("%s : Invalid input passed\n", __FUNCTION__);
     }
     else if (_stmgr_isSTMGRInited())
     {
-        retCode = IARM_Bus_Call(IARM_BUS_STMGR_NAME, "GetTSBFreeSpaceInKB", (void *)&freespace, sizeof(freespace));
+        retCode = IARM_Bus_Call(IARM_BUS_STMGR_NAME, "GetTSBFreeSpace", (void *)&freespace, sizeof(freespace));
         if (IARM_RESULT_SUCCESS == retCode)
         {
             /* Copy over the data */
-            *pFreeSpaceInKB = freespace;
+            *pFreeSpace = freespace;
             STMGRLOG_INFO ("%s : Successfully finished \n", __FUNCTION__);
         }
         else
@@ -450,24 +450,24 @@ eSTMGRReturns rdkStorage_getTSBFreeSpace(unsigned long *pFreeSpaceInKB)
 }
 
 /* Get DVRCapacity */
-eSTMGRReturns rdkStorage_getDVRCapacity(unsigned long *pCapacityInKB)
+eSTMGRReturns rdkStorage_getDVRCapacity(unsigned long *pCapacity)
 {
     eSTMGRReturns rc = RDK_STMGR_RETURN_SUCCESS;
     IARM_Result_t retCode = IARM_RESULT_SUCCESS;
     unsigned long capacity;
 
-    if (!pCapacityInKB)
+    if (!pCapacity)
     {
         rc = RDK_STMGR_RETURN_INVALID_INPUT;
         STMGRLOG_ERROR ("%s : Invalid input passed\n", __FUNCTION__);
     }
     else if (_stmgr_isSTMGRInited())
     {
-        retCode = IARM_Bus_Call(IARM_BUS_STMGR_NAME, "GetDVRCapacityInKB", (void *)&capacity, sizeof(capacity));
+        retCode = IARM_Bus_Call(IARM_BUS_STMGR_NAME, "GetDVRCapacity", (void *)&capacity, sizeof(capacity));
         if (IARM_RESULT_SUCCESS == retCode)
         {
             /* Copy over the data */
-            *pCapacityInKB = capacity;
+            *pCapacity = capacity;
             STMGRLOG_INFO ("%s : Successfully finished \n", __FUNCTION__);
         }
         else
@@ -486,24 +486,24 @@ eSTMGRReturns rdkStorage_getDVRCapacity(unsigned long *pCapacityInKB)
 }
 
 /* Get DVRFreeSpace*/
-eSTMGRReturns rdkStorage_getDVRFreeSpace(unsigned long *pFreeSpaceInKB)
+eSTMGRReturns rdkStorage_getDVRFreeSpace(unsigned long *pFreeSpace)
 {
     eSTMGRReturns rc = RDK_STMGR_RETURN_SUCCESS;
     IARM_Result_t retCode = IARM_RESULT_SUCCESS;
     unsigned long freespace;
 
-    if (!pFreeSpaceInKB)
+    if (!pFreeSpace)
     {
         rc = RDK_STMGR_RETURN_INVALID_INPUT;
         STMGRLOG_ERROR ("%s : Invalid input passed\n", __FUNCTION__);
     }
     else if (_stmgr_isSTMGRInited())
     {
-        retCode = IARM_Bus_Call(IARM_BUS_STMGR_NAME, "GetDVRFreeSpaceInKB", (void *)&freespace, sizeof(freespace));
+        retCode = IARM_Bus_Call(IARM_BUS_STMGR_NAME, "GetDVRFreeSpace", (void *)&freespace, sizeof(freespace));
         if (IARM_RESULT_SUCCESS == retCode)
         {
             /* Copy over the data */
-            *pFreeSpaceInKB = freespace;
+            *pFreeSpace = freespace;
             STMGRLOG_INFO ("%s : Successfully finished \n", __FUNCTION__);
         }
         else

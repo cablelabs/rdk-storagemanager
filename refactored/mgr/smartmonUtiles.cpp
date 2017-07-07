@@ -137,8 +137,8 @@ bool smartmonUtiles::parse_capacity_string(std::string& s, unsigned long long& c
     unsigned long long hdd_capacity = std::stoull(value,&sz);
 
     if(hdd_capacity) {
-        capacity = hdd_capacity/1024; /*!< in KB */
-        STMGRLOG_DEBUG("[%s:%d] HDD Capacity, (%lld) Bytes, i.e., (%lld) KB. \n", __FUNCTION__, __LINE__, hdd_capacity, capacity);
+        capacity = hdd_capacity;
+        STMGRLOG_DEBUG("[%s:%d] HDD Capacity, (%lld) Bytes, i.e., (%lld). \n", __FUNCTION__, __LINE__, hdd_capacity, capacity);
     }
     else {
         capacity = 0;
