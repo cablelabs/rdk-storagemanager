@@ -553,9 +553,9 @@ bool rStorageSDCard::get_SdcPropertiesStatvfs()
                     unsigned long freeSpace = vfs.f_bavail * vfs.f_frsize;
                     STMGRLOG_INFO ("Update the capacity n freespace as per STATVFS\n");
 
-                    pObj->m_capacityinKB = capacity;
+                    pObj->m_capacity = capacity;
                     /*Actual values */
-                    pObj->m_freeSpaceinKB = freeSpace;
+                    pObj->m_freeSpace = freeSpace;
                     sprintf(pObj->m_format, fs->mnt_type);
                     sprintf(pObj->m_mountPath, fs->mnt_dir);
 
