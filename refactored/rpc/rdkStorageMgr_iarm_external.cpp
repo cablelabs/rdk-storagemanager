@@ -378,11 +378,11 @@ eSTMGRReturns rdkStorage_getTSBCapacityMinutes(unsigned int *pMinutes)
 }
 
 /* Get TSBCapacity*/
-eSTMGRReturns rdkStorage_getTSBCapacity(unsigned long *pCapacity)
+eSTMGRReturns rdkStorage_getTSBCapacity(unsigned long long *pCapacity)
 {
     eSTMGRReturns rc = RDK_STMGR_RETURN_SUCCESS;
     IARM_Result_t retCode = IARM_RESULT_SUCCESS;
-    unsigned long capacity;
+    unsigned long long capacity;
 
     if (!pCapacity)
     {
@@ -414,11 +414,11 @@ eSTMGRReturns rdkStorage_getTSBCapacity(unsigned long *pCapacity)
 }
 
 /* Get TSBFreeSpace*/
-eSTMGRReturns rdkStorage_getTSBFreeSpace(unsigned long *pFreeSpace)
+eSTMGRReturns rdkStorage_getTSBFreeSpace(unsigned long long *pFreeSpace)
 {
     eSTMGRReturns rc = RDK_STMGR_RETURN_SUCCESS;
     IARM_Result_t retCode = IARM_RESULT_SUCCESS;
-    unsigned long freespace;
+    unsigned long long freespace;
 
     if (!pFreeSpace)
     {
@@ -450,11 +450,11 @@ eSTMGRReturns rdkStorage_getTSBFreeSpace(unsigned long *pFreeSpace)
 }
 
 /* Get DVRCapacity */
-eSTMGRReturns rdkStorage_getDVRCapacity(unsigned long *pCapacity)
+eSTMGRReturns rdkStorage_getDVRCapacity(unsigned long long *pCapacity)
 {
     eSTMGRReturns rc = RDK_STMGR_RETURN_SUCCESS;
     IARM_Result_t retCode = IARM_RESULT_SUCCESS;
-    unsigned long capacity;
+    unsigned long long capacity;
 
     if (!pCapacity)
     {
@@ -486,11 +486,11 @@ eSTMGRReturns rdkStorage_getDVRCapacity(unsigned long *pCapacity)
 }
 
 /* Get DVRFreeSpace*/
-eSTMGRReturns rdkStorage_getDVRFreeSpace(unsigned long *pFreeSpace)
+eSTMGRReturns rdkStorage_getDVRFreeSpace(unsigned long long *pFreeSpace)
 {
     eSTMGRReturns rc = RDK_STMGR_RETURN_SUCCESS;
     IARM_Result_t retCode = IARM_RESULT_SUCCESS;
-    unsigned long freespace;
+    unsigned long long freespace;
 
     if (!pFreeSpace)
     {

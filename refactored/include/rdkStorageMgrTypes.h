@@ -75,7 +75,7 @@ typedef struct _stmgr_DeviceIds {
 typedef struct _stmgr_DeviceInfo {
     char m_deviceID[RDK_STMGR_MAX_STRING_LENGTH];
     eSTMGRDeviceType m_type;
-    unsigned long m_capacity;
+    unsigned long long m_capacity;
     eSTMGRDeviceStatus m_status;
     char m_partitions[RDK_STMGR_PARTITION_LENGTH];
     char m_manufacturer[RDK_STMGR_MAX_STRING_LENGTH];
@@ -98,8 +98,8 @@ typedef struct _stmgr_PartitionInfo {
     char m_mountPath [RDK_STMGR_MAX_STRING_LENGTH];
     char m_format[RDK_STMGR_MAX_STRING_LENGTH];
     eSTMGRDeviceStatus m_status;
-    unsigned long m_capacity;
-    unsigned long m_freeSpace;
+    unsigned long long m_capacity;
+    unsigned long long m_freeSpace;
     bool m_isTSBSupported;
     bool m_isDVRSupported;
 } eSTMGRPartitionInfo;

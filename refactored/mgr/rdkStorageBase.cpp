@@ -207,7 +207,7 @@ eSTMGRReturns rStorageMedia::getTSBCapacityMinutes(unsigned int *pMinutes)
     return rc;
 }
 
-eSTMGRReturns rStorageMedia::getTSBCapacity(unsigned long *pCapacity)
+eSTMGRReturns rStorageMedia::getTSBCapacity(unsigned long long *pCapacity)
 {
     eSTMGRReturns rc = RDK_STMGR_RETURN_SUCCESS;
     if (!pCapacity)
@@ -222,7 +222,7 @@ eSTMGRReturns rStorageMedia::getTSBCapacity(unsigned long *pCapacity)
     return rc;
 }
 
-eSTMGRReturns rStorageMedia::getTSBFreeSpace(unsigned long *pFreeSpace)
+eSTMGRReturns rStorageMedia::getTSBFreeSpace(unsigned long long *pFreeSpace)
 {
     eSTMGRReturns rc = RDK_STMGR_RETURN_SUCCESS;
     if (!pFreeSpace)
@@ -237,7 +237,7 @@ eSTMGRReturns rStorageMedia::getTSBFreeSpace(unsigned long *pFreeSpace)
     return rc;
 }
 
-eSTMGRReturns rStorageMedia::getDVRCapacity(unsigned long *pCapacity)
+eSTMGRReturns rStorageMedia::getDVRCapacity(unsigned long long *pCapacity)
 {
     eSTMGRReturns rc = RDK_STMGR_RETURN_SUCCESS;
     if (!pCapacity)
@@ -252,7 +252,7 @@ eSTMGRReturns rStorageMedia::getDVRCapacity(unsigned long *pCapacity)
     return rc;
 }
 
-eSTMGRReturns rStorageMedia::getDVRFreeSpace(unsigned long *pFreeSpace)
+eSTMGRReturns rStorageMedia::getDVRFreeSpace(unsigned long long *pFreeSpace)
 {
     eSTMGRReturns rc = RDK_STMGR_RETURN_SUCCESS;
     if (!pFreeSpace)

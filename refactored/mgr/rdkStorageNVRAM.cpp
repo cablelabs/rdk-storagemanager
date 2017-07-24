@@ -109,7 +109,7 @@ eSTMGRReturns rStorageNVRAM::populateDeviceDetails()
 
                             if (pCapacity)
                             {
-                                pPartitionPtr->m_capacity = (unsigned long) atol(pCapacity);
+                                pPartitionPtr->m_capacity = atoll(pCapacity);
                             }
                             /* FIXME: Read the freespace from statvfs !?! */
                             pPartitionPtr->m_freeSpace = pPartitionPtr->m_capacity;
@@ -143,7 +143,7 @@ eSTMGRReturns rStorageNVRAM::populateDeviceDetails()
                 const char *pCapacity = udev_device_get_sysattr_value(pMTDDevice, "size");
                 if (pCapacity)
                 {
-                    m_capacity = (unsigned long) atol(pCapacity);
+                    m_capacity = atoll(pCapacity);
                 }
                 STMGRLOG_INFO ("The Capacity of this NVRAM device is, %lu\n", m_capacity);
             }

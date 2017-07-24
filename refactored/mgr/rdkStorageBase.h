@@ -15,8 +15,8 @@ public:
     char m_name [RDK_STMGR_MAX_STRING_LENGTH];
     char m_mountPath [RDK_STMGR_MAX_STRING_LENGTH];
     char m_format[RDK_STMGR_MAX_STRING_LENGTH];
-    unsigned long m_capacity;
-    unsigned long m_freeSpace;
+    unsigned long long m_capacity;
+    unsigned long long m_freeSpace;
     eSTMGRDeviceStatus m_status;
     bool m_isTSBSupported;
     bool m_isDVRSupported;
@@ -30,7 +30,7 @@ protected:
     char m_deviceID[RDK_STMGR_MAX_STRING_LENGTH];
 
     eSTMGRDeviceType m_type;
-    unsigned long m_capacity;
+    unsigned long long m_capacity;
     eSTMGRDeviceStatus m_status;
     char m_manufacturer[RDK_STMGR_MAX_STRING_LENGTH];
     char m_model[RDK_STMGR_MAX_STRING_LENGTH];
@@ -46,10 +46,10 @@ protected:
     unsigned int m_maxTSBCapacityinMinutes;
     unsigned int m_maxTSBLengthConfigured;
 
-    unsigned long m_maxTSBCapacity;
-    unsigned long m_freeTSBSpaceLeft;
-    unsigned long m_maxDVRCapacity;
-    unsigned long m_freeDVRSpaceLeft;
+    unsigned long long m_maxTSBCapacity;
+    unsigned long long m_freeTSBSpaceLeft;
+    unsigned long long m_maxDVRCapacity;
+    unsigned long long m_freeDVRSpaceLeft;
     bool m_isTSBEnabled; /* This is to track whether this memory device is supporting it our not; ie one of the partition could be used for TSB.*/
     bool m_isDVREnabled; /* This is to track whether this memory device is supporting it our not; ie one of the partition could be used for DVR.*/
     bool m_isTSBSupported;
@@ -68,10 +68,10 @@ public:
     virtual eSTMGRReturns setTSBMaxMinutes (unsigned int minutes);
     virtual eSTMGRReturns getTSBMaxMinutes (unsigned int *pMinutes);
     virtual eSTMGRReturns getTSBCapacityMinutes(unsigned int *pMinutes);
-    virtual eSTMGRReturns getTSBCapacity(unsigned long *pCapacity);
-    virtual eSTMGRReturns getTSBFreeSpace(unsigned long *pFreeSpace);
-    virtual eSTMGRReturns getDVRCapacity(unsigned long *pCapacity);
-    virtual eSTMGRReturns getDVRFreeSpace(unsigned long *pFreeSpace);
+    virtual eSTMGRReturns getTSBCapacity(unsigned long long *pCapacity);
+    virtual eSTMGRReturns getTSBFreeSpace(unsigned long long *pFreeSpace);
+    virtual eSTMGRReturns getDVRCapacity(unsigned long long *pCapacity);
+    virtual eSTMGRReturns getDVRFreeSpace(unsigned long long *pFreeSpace);
     virtual eSTMGRReturns setTSBEnabled (bool isEnabled);
     virtual eSTMGRReturns setDVREnabled (bool isEnabled);
     virtual bool isTSBEnabled();

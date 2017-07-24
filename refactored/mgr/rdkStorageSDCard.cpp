@@ -114,7 +114,7 @@ eSTMGRReturns rStorageSDCard::populateDeviceDetails()
                     if((0 == strcasecmp(pDevType, "disk") && (0 == strcasecmp (pDevNode, m_devicePath.c_str())))) {
                         const char *pCapacity = udev_device_get_sysattr_value(pDevice, "size");
                         if(pCapacity) {
-                            m_capacity = (unsigned long) ((atol(pCapacity))*512);
+                            m_capacity = atoll(pCapacity) * 512;
                         }
                         const char* ro = udev_device_get_sysattr_value(pDevice, "ro");
                         STMGRLOG_INFO("[%s] The SD Card \'READ ONLY\' attribute is %s.\n", __FUNCTION__, ro);
@@ -140,7 +140,7 @@ eSTMGRReturns rStorageSDCard::populateDeviceDetails()
 
                             if (pCapacity)
                             {
-                                pPartitionPtr->m_capacity = (unsigned long) ((atol(pCapacity))*512);
+                                pPartitionPtr->m_capacity = atoll(pCapacity) * 512;
                             }
                             const char* ro = udev_device_get_sysattr_value(pDevice, "ro");
                             if(ro)
@@ -549,8 +549,8 @@ bool rStorageSDCard::get_SdcPropertiesStatvfs()
                         return ret;
                     }
 
-                    unsigned long capacity  = vfs.f_blocks * vfs.f_frsize;
-                    unsigned long freeSpace = vfs.f_bavail * vfs.f_frsize;
+                    unsigned long long capacity  = vfs.f_blocks * vfs.f_frsize;
+                    unsigned long long freeSpace = vfs.f_bavail * vfs.f_frsize;
                     STMGRLOG_INFO ("Update the capacity n freespace as per STATVFS\n");
 
                     pObj->m_capacity = capacity;

@@ -208,7 +208,7 @@ void _getTSBCapacityMinutes()
 
 void _getTSBCapacity()
 {
-    unsigned long capacity;
+    unsigned long long capacity;
     eSTMGRReturns rc;
     rc = rdkStorage_getTSBCapacity(&capacity);
     if (rc != RDK_STMGR_RETURN_SUCCESS)
@@ -223,7 +223,7 @@ void _getTSBCapacity()
 
 void _getDVRCapacity()
 {
-    unsigned long capacity;
+    unsigned long long capacity;
     eSTMGRReturns rc;
     rc = rdkStorage_getDVRCapacity(&capacity);
     if (rc != RDK_STMGR_RETURN_SUCCESS)
@@ -238,7 +238,7 @@ void _getDVRCapacity()
 
 void _getTSBFreeSpace()
 {
-    unsigned long freeSpace;
+    unsigned long long freeSpace;
     eSTMGRReturns rc;
     rc = rdkStorage_getTSBFreeSpace(&freeSpace);
     if (rc != RDK_STMGR_RETURN_SUCCESS)
@@ -253,7 +253,7 @@ void _getTSBFreeSpace()
 
 void _getDVRFreeSpace()
 {
-    unsigned long freeSpace;
+    unsigned long long freeSpace;
     eSTMGRReturns rc;
     rc = rdkStorage_getDVRFreeSpace(&freeSpace);
     if (rc != RDK_STMGR_RETURN_SUCCESS)

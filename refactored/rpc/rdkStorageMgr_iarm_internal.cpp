@@ -212,7 +212,7 @@ static IARM_Result_t _GetTSBCapacityInMinutes(void *arg)
 static IARM_Result_t _GetTSBCapacity(void *arg)
 {
     IARM_Result_t rc = IARM_RESULT_SUCCESS;
-    unsigned long *pCapacity = (unsigned long*) arg;
+    unsigned long long *pCapacity = (unsigned long long*) arg;
 
     if (!pCapacity)
     {
@@ -234,7 +234,7 @@ static IARM_Result_t _GetTSBCapacity(void *arg)
 static IARM_Result_t _GetTSBFreeSpace(void *arg)
 {
     IARM_Result_t rc = IARM_RESULT_SUCCESS;
-    unsigned long *pFreeSpace = (unsigned long*) arg;
+    unsigned long long *pFreeSpace = (unsigned long long*) arg;
 
     if (!pFreeSpace)
     {
@@ -256,7 +256,7 @@ static IARM_Result_t _GetTSBFreeSpace(void *arg)
 static IARM_Result_t _GetDVRCapacity(void *arg)
 {
     IARM_Result_t rc = IARM_RESULT_SUCCESS;
-    unsigned long *pCapacity = (unsigned long*) arg;
+    unsigned long long *pCapacity = (unsigned long long*) arg;
 
     if (!pCapacity)
     {
@@ -278,7 +278,7 @@ static IARM_Result_t _GetDVRCapacity(void *arg)
 static IARM_Result_t _GetDVRFreeSpace(void *arg)
 {
     IARM_Result_t rc = IARM_RESULT_SUCCESS;
-    unsigned long *pFreeSpace = (unsigned long*) arg;
+    unsigned long long *pFreeSpace = (unsigned long long*) arg;
 
     if (!pFreeSpace)
     {

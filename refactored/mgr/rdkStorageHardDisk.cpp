@@ -109,7 +109,7 @@ bool rStorageHDDrive::get_SmartMonAttribute_Info()
             strncpy(m_ifATAstandard, ata_standard.c_str(), RDK_STMGR_MAX_STRING_LENGTH);
         }
 
-        m_capacity = (unsigned long)smCmd->getCapacity();
+        m_capacity = smCmd->getCapacity();
         m_hasSMARTSupport = smCmd->isSmartSupport();
 
         m_healthInfo.m_isHealthy = smCmd->isOverallHealthOkay();
@@ -331,8 +331,8 @@ bool rStorageHDDrive::get_filesystem_statistics(const struct mntent *fs, const c
         }
         else
         {
-            unsigned long totat_space = vfs.f_blocks * vfs.f_frsize;
-            unsigned long avail_space = vfs.f_bavail * vfs.f_frsize;
+            unsigned long long totat_space = vfs.f_blocks * vfs.f_frsize;
+            unsigned long long avail_space = vfs.f_bavail * vfs.f_frsize;
             pObj->m_capacity = totat_space;
             pObj->m_freeSpace = avail_space;
             pObj->m_isDVRSupported = false;
@@ -412,8 +412,8 @@ bool rStorageHDDrive::get_Xfs_fs_stat(rStoragePartition *partition, const char* 
             m_isDVRSupported = true;
             m_isDVREnabled = true;
             partition->m_isDVRSupported = true;
-            m_maxDVRCapacity = (unsigned long)(totalCapacity - m_maxTSBCapacity);
-            m_freeDVRSpaceLeft = (unsigned long)(availCapacity - m_maxTSBCapacity);
+            m_maxDVRCapacity = totalCapacity - m_maxTSBCapacity;
+            m_freeDVRSpaceLeft = availCapacity - m_maxTSBCapacity;
 
             STMGRLOG_DEBUG("[%s:%d] XFS Filesystem Statistics (mounted on [%s]): \n", __FUNCTION__, __LINE__, mountpoint);
             STMGRLOG_DEBUG("\t**********************************************\n");

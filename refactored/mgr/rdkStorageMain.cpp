@@ -530,7 +530,7 @@ eSTMGRReturns rSTMgrMainClass::getTSBCapacityMinutes(unsigned int *pMinutes)
     return RDK_STMGR_RETURN_SUCCESS;
 }
 
-eSTMGRReturns rSTMgrMainClass::getTSBCapacity(unsigned long *pCapacity)
+eSTMGRReturns rSTMgrMainClass::getTSBCapacity(unsigned long long *pCapacity)
 {
     rStorageMedia *pMemoryObj = NULL;
     bool isSupported = false;
@@ -568,7 +568,7 @@ eSTMGRReturns rSTMgrMainClass::getTSBCapacity(unsigned long *pCapacity)
     return RDK_STMGR_RETURN_SUCCESS;
 }
 
-eSTMGRReturns rSTMgrMainClass::getTSBFreeSpace(unsigned long *pFreeSpace)
+eSTMGRReturns rSTMgrMainClass::getTSBFreeSpace(unsigned long long *pFreeSpace)
 {
     rStorageMedia *pMemoryObj = NULL;
     bool isSupported = false;
@@ -606,7 +606,7 @@ eSTMGRReturns rSTMgrMainClass::getTSBFreeSpace(unsigned long *pFreeSpace)
     return RDK_STMGR_RETURN_SUCCESS;
 }
 
-eSTMGRReturns rSTMgrMainClass::getDVRCapacity(unsigned long *pCapacity)
+eSTMGRReturns rSTMgrMainClass::getDVRCapacity(unsigned long long *pCapacity)
 {
     rStorageMedia *pMemoryObj = NULL;
     bool isSupported = false;
@@ -644,7 +644,7 @@ eSTMGRReturns rSTMgrMainClass::getDVRCapacity(unsigned long *pCapacity)
     return RDK_STMGR_RETURN_SUCCESS;
 }
 
-eSTMGRReturns rSTMgrMainClass::getDVRFreeSpace(unsigned long *pFreeSpace)
+eSTMGRReturns rSTMgrMainClass::getDVRFreeSpace(unsigned long long *pFreeSpace)
 {
     rStorageMedia *pMemoryObj = NULL;
     bool isSupported = false;
