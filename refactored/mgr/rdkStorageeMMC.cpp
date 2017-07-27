@@ -126,7 +126,7 @@ eSTMGRReturns rStorageeMMC::populateDeviceDetails()
                             if (pCapacity)
                             {
                                 pPartitionPtr->m_capacity = atoll(pCapacity) * 512;
-                                STMGRLOG_INFO("[%s] Partition capacity is : [%lu]\n", __FUNCTION__, pPartitionPtr->m_capacity);
+                                STMGRLOG_INFO("[%s] Partition capacity is : [%llu]\n", __FUNCTION__, pPartitionPtr->m_capacity);
                             }
                             const char* ro = udev_device_get_sysattr_value(pDevice, "ro");
                             if(ro)
@@ -405,8 +405,8 @@ bool rStorageeMMC::get_eMMCPropertiesStatvfs()
                         return ret;
                     }
 
-                    unsigned long long capacity  = vfs.f_blocks * vfs.f_frsize;
-                    unsigned long long freeSpace = vfs.f_bavail * vfs.f_frsize;
+                    unsigned long long capacity  = (long long) vfs.f_blocks * (long long) vfs.f_frsize;
+                    unsigned long long freeSpace = (long long) vfs.f_bavail * (long long) vfs.f_frsize;
                     STMGRLOG_INFO ("Update the capacity n freespace as per STATVFS\n");
 
                     pObj->m_capacity = capacity;
@@ -419,7 +419,7 @@ bool rStorageeMMC::get_eMMCPropertiesStatvfs()
                     pObj->m_isTSBSupported = true;
                     pObj->m_isDVRSupported = false;
 
-                    unsigned long long frameRate = DEFULT_DATARATE_PER_SEC*(60 * 1024 * 1024)/8;
+                    unsigned long long frameRate = (DEFULT_DATARATE_PER_SEC * 60 * 1024 * 1024) / 8;
 
                     unsigned short actualTsbMaxMin = pObj->m_capacity/frameRate;
 
@@ -458,8 +458,8 @@ bool rStorageeMMC::get_eMMCPropertiesStatvfs()
                     STMGRLOG_INFO("\tm_partitionId: %s\n",  pObj->m_partitionId);
                     STMGRLOG_INFO("\tm_format: %s\n",  pObj->m_format);
                     STMGRLOG_INFO("\tm_mountPath: %s\n",  pObj->m_mountPath);
-                    STMGRLOG_INFO("\tm_capacity: %d\n",  pObj->m_capacity);
-                    STMGRLOG_INFO("\tm_freeSpace: %d\n",  pObj->m_freeSpace);
+                    STMGRLOG_INFO("\tm_capacity: %llu\n",  pObj->m_capacity);
+                    STMGRLOG_INFO("\tm_freeSpace: %llu\n",  pObj->m_freeSpace);
                     STMGRLOG_INFO("\tm_maxTSBCapacityinMinutes: %d\n",  m_maxTSBCapacityinMinutes);
                     STMGRLOG_INFO("\tm_status: %d\n",  pObj->m_status);
                     STMGRLOG_INFO("\tm_isTSBSupported: %d\n",  pObj->m_isTSBSupported);

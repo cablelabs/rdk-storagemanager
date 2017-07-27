@@ -145,7 +145,7 @@ eSTMGRReturns rStorageNVRAM::populateDeviceDetails()
                 {
                     m_capacity = atoll(pCapacity);
                 }
-                STMGRLOG_INFO ("The Capacity of this NVRAM device is, %lu\n", m_capacity);
+                STMGRLOG_INFO ("The Capacity of this NVRAM device is, %llu\n", m_capacity);
             }
             else
             {

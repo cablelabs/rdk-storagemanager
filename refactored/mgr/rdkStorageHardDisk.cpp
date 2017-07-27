@@ -331,8 +331,8 @@ bool rStorageHDDrive::get_filesystem_statistics(const struct mntent *fs, const c
         }
         else
         {
-            unsigned long long totat_space = vfs.f_blocks * vfs.f_frsize;
-            unsigned long long avail_space = vfs.f_bavail * vfs.f_frsize;
+            unsigned long long totat_space = (long long) vfs.f_blocks * (long long) vfs.f_frsize;
+            unsigned long long avail_space = (long long) vfs.f_bavail * (long long) vfs.f_frsize;
             pObj->m_capacity = totat_space;
             pObj->m_freeSpace = avail_space;
             pObj->m_isDVRSupported = false;
@@ -345,7 +345,7 @@ bool rStorageHDDrive::get_filesystem_statistics(const struct mntent *fs, const c
 
             STMGRLOG_DEBUG("[%s:%d] %s Filesystem Statistics (mounted on [%s]): \n", __FUNCTION__, __LINE__, fs->mnt_type, fs->mnt_dir);
             STMGRLOG_DEBUG("\t**********************************************\n");
-            STMGRLOG_DEBUG("\t Total Capacity [%lld], Available Capacity [%lld]\n", totat_space, avail_space);
+            STMGRLOG_DEBUG("\t Total Capacity [%llu], Available Capacity [%llu]\n", totat_space, avail_space);
             STMGRLOG_DEBUG("\t m_isDVRSupported [%d], m_isDVREnabled [%d]\n", pObj->m_isDVRSupported,pObj->m_isTSBSupported);
             STMGRLOG_DEBUG("\t m_status [%d]\n", pObj->m_status);
             STMGRLOG_DEBUG("\t**********************************************\n");
@@ -417,11 +417,11 @@ bool rStorageHDDrive::get_Xfs_fs_stat(rStoragePartition *partition, const char* 
 
             STMGRLOG_DEBUG("[%s:%d] XFS Filesystem Statistics (mounted on [%s]): \n", __FUNCTION__, __LINE__, mountpoint);
             STMGRLOG_DEBUG("\t**********************************************\n");
-            STMGRLOG_DEBUG("\t Total Capacity [%lld], Available Capacity [%lld]\n", totalCapacity, availCapacity);
+            STMGRLOG_DEBUG("\t Total Capacity [%llu], Available Capacity [%llu]\n", totalCapacity, availCapacity);
             STMGRLOG_DEBUG("\t m_isDVRSupported [%d], m_isDVREnabled [%d]\n", m_isDVRSupported,m_isDVREnabled);
-            STMGRLOG_DEBUG("\t m_maxTSBCapacity [%ld], m_freeTSBSpaceLeft [%ld]\n", m_maxTSBCapacity,m_freeTSBSpaceLeft);
-            STMGRLOG_DEBUG("\t m_maxTSBCapacityinMinutes [%ld], m_maxTSBLengthConfigured [%ld]\n",  m_maxTSBCapacityinMinutes,m_maxTSBLengthConfigured);
-            STMGRLOG_DEBUG("\t m_maxDVRCapacity [%ld] m_freeDVRSpaceLeft [%ld]\n", m_maxDVRCapacity,m_freeDVRSpaceLeft);
+            STMGRLOG_DEBUG("\t m_maxTSBCapacity [%llu], m_freeTSBSpaceLeft [%llu]\n", m_maxTSBCapacity,m_freeTSBSpaceLeft);
+            STMGRLOG_DEBUG("\t m_maxTSBCapacityinMinutes [%u], m_maxTSBLengthConfigured [%u]\n",  m_maxTSBCapacityinMinutes,m_maxTSBLengthConfigured);
+            STMGRLOG_DEBUG("\t m_maxDVRCapacity [%llu] m_freeDVRSpaceLeft [%llu]\n", m_maxDVRCapacity,m_freeDVRSpaceLeft);
             STMGRLOG_DEBUG("\t**********************************************\n");
         } else {
             STMGRLOG_ERROR("Failed in xfsctl (XFS_IOC_FSGEOMETRY) %s (%d)\n", strerror(errno), errno);
