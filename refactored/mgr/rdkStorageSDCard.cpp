@@ -20,9 +20,11 @@ const short DEFAULT_TSB_MAX_MINUTE=25;
 #ifdef ENABLE_DEEP_SLEEP
 const char* SM_MOUNT_PATH = "/media/tsb";
 const char* SM_DISK_CHECK = "/lib/rdk/disk_checkV2";
+const char* SM_DISK_VALID = "/media/tsb/mountStatus.txt";
 #else
 const char* SM_MOUNT_PATH = "/tmp/data";
 const char* SM_DISK_CHECK = "/lib/rdk/disk_check";
+const char* SM_DISK_VALID = "/tmp/data/mountStatus.txt";
 #endif
 
 rStorageSDCard::rStorageSDCard(std::string devicePath)
@@ -177,6 +179,41 @@ eSTMGRReturns rStorageSDCard::populateDeviceDetails()
             {
                 STMGRLOG_INFO("[%s] SDcard Mount Successfully.\n", __FUNCTION__);
                 get_SdcPropertiesStatvfs();
+                /* Since the card is mounted by script, check whether u can read/write */
+                {
+                    bool isOk = false;
+                    int fileD = open(SM_DISK_VALID, O_RDONLY);
+                    if (fileD > 0)
+                    {
+                        ssize_t length;
+                        char buffer[1024] = "";
+                        length = read(fileD, buffer, 1000);
+                        if (length)
+                        {
+                            if (strstr(buffer, "SUCCESS"))
+                            {
+                                /* TODO: Check the timing information but now lets just test it now */
+                                STMGRLOG_WARN("[%s] The HANDSHAKE file Content is Proper.. So Enable TSB\n", __FUNCTION__);
+                                isOk = true;
+                            }
+                            else
+                                STMGRLOG_ERROR ("[%s] The HANDSHAKE file Content is missing. Mount must have been hung. So disabled TSB\n", __FUNCTION__);
+                        }
+                        else
+                        {
+                            STMGRLOG_ERROR ("[%s] The HANDSHAKE file Content is missing. Mount must have been hung. So disabled TSB\n", __FUNCTION__);
+                        }
+                        close(fileD);
+                    }
+                    else
+                    {
+                        STMGRLOG_ERROR ("[%s] The HANDSHAKE file is missing. Mount must have been Failed. So disabled TSB\n", __FUNCTION__);
+                    }
+
+                    /* Set the TSB Status */
+                    m_isTSBSupported = isOk;
+                    m_isTSBEnabled = isOk;
+                }
             }
             else {
                 STMGRLOG_ERROR ("[%s]Failed to mount, so disabled tsb.\n", __FUNCTION__);
@@ -371,12 +408,6 @@ bool rStorageSDCard::isSDTSBSupported()
         }
     }
 
-    if(isTSBSupported)
-    {
-        m_isTSBEnabled = true;
-        m_isTSBSupported = true;
-    }
-
     STMGRLOG_TRACE("[%s:%d] Exiting..\n", __FUNCTION__, __LINE__);
     return isTSBSupported;
 }
@@ -562,6 +593,9 @@ bool rStorageSDCard::get_SdcPropertiesStatvfs()
 
                     pObj->m_status = RDK_STMGR_DEVICE_STATUS_OK;
                     pObj->m_isTSBSupported = true;
+                    /* Update the base class variable as well for TSB Support*/
+                    m_isTSBSupported = true;
+
                     pObj->m_isDVRSupported = false;
 
                     unsigned long long frameRate = (DEFULT_DATARATE_PER_SEC * 60 * 1024 * 1024)/8;
