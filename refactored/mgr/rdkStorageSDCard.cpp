@@ -180,6 +180,7 @@ eSTMGRReturns rStorageSDCard::populateDeviceDetails()
                 STMGRLOG_INFO("[%s] SDcard Mount Successfully.\n", __FUNCTION__);
                 get_SdcPropertiesStatvfs();
                 /* Since the card is mounted by script, check whether u can read/write */
+#ifdef ENABLE_DEEP_SLEEP
                 {
                     bool isOk = false;
                     int fileD = open(SM_DISK_VALID, O_RDONLY);
@@ -212,8 +213,13 @@ eSTMGRReturns rStorageSDCard::populateDeviceDetails()
 
                     /* Set the TSB Status */
                     m_isTSBSupported = isOk;
-                    m_isTSBEnabled = isOk;
+                    if ((RDK_STMGR_TSB_STATUS_OK == m_tsbStatus) && (m_isTSBSupported))
+                        m_isTSBEnabled = true;
                 }
+#else /* ENABLE_DEEP_SLEEP */
+                if ((RDK_STMGR_TSB_STATUS_OK == m_tsbStatus) && (m_isTSBSupported))
+                    m_isTSBEnabled = true;
+#endif /* ENABLE_DEEP_SLEEP */
             }
             else {
                 STMGRLOG_ERROR ("[%s]Failed to mount, so disabled tsb.\n", __FUNCTION__);
