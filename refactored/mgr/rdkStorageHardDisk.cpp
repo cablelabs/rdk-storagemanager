@@ -396,7 +396,7 @@ bool rStorageHDDrive::get_Xfs_fs_stat(rStoragePartition *partition, const char* 
             m_isTSBEnabled = true;
             m_isTSBSupported = true;
             partition->m_isTSBSupported = true;
-            m_maxTSBCapacity = 40*1024*1024; /*!< reserved 40GB in dvr */
+            m_maxTSBCapacity = (40*1024*1024) * 1024LL; /*!< reserved 40GB in dvr */
             m_freeTSBSpaceLeft = 0;			/*!< Now way to calculate since same partition used for dvr and tsb */
             m_maxTSBCapacityinMinutes = 60; 	/*!< Reserved 1hr in tsb, defined in rmfconfig.ini as 'dvr.info.tsb.maxDuration = 3600 seconds'*/
             m_maxTSBLengthConfigured = 60;
