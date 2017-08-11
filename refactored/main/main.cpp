@@ -25,7 +25,7 @@ int main ()
     {
         time(&curr);
         STMGRLOG_INFO("I-ARM STMgr Bus: HeartBeat at %s", ctime(&curr));
-        sleep(10);
+        sleep(300);
     }
 
     STMGRLOG_INFO ("I-ARM STMgr Bus: Quiting %s\n", ctime(&curr));
