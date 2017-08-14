@@ -17,15 +17,9 @@
 const short FRAME_RATE_MBPS = 18;
 const short DEFAULT_TSB_MAX_MINUTE=25;
 
-#ifdef ENABLE_DEEP_SLEEP
 const char* SM_MOUNT_PATH = "/media/tsb";
 const char* SM_DISK_CHECK = "/lib/rdk/disk_checkV2";
 const char* SM_DISK_VALID = "/media/tsb/mountStatus.txt";
-#else
-const char* SM_MOUNT_PATH = "/tmp/data";
-const char* SM_DISK_CHECK = "/lib/rdk/disk_check";
-const char* SM_DISK_VALID = "/tmp/data/mountStatus.txt";
-#endif
 
 rStorageSDCard::rStorageSDCard(std::string devicePath)
 {
@@ -180,7 +174,6 @@ eSTMGRReturns rStorageSDCard::populateDeviceDetails()
                 STMGRLOG_INFO("[%s] SDcard Mount Successfully.\n", __FUNCTION__);
                 get_SdcPropertiesStatvfs();
                 /* Since the card is mounted by script, check whether u can read/write */
-#ifdef ENABLE_DEEP_SLEEP
                 {
                     bool isOk = false;
                     int fileD = open(SM_DISK_VALID, O_RDONLY);
@@ -216,10 +209,6 @@ eSTMGRReturns rStorageSDCard::populateDeviceDetails()
                     if ((RDK_STMGR_TSB_STATUS_OK == m_tsbStatus) && (m_isTSBSupported))
                         m_isTSBEnabled = true;
                 }
-#else /* ENABLE_DEEP_SLEEP */
-                if ((RDK_STMGR_TSB_STATUS_OK == m_tsbStatus) && (m_isTSBSupported))
-                    m_isTSBEnabled = true;
-#endif /* ENABLE_DEEP_SLEEP */
             }
             else {
                 STMGRLOG_ERROR ("[%s]Failed to mount, so disabled tsb.\n", __FUNCTION__);

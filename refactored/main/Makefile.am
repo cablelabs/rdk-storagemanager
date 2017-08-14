@@ -2,9 +2,6 @@ SUBDIRS =
 AM_CPPFLAGS = -Wall -Werror -std=c++0x  -g -fPIC -D_REENTRANT -Wall -I${top_srcdir}/refactored/src/mgr -I${top_srcdir}/refactored/src/rpc -I${top_srcdir}/refactored/include -I${includedir}/rdk/iarmbus
 AM_LDFLAGS = -ldbus-1  -lIARMBus -lrdkloggers -ludev
 
-if DEEPSLEEP
-AM_CXXFLAGS = -DENABLE_DEEP_SLEEP
-endif
 
 bin_PROGRAMS = storageMgrMain
 storageMgrMain_SOURCES  = main.cpp
