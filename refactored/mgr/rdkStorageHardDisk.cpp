@@ -368,7 +368,7 @@ bool rStorageHDDrive::get_Xfs_fs_stat(rStoragePartition *partition, const char* 
     int rc, rc1;
     int fd;
     unsigned long long totalCapacity= 0;
-    unsigned long long availCapacity= 0;
+    unsigned long long totalFreeSpace= 0;
     STMGRLOG_TRACE("[%s:%d] Entering..\n", __FUNCTION__, __LINE__);
 
     fd = open( mountpoint, O_RDONLY);
@@ -378,7 +378,7 @@ bool rStorageHDDrive::get_Xfs_fs_stat(rStoragePartition *partition, const char* 
         rc1 = xfsctl( mountpoint, fd, XFS_IOC_FSGEOMETRY, &fsInfo );
         if ( rc >= 0 )
         {
-            availCapacity= (((long long)(xfsFree.freedata))*((long long)(fsInfo.blocksize)));
+            totalFreeSpace = ((long long)xfsFree.freertx * (long long)fsInfo.rtextsize * (long long)fsInfo.blocksize);
         } else {
             STMGRLOG_ERROR("Failed in xfsctl (XFS_IOC_FSCOUNT) %s (%d), couldn't calculate free capacity.\n", strerror(errno), errno);
         }
@@ -386,9 +386,9 @@ bool rStorageHDDrive::get_Xfs_fs_stat(rStoragePartition *partition, const char* 
         if ( rc1 >= 0 )
         {
 
-            totalCapacity = ((long long)fsInfo.blocksize*(long long)fsInfo.rtblocks);
+            totalCapacity = (long long)fsInfo.blocksize * (long long)fsInfo.rtblocks;
             partition->m_capacity = totalCapacity;
-            partition->m_freeSpace = availCapacity;
+            partition->m_freeSpace = totalFreeSpace;
 
             partition->m_status =  RDK_STMGR_DEVICE_STATUS_OK;
 
@@ -401,7 +401,7 @@ bool rStorageHDDrive::get_Xfs_fs_stat(rStoragePartition *partition, const char* 
             m_maxTSBCapacityinMinutes = 60; 	/*!< Reserved 1hr in tsb, defined in rmfconfig.ini as 'dvr.info.tsb.maxDuration = 3600 seconds'*/
             m_maxTSBLengthConfigured = 60;
 
-            if(availCapacity == 0) {
+            if(totalFreeSpace == 0) {
                 partition->m_status = RDK_STMGR_DEVICE_STATUS_DISK_FULL;
                 m_tsbStatus = RDK_STMGR_TSB_STATUS_DISK_FULL;
             }
@@ -413,11 +413,11 @@ bool rStorageHDDrive::get_Xfs_fs_stat(rStoragePartition *partition, const char* 
             m_isDVREnabled = true;
             partition->m_isDVRSupported = true;
             m_maxDVRCapacity = totalCapacity - m_maxTSBCapacity;
-            m_freeDVRSpaceLeft = availCapacity - m_maxTSBCapacity;
+            m_freeDVRSpaceLeft = totalFreeSpace - m_maxTSBCapacity;
 
             STMGRLOG_DEBUG("[%s:%d] XFS Filesystem Statistics (mounted on [%s]): \n", __FUNCTION__, __LINE__, mountpoint);
             STMGRLOG_DEBUG("\t**********************************************\n");
-            STMGRLOG_DEBUG("\t Total Capacity [%llu], Available Capacity [%llu]\n", totalCapacity, availCapacity);
+            STMGRLOG_DEBUG("\t Total Capacity [%llu], Available FreeSpace [%llu]\n", totalCapacity, totalFreeSpace);
             STMGRLOG_DEBUG("\t m_isDVRSupported [%d], m_isDVREnabled [%d]\n", m_isDVRSupported,m_isDVREnabled);
             STMGRLOG_DEBUG("\t m_maxTSBCapacity [%llu], m_freeTSBSpaceLeft [%llu]\n", m_maxTSBCapacity,m_freeTSBSpaceLeft);
             STMGRLOG_DEBUG("\t m_maxTSBCapacityinMinutes [%u], m_maxTSBLengthConfigured [%u]\n",  m_maxTSBCapacityinMinutes,m_maxTSBLengthConfigured);
