@@ -33,6 +33,11 @@
 #include "rdkStorageNVRAM.h"
 #include <unistd.h>
 
+#ifdef ENABLE_SD_NOTIFY
+#include <systemd/sd-daemon.h>
+#endif
+
+
 using namespace std;
 void* healthMonitoringThreadfn  (void *pData);
 rSTMgrMainClass* rSTMgrMainClass::g_instance = NULL;
@@ -94,6 +99,11 @@ eSTMGRReturns rSTMgrMainClass::addNewMemoryDevice(std::string devicePath, eSTMGR
     {
         pMemoryObj->populateDeviceDetails();
         pMemoryObj->registerEventCallback(m_eventCallback);
+
+        #ifdef ENABLE_SD_NOTIFY
+        sd_notifyf(0, "READY=1\n" "STATUS=storageMgrMain is Ready..\n" "MAINPID=%lu",  (unsigned long) getpid());
+        #endif
+
         STMGRLOG_INFO ("Done with Init; Add to the hash table.. \n");
         /* Protect the addition */
         pthread_mutex_lock(&m_mainMutex);
