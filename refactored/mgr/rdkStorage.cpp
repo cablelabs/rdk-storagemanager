@@ -207,6 +207,7 @@ void rdkStorage_init (void)
         struct udev_list_entry *pDeviceList = NULL;
         struct udev_list_entry *pDeviceListEntry = NULL;
         bool isNVRAMDeviceFound = false;
+        bool isSDCardDeviceFound = false;
 
         /* FIXME: This below check can be removed as the ubi enumeratation search below will take care */
         /* This ensures that the disk that is identified is UBI subsystem */
@@ -317,6 +318,7 @@ void rdkStorage_init (void)
                         else if (pSysAttrType && (strcasecmp (pSysAttrType, "SD") == 0))
                         {
                             STMGRLOG_INFO ("IS SD TYPE : Yes\n");
+                            isSDCardDeviceFound = true;
                             rSTMgrMainClass::getInstance()->addNewMemoryDevice(devicePath, RDK_STMGR_DEVICE_TYPE_SDCARD);
                         }
                     }
@@ -354,6 +356,10 @@ void rdkStorage_init (void)
         if (!isNVRAMDeviceFound)
         {
             STMGRLOG_ERROR ("Seems like this platform does not use/support NVRAM\n");
+        }
+        if (!isSDCardDeviceFound)
+        {
+            STMGRLOG_ERROR ("This platform does not support SDCard.\n");
         }
     }
 
