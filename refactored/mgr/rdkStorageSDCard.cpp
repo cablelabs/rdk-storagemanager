@@ -179,6 +179,9 @@ eSTMGRReturns rStorageSDCard::populateDeviceDetails()
                             delete pPartitionPtr;
                         }
                     }
+                    else {
+                        STMGRLOG_ERROR ("This SD Card detected, but not partitioned.\n");
+                    }
                 }
             }
         }
