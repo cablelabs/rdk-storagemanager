@@ -86,6 +86,7 @@ eSTMGRReturns rStorageSDCard::populateDeviceDetails()
         struct udev_enumerate *pEnumerate = NULL;
         struct udev_list_entry *pDeviceList = NULL;
         struct udev_list_entry *pDeviceListEntry = NULL;
+        short partionNum  = 0;
 
         pEnumerate = udev_enumerate_new(m_pUDevSDC);
         udev_enumerate_add_match_subsystem(pEnumerate, SUBSYSTEM_FILTER_MMC);
@@ -142,7 +143,7 @@ eSTMGRReturns rStorageSDCard::populateDeviceDetails()
                     }
                     /*Check for partition */
                     else if(0 == strcasecmp(pDevType, "partition")) {
-                        short partionNum = atol(udev_device_get_sysattr_value(pDevice, "partition"));
+                        partionNum = atol(udev_device_get_sysattr_value(pDevice, "partition"));
 
                         /* Create Partition class n update it */
                         rStoragePartition *pPartitionPtr = new rStoragePartition;
@@ -190,7 +191,7 @@ eSTMGRReturns rStorageSDCard::populateDeviceDetails()
         /* Check for TSB Enabled and CMD56 capable  */
         if(isSDTSBSupported())
         {
-            if(doMountSDC())
+            if(partionNum && doMountSDC())
             {
                 STMGRLOG_INFO("[%s] SDcard Mount Successfully.\n", __FUNCTION__);
                 get_SdcPropertiesStatvfs();
@@ -233,6 +234,8 @@ eSTMGRReturns rStorageSDCard::populateDeviceDetails()
             }
             else {
                 STMGRLOG_ERROR ("[%s]Failed to mount, so disabled tsb.\n", __FUNCTION__);
+               if(!partionNum)
+                   STMGRLOG_ERROR ("This SD Card detected, but not partitioned.\n");
                 m_tsbStatus = RDK_STMGR_TSB_STATUS_READ_ONLY;
             }
         }
