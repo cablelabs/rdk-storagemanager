@@ -35,9 +35,10 @@
 const short FRAME_RATE_MBPS = 18;
 const short DEFAULT_TSB_MAX_MINUTE=25;
 
-const char* SM_MOUNT_PATH = "/media/tsb";
-const char* SM_DISK_CHECK = "/lib/rdk/disk_checkV2";
-const char* SM_DISK_VALID = "/media/tsb/mountStatus.txt";
+const char* SM_MOUNT_PATH_ENV  = "SD_CARD_MOUNT_PATH";
+const char* SM_TSB_PART_ENV    = "SD_CARD_TSB_PART";
+const char* SM_DISK_VALID_FILE = "mountStatus.txt";
+const char* SM_DISK_CHECK      = "/lib/rdk/disk_checkV2";
 
 rStorageSDCard::rStorageSDCard(std::string devicePath)
 {
@@ -61,8 +62,33 @@ rStorageSDCard::rStorageSDCard(std::string devicePath)
     m_isDVRSupported = false;
 
     m_devicePath = devicePath;
-    STMGRLOG_ERROR ("[%s:%d Device Path : %s\n", __FILE__, __FUNCTION__, devicePath.c_str());
-};
+    STMGRLOG_ERROR ("[%s:%d] Device Path : %s\n", __FUNCTION__, __LINE__, devicePath.c_str());
+
+    // get tsb mount path from environment
+    char *pPath;
+    pPath = getenv(SM_MOUNT_PATH_ENV);
+    if (pPath!=NULL) {
+        m_SMMountPath = pPath;
+    }
+
+    // get tsb predesignated partition
+    pPath = getenv(SM_TSB_PART_ENV);
+    if (pPath!=NULL) {
+        m_devMount = pPath;
+    }
+    if (m_SMMountPath.empty()) {
+        STMGRLOG_ERROR ("[%s:%d] TSB mount Path from device.properties is empty\n", __FUNCTION__, __LINE__);
+    }
+    STMGRLOG_INFO ("[%s:%d] TSB mount Path from device.properties is : %s\n", __FUNCTION__, __LINE__, m_SMMountPath.c_str());
+
+    if (m_devMount.empty()) {
+        STMGRLOG_ERROR ("[%s:%d] TSB device partition from device.properties is empty\n", __FUNCTION__, __LINE__);
+    }
+    STMGRLOG_INFO ("[%s:%d] TSB device partition from device.properties is : %s\n", __FUNCTION__, __LINE__, m_devMount.c_str());
+
+    m_SMDiskValid = m_SMMountPath + "/" + SM_DISK_VALID_FILE;
+    STMGRLOG_INFO ("[%s:%d] calculated full handshake file path is : %s\n", __FUNCTION__, __LINE__, m_SMDiskValid.c_str());
+}
 
 rStorageSDCard::~rStorageSDCard()
 {
@@ -150,7 +176,6 @@ eSTMGRReturns rStorageSDCard::populateDeviceDetails()
                         if (pPartitionPtr && partionNum)
                         {
                             sprintf (pPartitionPtr->m_partitionId, "%s", pDevNode);
-                            m_devMount = pDevNode;
                             const char *pCapacity = udev_device_get_sysattr_value(pDevice, "size");
 
                             if (pCapacity)
@@ -162,7 +187,7 @@ eSTMGRReturns rStorageSDCard::populateDeviceDetails()
                             if(ro)
                             {
                                 pPartitionPtr->m_status = (atoi(ro) == 0)?RDK_STMGR_DEVICE_STATUS_OK:RDK_STMGR_DEVICE_STATUS_READ_ONLY;
-                                sprintf(pPartitionPtr->m_mountPath, "%s", SM_MOUNT_PATH);
+                                sprintf(pPartitionPtr->m_mountPath, "%s", m_SMMountPath.c_str());
 
                             }
 
@@ -198,7 +223,7 @@ eSTMGRReturns rStorageSDCard::populateDeviceDetails()
                 /* Since the card is mounted by script, check whether u can read/write */
                 {
                     bool isOk = false;
-                    int fileD = open(SM_DISK_VALID, O_RDONLY);
+                    int fileD = open(m_SMDiskValid.c_str(), O_RDONLY);
                     if (fileD > 0)
                     {
                         ssize_t length;
@@ -448,7 +473,7 @@ bool rStorageSDCard::doMountSDC()
     }
 
     /* Now mount : disk_check mount /dev/mmcpblkp01 /media/tsb*/
-    sprintf(mountbuff, "%s %s %s %s %s", "sh", SM_DISK_CHECK, "mount", m_devMount.c_str(), SM_MOUNT_PATH);
+    sprintf(mountbuff, "%s %s %s %s %s", "sh", SM_DISK_CHECK, "mount", m_devMount.c_str(), m_SMMountPath.c_str());
 
     ret = system(mountbuff);
     status = WEXITSTATUS(ret);
@@ -485,7 +510,7 @@ bool rStorageSDCard::doUmountSDC()
     pthread_mutex_lock(&m_mountLock);
 
     /* Now mount : disk_check umount /media/tsb*/
-    sprintf(umountbuff, "%s %s %s %s %s", "sh", SM_DISK_CHECK, "umount", m_devMount.c_str(), SM_MOUNT_PATH);
+    sprintf(umountbuff, "%s %s %s %s %s", "sh", SM_DISK_CHECK, "umount", m_devMount.c_str(), m_SMMountPath.c_str());
 
     ret = system(umountbuff);
     status = WEXITSTATUS(ret);
@@ -678,10 +703,11 @@ bool rStorageSDCard::get_SdcPropertiesStatvfs()
                     break;
                 }
             }
-            endmntent(fp);
+
         }
     }
 
-    return ret;
+    endmntent(fp);
     STMGRLOG_TRACE("[%s:%d] Exiting..\n", __FUNCTION__, __LINE__);
+    return ret;
 }

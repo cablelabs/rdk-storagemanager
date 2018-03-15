@@ -64,6 +64,8 @@ class rStorageSDCard : public rStorageMedia
     string m_scr;
     string m_date;
     string m_oemid;
+    string m_SMMountPath;
+    string m_SMDiskValid;
     bool m_isCMD56Enable;
     eTsbHMStatus m_tsbHM;
     bool m_isMounted;
