@@ -112,7 +112,7 @@ AC_ARG_ENABLE([smartsupport],
            esac
            ],
          [echo " SMART MON Tool is enable"])
-AM_CONDITIONAL([SMARTSUPPORT], [test x$SMARTSUPPORT = xtrue])
+AM_CONDITIONAL([ENABLE_HDD_SUPPORT_IN_V2_CODE], [test x$SMARTSUPPORT = xtrue])
 
 AC_ARG_ENABLE([sdc],
         AS_HELP_STRING([--enable-sdc],[This will enable SD Card supported functionality. ]),
@@ -142,8 +142,8 @@ AC_ARG_ENABLE([refactored-mgr],
 
 AM_CONDITIONAL(USE_REFACTORED, test "x$ENABLE_STMGR_V2_CODE" = xtrue)
 
-AC_ARG_ENABLE([hdd], AS_HELP_STRING([--enable-hdd], [This will enable refactored-src with hdd-support; default is enabled]), ,[enable_hdd=yes])
-AM_CONDITIONAL(ENABLE_HDD_SUPPORT_IN_V2_CODE, test "x$enable_hdd" != "xno")
+#AC_ARG_ENABLE([hdd], AS_HELP_STRING([--enable-hdd], [This will enable refactored-src with hdd-support; default is enabled]), ,[enable_hdd=yes])
+#AM_CONDITIONAL(ENABLE_HDD_SUPPORT_IN_V2_CODE, test "x$enable_hdd" = "xno")
 
 
 # Checks for typedefs, structures, and compiler characteristics.

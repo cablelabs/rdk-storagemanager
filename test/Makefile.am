@@ -22,10 +22,6 @@ AM_CXXFLAGS = $(GLIB_CFLAGS) $(GTHREAD_CFLAGS) -I$(top_srcdir)/src/utils/include
 AM_LDFLAGS = $(GLIB_LDFLAGS) $(GLIB_LIBS) $(G_THREAD_LIBS) -ludev -ldirect  -lfusion -ldbus-1 -lIARMBus -lpthread 
 #AM_LDFLAGS += $(top_srcdir)/src/lib/libstoragemgr.la
 
-if SMARTSUPPORT
-AM_CXXFLAGS += -DENABLE_SMARTMONTOOL_SUPPORT
-endif
-
 
 bin_PROGRAMS = storageMgrClient
 storageMgrClient_SOURCES = storageMgrClient.cpp
