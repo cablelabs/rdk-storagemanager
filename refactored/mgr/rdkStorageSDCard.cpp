@@ -176,6 +176,11 @@ eSTMGRReturns rStorageSDCard::populateDeviceDetails()
                         if (pPartitionPtr && partionNum)
                         {
                             sprintf (pPartitionPtr->m_partitionId, "%s", pDevNode);
+                            // if not alrady provided by environment variable try to use the first partiton as tsb
+                            if (m_devMount.empty() && (partionNum == 1))
+                            {
+                                m_devMount = pDevNode;
+                            }
                             const char *pCapacity = udev_device_get_sysattr_value(pDevice, "size");
 
                             if (pCapacity)
