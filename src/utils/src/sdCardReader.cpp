@@ -28,6 +28,12 @@
 
 #include "sdCardReader.h"
 #include "storageMgrInternal.h"
+#ifdef YOCTO_BUILD 
+extern "C" {
+#include "secure_wrapper.h"
+}
+#endif
+
 
 extern stmMgrConfigProp confProp;
 extern strMgrDeviceInfoParam_t gdeviceInfo;
@@ -507,7 +513,11 @@ bool mount_SDCard(const char* src, const char* trgt, const char  *fileSysType, s
     while(true)
     {
         sync();
-        ret = system(mountbuff);
+#ifdef YOCTO_BUILD
+        ret = v_secure_system(mountbuff);
+#else
+	ret = system(mountbuff);
+#endif
         result = WEXITSTATUS(result);
 //        result = mount(src, trgt, fileSysType, mntFlag, NULL);
         LOG_INFO("[%s:%d] ret = %d, result = %d\n", __FUNCTION__, __LINE__, ret, result);
@@ -606,8 +616,11 @@ bool execute_Mount_Script()
 
     /* Now mount : disk_check mount /dev/mmcpblkp01 /media/tsb*/
     sprintf(mountbuff, "%s %s %s %s %s", "sh", confProp.disk_check_script, "mount", confProp.devFile, confProp.sdCardMountPath);
-
+#ifdef YOCTO_BUILD
+    ret = v_secure_system(mountbuff);
+#else
     ret = system(mountbuff);
+#endif
     ret_ExStat = WEXITSTATUS(ret);
 
     LOG_INFO("[%s:%d] Executed : \'%s\', return as [%d]\n", __FUNCTION__, __LINE__, mountbuff, ret_ExStat);
@@ -642,8 +655,11 @@ bool execute_Umount_Script()
 
     /* Now mount : disk_check umount /media/tsb*/
     sprintf(umountbuff, "%s %s %s %s", "sh", confProp.disk_check_script, "umount", confProp.devFile, confProp.sdCardMountPath);
-
+#ifdef YOCTO_BUILD
+    ret = v_secure_system(umountbuff);
+#else
     ret = system(umountbuff);
+#endif
     ret_ExStat = WEXITSTATUS(ret);
 
     LOG_INFO("[%s:%d] Executed : \'%s\', return as [%d]\n", __FUNCTION__, __LINE__, umountbuff, ret_ExStat);

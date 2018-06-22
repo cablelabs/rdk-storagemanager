@@ -18,6 +18,11 @@
 */
 #include "rdkStorageeMMC.h"
 #include "rdkStorageMgrLogger.h"
+#ifdef YOCTO_BUILD
+extern "C" {
+#include "secure_wrapper.h"
+}
+#endif
 
 #define SUBSYSTEM_FILTER_MMC "mmc"
 
@@ -273,8 +278,11 @@ bool rStorageeMMC::doMounteMMC()
 
     /* Now mount : disk_check mount /dev/mmcpblkp01 /tmp/data*/
     sprintf(mountbuff, "%s %s %s %s %s", "sh", SM_EMMC_DISK_CHECK, "mount", EMMC_TSB_DEV_PARTITION, SM_EMMC_MOUNT_PATH);
-
+#ifdef YOCTO_BUILD
+    ret = v_secure_system(mountbuff);
+#else
     ret = system(mountbuff);
+#endif
     status = WEXITSTATUS(ret);
 
     STMGRLOG_INFO("[%s:%d] Executed : \'%s\', return as [%d]\n", __FUNCTION__, __LINE__, mountbuff, ret);
@@ -310,8 +318,11 @@ bool rStorageeMMC::doUmounteMMC()
 
     /* Now mount : disk_check umount /tmp/data*/
     sprintf(umountbuff, "%s %s %s %s %s", "sh", SM_EMMC_DISK_CHECK, "umount", EMMC_TSB_DEV_PARTITION, SM_EMMC_MOUNT_PATH);
-
+#ifdef YOCTO_BUILD
+    ret = v_secure_system(umountbuff);
+#else
     ret = system(umountbuff);
+#endif
     status = WEXITSTATUS(ret);
 
     STMGRLOG_INFO("[%s:%d] Executed : \'%s\', return as [%d]\n", __FUNCTION__, __LINE__, umountbuff, ret);

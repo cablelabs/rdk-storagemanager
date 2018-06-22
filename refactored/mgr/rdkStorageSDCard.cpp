@@ -18,7 +18,11 @@
 */
 #include "rdkStorageSDCard.h"
 #include "rdkStorageMgrLogger.h"
-
+#ifdef YOCTO_BUILD
+extern "C" {
+#include "secure_wrapper.h"
+}
+#endif
 
 #define MMC_BLOCK_MAJOR  179
 #define MMC_RSP_SPI_S1  (1 << 7)
@@ -466,7 +470,7 @@ bool rStorageSDCard::isSDTSBSupported()
 /* Execute_Mount_Script */
 bool rStorageSDCard::doMountSDC()
 {
-    int ret = 0, status = 0;
+    int ret = 0, status = 0 ;
     char mountbuff[200] = {'\0'};
 
     pthread_mutex_lock(&m_mountLock);
@@ -480,9 +484,13 @@ bool rStorageSDCard::doMountSDC()
     /* Now mount : disk_check mount /dev/mmcpblkp01 /media/tsb*/
     sprintf(mountbuff, "%s %s %s %s %s", "sh", SM_DISK_CHECK, "mount", m_devMount.c_str(), m_SMMountPath.c_str());
 
+#ifdef YOCTO_BUILD
+    ret = v_secure_system(mountbuff);
+#else
     ret = system(mountbuff);
+#endif
     status = WEXITSTATUS(ret);
-
+     
     STMGRLOG_INFO("[%s:%d] Executed : \'%s\', return as [%d]\n", __FUNCTION__, __LINE__, mountbuff, ret);
 
     if(!status)
@@ -498,6 +506,9 @@ bool rStorageSDCard::doMountSDC()
         pthread_mutex_unlock(&m_mountLock);
         return false;
     }
+   
+  
+    
 }
 
 
@@ -516,8 +527,11 @@ bool rStorageSDCard::doUmountSDC()
 
     /* Now mount : disk_check umount /media/tsb*/
     sprintf(umountbuff, "%s %s %s %s %s", "sh", SM_DISK_CHECK, "umount", m_devMount.c_str(), m_SMMountPath.c_str());
-
+#ifdef YOCTO_BUILD
+    ret = v_secure_system(umountbuff);
+#else
     ret = system(umountbuff);
+#endif
     status = WEXITSTATUS(ret);
 
     STMGRLOG_INFO("[%s:%d] Executed : \'%s\', return as [%d]\n", __FUNCTION__, __LINE__, umountbuff, ret);

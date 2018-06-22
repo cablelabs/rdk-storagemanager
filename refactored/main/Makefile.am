@@ -17,8 +17,12 @@
 # limitations under the License.
 #
 SUBDIRS =
-AM_CPPFLAGS = -Wall -Werror -std=c++0x  -g -fPIC -D_REENTRANT -Wall -I${top_srcdir}/refactored/src/mgr -I${top_srcdir}/refactored/src/rpc -I${top_srcdir}/refactored/include -I${includedir}/rdk/iarmbus
+AM_CPPFLAGS = -Wall -Werror -std=c++0x  -g -fPIC -D_REENTRANT -Wall -I${top_srcdir}/refactored/src/mgr -I${top_srcdir}/refactored/src/rpc -I${top_srcdir}/refactored/include -I${includedir}/rdk/iarmbus $(YOCTO_FLAG)
+if IS_YOCTO_ENABLED
+AM_LDFLAGS = -ldbus-1  -lIARMBus -lrdkloggers -ludev -lsecure_wrapper
+else
 AM_LDFLAGS = -ldbus-1  -lIARMBus -lrdkloggers -ludev
+endif
 
 
 bin_PROGRAMS = storageMgrMain

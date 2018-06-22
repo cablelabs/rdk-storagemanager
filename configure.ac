@@ -57,6 +57,8 @@ SYSTEMDCHECK=" "
 DEEPSLEEP=" "
 SMARTSUPPORT=" "
 SDCSUPPORT=" "
+YOCTO_FLAG=" "
+IS_YOCTO_ENABLED=" "
 
 # Checks for libraries.
 
@@ -141,6 +143,21 @@ AC_ARG_ENABLE([refactored-mgr],
         [ echo "Used Legacy Code n disabled Refactored Code"])
 
 AM_CONDITIONAL(USE_REFACTORED, test "x$ENABLE_STMGR_V2_CODE" = xtrue)
+
+
+AC_ARG_ENABLE([yocto],
+        AS_HELP_STRING([--enable-yocto],[enable yocto (default is no)]),
+        [
+          case "${enableval}" in
+           yes) IS_YOCTO_ENABLED=true
+                YOCTO_FLAG=" -DYOCTO_BUILD ";;
+           no)  IS_YOCTO_ENABLED=false ;;
+          *) AC_MSG_ERROR([bad value ${enableval} for --enable-yocto]) ;;
+           esac
+           ],
+        [echo "yocto is disabled"])
+AM_CONDITIONAL([IS_YOCTO_ENABLED], [test x$IS_YOCTO_ENABLED = xtrue])
+AC_SUBST(YOCTO_FLAG)
 
 #AC_ARG_ENABLE([hdd], AS_HELP_STRING([--enable-hdd], [This will enable refactored-src with hdd-support; default is enabled]), ,[enable_hdd=yes])
 #AM_CONDITIONAL(ENABLE_HDD_SUPPORT_IN_V2_CODE, test "x$enable_hdd" = "xno")

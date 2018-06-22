@@ -21,8 +21,12 @@
 SUBDIRS =
 DIST_SUBDIRS =
 
-AM_CXXFLAGS = $(GLIB_CFLAGS) $(GTHREAD_CFLAGS) -I$(top_srcdir)/src/rpc/include -I$(top_srcdir)/src/utils/include
+AM_CXXFLAGS = $(GLIB_CFLAGS) $(GTHREAD_CFLAGS) -I$(top_srcdir)/src/rpc/include -I$(top_srcdir)/src/utils/include $(YOCTO_FLAG)
+if IS_YOCTO_ENABLED
+AM_LDFLAGS = $(GLIB_LDFLAGS) $(GLIB_LIBS) $(G_THREAD_LIBS) -ludev -ldirect  -ldbus-1 -lIARMBus -lpthread -lrdkloggers -lsecure_wrapper
+else
 AM_LDFLAGS = $(GLIB_LDFLAGS) $(GLIB_LIBS) $(G_THREAD_LIBS) -ludev -ldirect  -ldbus-1 -lIARMBus -lpthread -lrdkloggers
+endif
 #AM_CPPFLAGS =  $(GLIB_CFLAGS) $(GTHREAD_CFLAGS)
 
 if DISKCHECK
